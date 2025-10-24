@@ -75,7 +75,7 @@ export default function StudentDashboardPage() {
       setUpcomingEvents(events || []);
       setRecentActivity([
         { type: 'event', message: 'Completed Beach Cleanup Event', date: '2 days ago' },
-        { type: 'badge', message: 'Earned "Community Hero" Badge', date: '5 days ago' },
+        { type: 'badge', message: 'Earned Community Hero Badge', date: '5 days ago' },
         { type: 'credit', message: 'Academic credit approved: 2.0', date: '1 week ago' },
       ]);
     } catch (error) {
