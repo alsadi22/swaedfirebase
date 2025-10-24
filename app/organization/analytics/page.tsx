@@ -153,7 +153,7 @@ export default function OrganizationAnalyticsPage() {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ status, count }: { status: string; count: number }) => `${status}: ${count}`}
+                  label={({ value, name }: any) => `${name}: ${value}`}
                   outerRadius={100}
                   fill="#8884d8"
                   dataKey="count"
