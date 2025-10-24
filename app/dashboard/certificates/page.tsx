@@ -55,7 +55,18 @@ export default function CertificatesPage() {
         .order('issue_date', { ascending: false });
 
       if (error) throw error;
-      setCertificates(data || []);
+      
+      // Map the data to match the expected interface
+      const mappedData = data?.map(cert => ({
+        ...cert,
+        user: Array.isArray(cert.user) ? cert.user[0] : cert.user,
+        event: Array.isArray(cert.event) ? {
+          ...cert.event[0],
+          organization: Array.isArray(cert.event[0]?.organization) ? cert.event[0].organization[0] : cert.event[0]?.organization
+        } : cert.event
+      })) || [];
+      
+      setCertificates(mappedData);
     } catch (error) {
       console.error('Error fetching certificates:', error);
     } finally {

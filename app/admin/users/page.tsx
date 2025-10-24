@@ -17,7 +17,7 @@ export default function AdminUsersPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterRole, setFilterRole] = useState('all')
 
-  useEffect() => {
+  useEffect(() => {
     async function loadUsers() {
       try {
         const { data: { user } } = await supabase.auth.getUser()

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
-import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function OrganizationAnalyticsPage() {
   const [loading, setLoading] = useState(true);
@@ -36,7 +36,7 @@ export default function OrganizationAnalyticsPage() {
 
       const { data: applications } = await supabase
         .from('event_applications')
-        .select('status, event:events!inner(organization_id)')
+        .select('status, user_id, event:events!inner(organization_id)')
         .eq('event.organization_id', orgMember.organization_id);
 
       const { data: hours } = await supabase
@@ -153,7 +153,7 @@ export default function OrganizationAnalyticsPage() {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ status, count }) => `${status}: ${count}`}
+                  label={({ status, count }: { status: string; count: number }) => `${status}: ${count}`}
                   outerRadius={100}
                   fill="#8884d8"
                   dataKey="count"
@@ -176,7 +176,7 @@ export default function OrganizationAnalyticsPage() {
                 <XAxis dataKey="status" />
                 <YAxis />
                 <Tooltip />
-                <Legend />
+
                 <Bar dataKey="count" fill="#D2A04A" />
               </BarChart>
             </ResponsiveContainer>

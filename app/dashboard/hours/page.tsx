@@ -42,9 +42,17 @@ export default function VolunteerHoursPage() {
         .order('date_logged', { ascending: false });
 
       if (error) throw error;
-      setHours(data || []);
+      
+      // Map the data to match the expected interface
+      const mappedData = data?.map(hour => ({
+        ...hour,
+        event: Array.isArray(hour.event) ? hour.event[0] : hour.event,
+        verified_by_user: Array.isArray(hour.verified_by_user) ? hour.verified_by_user[0] : hour.verified_by_user
+      })) || [];
+      
+      setHours(mappedData);
 
-      const approved = data?.filter(h => h.status === 'approved')
+      const approved = mappedData?.filter(h => h.status === 'approved')
         .reduce((sum, h) => sum + (h.hours_logged || 0), 0) || 0;
       setTotalHours(approved);
     } catch (error) {

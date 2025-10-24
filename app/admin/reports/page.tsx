@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 
 export default function AdminReportsPage() {
   const [loading, setLoading] = useState(true);
@@ -165,7 +165,7 @@ export default function AdminReportsPage() {
                 <XAxis dataKey="month" />
                 <YAxis />
                 <Tooltip />
-                <Legend />
+
                 <Line type="monotone" dataKey="hours" stroke="#D2A04A" strokeWidth={2} />
               </LineChart>
             </ResponsiveContainer>
@@ -180,7 +180,7 @@ export default function AdminReportsPage() {
                 <XAxis dataKey="emirate" />
                 <YAxis />
                 <Tooltip />
-                <Legend />
+
                 <Bar dataKey="events" fill="#00732F" />
               </BarChart>
             </ResponsiveContainer>
@@ -199,7 +199,7 @@ export default function AdminReportsPage() {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ category, count }) => `${category}: ${count}`}
+                  label={({ category, count }: { category: string; count: number }) => `${category}: ${count}`}
                   outerRadius={100}
                   fill="#8884d8"
                   dataKey="count"

@@ -54,7 +54,7 @@ export default function AdminDashboard() {
           supabase.from('volunteer_profiles').select('total_hours', { count: 'exact' })
         ])
 
-        const { data: pendingOrgs } = await supabase
+        const pendingOrgs = await supabase
           .from('organizations')
           .select('id', { count: 'exact', head: true })
           .eq('verification_status', 'pending')
@@ -65,7 +65,7 @@ export default function AdminDashboard() {
           totalUsers: users.count || 0,
           totalOrganizations: organizations.count || 0,
           totalEvents: events.count || 0,
-          pendingOrganizations: pendingOrgs.count || 0,
+          pendingOrganizations: pendingOrgs?.count || 0,
           activeVolunteers: volunteerProfiles.count || 0,
           totalHours: totalHours,
         })

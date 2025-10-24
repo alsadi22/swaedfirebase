@@ -46,7 +46,14 @@ export default function AdminEventsPage() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setEvents(data || []);
+      
+      // Map the data to match the expected interface
+      const mappedData = data?.map(event => ({
+        ...event,
+        organization: Array.isArray(event.organization) ? event.organization[0] : event.organization
+      })) || [];
+      
+      setEvents(mappedData);
     } catch (error) {
       console.error('Error fetching events:', error);
     } finally {

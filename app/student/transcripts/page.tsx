@@ -62,10 +62,24 @@ export default function StudentTranscriptsPage() {
         .eq('user_id', user.id)
         .order('issue_date', { ascending: false });
 
-      setRecords(hours || []);
-      setCertificates(certs || []);
+      // Map the data to match the expected interface
+      const mappedHours = hours?.map(hour => ({
+        ...hour,
+        event: Array.isArray(hour.event) ? {
+          ...hour.event[0],
+          organization: Array.isArray(hour.event[0]?.organization) ? hour.event[0].organization[0] : hour.event[0]?.organization
+        } : hour.event
+      })) || [];
+      
+      const mappedCerts = certs?.map(cert => ({
+        ...cert,
+        event: Array.isArray(cert.event) ? cert.event[0] : cert.event
+      })) || [];
 
-      const total = hours?.filter(h => h.status === 'approved')
+      setRecords(mappedHours);
+      setCertificates(mappedCerts);
+
+      const total = mappedHours?.filter(h => h.status === 'approved')
         .reduce((sum, h) => sum + (h.hours_logged || 0), 0) || 0;
       setTotalHours(total);
     } catch (error) {

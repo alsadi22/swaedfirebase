@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
@@ -10,7 +10,7 @@ import { supabase } from '@/lib/supabase'
 import { QrCode, MapPin, Camera, CheckCircle, XCircle } from 'lucide-react'
 import { calculateDistance } from '@/lib/utils'
 
-export default function CheckInPage() {
+function CheckInComponent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const eventId = searchParams.get('eventId')
@@ -285,5 +285,13 @@ export default function CheckInPage() {
 
       <Footer />
     </div>
+  )
+}
+
+export default function CheckInPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CheckInComponent />
+    </Suspense>
   )
 }

@@ -34,13 +34,21 @@ export default function AdminCertificatesPage() {
           issue_date,
           certificate_number,
           status,
-          user:users(first_name, last_name),
-          event:events(title)
+          users!certificates_user_id_fkey(first_name, last_name),
+          events!certificates_event_id_fkey(title)
         `)
         .order('issue_date', { ascending: false });
 
       if (error) throw error;
-      setcertificates(data || []);
+      
+      // Map the data to match the expected interface
+      const mappedData = data?.map(cert => ({
+        ...cert,
+        user: Array.isArray(cert.users) ? cert.users[0] : cert.users,
+        event: Array.isArray(cert.events) ? cert.events[0] : cert.events
+      })) || [];
+      
+      setcertificates(mappedData);
     } catch (error) {
       console.error('Error fetching certificates:', error);
     } finally {
