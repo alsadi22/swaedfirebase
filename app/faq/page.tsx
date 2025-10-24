@@ -6,7 +6,7 @@ export default function FAQPage() {
   const faqs = [
     {
       question: 'How do I sign up as a volunteer?',
-      answer: 'Click on "Get Started" on the homepage and fill out the registration form. You'll need to provide basic information and choose your role as a volunteer.'
+      answer: `Click on "Get Started" on the homepage and fill out the registration form. You'll need to provide basic information and choose your role as a volunteer.`
     },
     {
       question: 'Are all organizations verified?',
