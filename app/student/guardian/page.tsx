@@ -78,7 +78,7 @@ export default function StudentGuardianPage() {
       setConsentPending(true);
       
       // In a real application, this would send an email to the guardian
-      // For now, we'll just simulate the process
+      // For now, we will just simulate the process
       
       setTimeout(() => {
         alert('Consent request sent to guardian via email. Please check with your guardian to complete the consent form.');
