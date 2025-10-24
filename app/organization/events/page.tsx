@@ -162,7 +162,7 @@ export default function OrganizationEventsPage() {
             <h3 className="text-xl font-bold text-text-primary mb-2">No Events Found</h3>
             <p className="text-text-secondary mb-6">
               {filter === 'all' 
-                ? "You haven't created any events yet" 
+                ? "You have not created any events yet" 
                 : `No ${filter} events`}
             </p>
             <Link

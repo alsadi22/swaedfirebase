@@ -12,7 +12,7 @@ export default function SavedEventsPage() {
           </svg>
           <p className="text-text-secondary mb-4">No saved events yet</p>
           <p className="text-sm text-text-secondary mb-6">
-            Save events you're interested in to view them later
+            Save events you are interested in to view them later
           </p>
         </div>
       </div>
