@@ -199,7 +199,7 @@ export default function AdminReportsPage() {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ category, count }: { category: string; count: number }) => `${category}: ${count}`}
+                  label={({ value, name }: any) => `${name}: ${value}`}
                   outerRadius={100}
                   fill="#8884d8"
                   dataKey="count"
