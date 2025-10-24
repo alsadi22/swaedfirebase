@@ -289,7 +289,7 @@ export default function NotificationsPage() {
             <h3 className="text-lg font-semibold text-text-primary mb-2">No notifications</h3>
             <p className="text-text-secondary">
               {filter === 'unread' 
-                ? "You're all caught up! No unread notifications." 
+                ? "You&apos;re all caught up! No unread notifications." 
                 : "You don't have any notifications yet."}
             </p>
           </div>

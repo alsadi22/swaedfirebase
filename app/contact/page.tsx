@@ -89,7 +89,7 @@ export default function ContactPage() {
                       </svg>
                     </div>
                     <h3 className="text-2xl font-semibold text-[#5C3A1F] mb-2">Message Sent!</h3>
-                    <p className="text-[#A0A0A0]">We'll get back to you as soon as possible.</p>
+                    <p className="text-[#A0A0A0]">We&apos;ll get back to you as soon as possible.</p>
                   </div>
                 ) : (
                   <form onSubmit={handleSubmit} className="space-y-6">

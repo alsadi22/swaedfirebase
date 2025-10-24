@@ -14,7 +14,7 @@ export default function FAQPage() {
     },
     {
       question: 'How does QR code check-in work?',
-      answer: 'When you arrive at an event, scan the QR code provided by the organization to check in. Your location will be verified using GPS to ensure you're at the event venue.'
+      answer: `When you arrive at an event, scan the QR code provided by the organization to check in. Your location will be verified using GPS to ensure you're at the event venue.`
     },
     {
       question: 'Can students volunteer?',
