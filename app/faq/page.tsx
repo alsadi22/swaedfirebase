@@ -18,7 +18,7 @@ export default function FAQPage() {
     },
     {
       question: 'Can students volunteer?',
-      answer: 'Yes! Students aged 13 and above can volunteer with guardian consent. We also integrate with educational institutions to track academic volunteer hours.'
+      answer: 'Yes, students aged 13 and above can volunteer with guardian consent. We also integrate with educational institutions to track academic volunteer hours.'
     },
     {
       question: 'How do I earn badges?',
