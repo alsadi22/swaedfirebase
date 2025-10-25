@@ -1,4 +1,6 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   /* UAE Ministry Design System Colors */
@@ -16,20 +18,6 @@
   --error: #CE1126;
   --warning: #D2A04A;
   --info: #5C3A1F;
-}
-
-@theme inline {
-  --color-background: var(--background-warm-white);
-  --color-foreground: var(--text-primary-brown);
-  --color-primary: var(--text-primary-brown);
-  --color-secondary: var(--accent-gold-ochre);
-  --color-accent: var(--logo-red);
-  --color-muted: var(--text-subtle-grey);
-  --color-white: var(--contrast-white);
-  --color-success: var(--success);
-  --color-error: var(--error);
-  --color-warning: var(--warning);
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 body {

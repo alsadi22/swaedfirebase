@@ -3,6 +3,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
+import { PhotoGallery } from '@/components/PhotoGallery'
+import { EventBrowser } from '@/components/EventBrowser'
 import { Users, Calendar, Award, Building2, Heart, TrendingUp } from 'lucide-react'
 
 export default function HomePage() {
@@ -161,6 +163,12 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+
+        {/* Photo Gallery Section */}
+        <PhotoGallery />
+
+        {/* Event Browser Section */}
+        <EventBrowser />
 
         {/* CTA Section */}
         <section className="py-20 bg-gradient-to-r from-[#D2A04A] to-[#5C3A1F] text-white">
