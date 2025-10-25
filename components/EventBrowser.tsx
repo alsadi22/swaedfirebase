@@ -1,12 +1,23 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Calendar, MapPin, Clock } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
 
-const upcomingEvents = [
+interface Event {
+  id: number
+  title: string
+  date: string
+  time: string
+  location: string
+  description: string
+  category: string
+}
+
+const fallbackEvents: Event[] = [
   {
     id: 1,
     title: 'Community Clean-up Drive',
@@ -64,6 +75,52 @@ const upcomingEvents = [
 ]
 
 export function EventBrowser() {
+  const [upcomingEvents, setUpcomingEvents] = useState<Event[]>(fallbackEvents)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchEvents() {
+      try {
+        const { data, error } = await supabase
+          .from('events')
+          .select('id, title, description, start_date, start_time, end_time, location, category')
+          .eq('status', 'published')
+          .gte('start_date', new Date().toISOString())
+          .order('start_date', { ascending: true })
+          .limit(6)
+
+        if (error) {
+          console.error('Error fetching events:', error)
+          setUpcomingEvents(fallbackEvents)
+        } else if (data && data.length > 0) {
+          const formattedEvents = data.map((event: any) => ({
+            id: event.id,
+            title: event.title,
+            date: new Date(event.start_date).toLocaleDateString('en-US', { 
+              year: 'numeric', 
+              month: 'short', 
+              day: '2-digit' 
+            }),
+            time: `${event.start_time} - ${event.end_time}`,
+            location: event.location,
+            description: event.description,
+            category: event.category || 'Community',
+          }))
+          setUpcomingEvents(formattedEvents)
+        } else {
+          setUpcomingEvents(fallbackEvents)
+        }
+      } catch (err) {
+        console.error('Failed to fetch events:', err)
+        setUpcomingEvents(fallbackEvents)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchEvents()
+  }, [])
+
   return (
     <section className="py-20 bg-[#FDFBF7]">
       <div className="container-custom">
@@ -76,48 +133,54 @@ export function EventBrowser() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {upcomingEvents.map((event) => (
-            <Card key={event.id} hover className="bg-white">
-              <CardContent className="p-6">
-                <div className="mb-4">
-                  <span className="inline-block px-3 py-1 bg-[#FDF7E7] text-[#D2A04A] text-xs font-semibold rounded-full border border-[#D2A04A]">
-                    {event.category}
-                  </span>
-                </div>
-                
-                <h3 className="text-xl font-bold text-[#5C3A1F] mb-3">
-                  {event.title}
-                </h3>
-
-                <div className="space-y-2 mb-4 text-sm text-[#A0A0A0]">
-                  <div className="flex items-center gap-2">
-                    <Calendar size={16} className="text-[#D2A04A]" />
-                    <span>{event.date}</span>
+        {loading ? (
+          <div className="text-center py-12">
+            <p className="text-[#A0A0A0]">Loading events...</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            {upcomingEvents.map((event) => (
+              <Card key={event.id} hover className="bg-white">
+                <CardContent className="p-6">
+                  <div className="mb-4">
+                    <span className="inline-block px-3 py-1 bg-[#FDF7E7] text-[#D2A04A] text-xs font-semibold rounded-full border border-[#D2A04A]">
+                      {event.category}
+                    </span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Clock size={16} className="text-[#D2A04A]" />
-                    <span>{event.time}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <MapPin size={16} className="text-[#D2A04A]" />
-                    <span>{event.location}</span>
-                  </div>
-                </div>
+                  
+                  <h3 className="text-xl font-bold text-[#5C3A1F] mb-3">
+                    {event.title}
+                  </h3>
 
-                <p className="text-[#5C3A1F] mb-4 line-clamp-2">
-                  {event.description}
-                </p>
+                  <div className="space-y-2 mb-4 text-sm text-[#A0A0A0]">
+                    <div className="flex items-center gap-2">
+                      <Calendar size={16} className="text-[#D2A04A]" />
+                      <span>{event.date}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Clock size={16} className="text-[#D2A04A]" />
+                      <span>{event.time}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <MapPin size={16} className="text-[#D2A04A]" />
+                      <span>{event.location}</span>
+                    </div>
+                  </div>
 
-                <Link href={`/events/${event.id}`}>
-                  <Button variant="primary" className="w-full bg-[#D2A04A] hover:bg-[#5C3A1F] text-white">
-                    Learn More
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                  <p className="text-[#5C3A1F] mb-4 line-clamp-2">
+                    {event.description}
+                  </p>
+
+                  <Link href={`/events/${event.id}`}>
+                    <Button variant="primary" className="w-full bg-[#D2A04A] hover:bg-[#5C3A1F] text-white">
+                      Learn More
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
 
         <div className="text-center">
           <Link href="/events">

@@ -2,15 +2,20 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Menu, X, User, LogOut, Search, ChevronDown } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
 export function Header() {
+  const router = useRouter()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isLoginDropdownOpen, setIsLoginDropdownOpen] = useState(false)
   const [isSignupDropdownOpen, setIsSignupDropdownOpen] = useState(false)
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
   const [user, setUser] = useState<any>(null)
+  const [language, setLanguage] = useState('en')
 
   useEffect(() => {
     async function getUser() {
@@ -25,12 +30,32 @@ export function Header() {
       }
     )
 
+    const storedLang = localStorage.getItem('language') || 'en'
+    setLanguage(storedLang)
+
     return () => subscription.unsubscribe()
   }, [])
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
     window.location.href = '/'
+  }
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery)}`)
+      setIsSearchOpen(false)
+      setSearchQuery('')
+    }
+  }
+
+  const toggleLanguage = () => {
+    const newLang = language === 'en' ? 'ar' : 'en'
+    setLanguage(newLang)
+    localStorage.setItem('language', newLang)
+    document.documentElement.lang = newLang
+    document.documentElement.dir = newLang === 'ar' ? 'rtl' : 'ltr'
   }
 
   return (
@@ -77,11 +102,30 @@ export function Header() {
               </>
             ) : (
               <>
-                <Link href="/search">
-                  <button className="text-[#5C3A1F] hover:text-[#D2A04A] p-2">
+                {/* Search */}
+                <div className="relative">
+                  <button
+                    onClick={() => setIsSearchOpen(!isSearchOpen)}
+                    className="text-[#5C3A1F] hover:text-[#D2A04A] p-2"
+                  >
                     <Search size={20} />
                   </button>
-                </Link>
+                  {isSearchOpen && (
+                    <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-[#E5E5E5] p-4 z-50">
+                      <form onSubmit={handleSearch}>
+                        <input
+                          type="text"
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          placeholder="Search events, orgs..."
+                          className="w-full px-3 py-2 border border-[#E5E5E5] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D2A04A]"
+                          autoFocus
+                        />
+                        <button type="submit" className="hidden">Search</button>
+                      </form>
+                    </div>
+                  )}
+                </div>
 
                 {/* Login Dropdown */}
                 <div className="relative">
@@ -142,8 +186,12 @@ export function Header() {
                 </div>
 
                 {/* Arabic Language Switcher */}
-                <button className="text-[#5C3A1F] hover:text-[#D2A04A] font-medium">
-                  عربي
+                <button 
+                  onClick={toggleLanguage}
+                  className="text-[#5C3A1F] hover:text-[#D2A04A] font-medium px-3 py-2 rounded-lg hover:bg-[#FDFBF7] transition-colors"
+                  title={language === 'en' ? 'Switch to Arabic' : 'Switch to English'}
+                >
+                  {language === 'en' ? 'عربي' : 'English'}
                 </button>
               </>
             )}
@@ -186,6 +234,15 @@ export function Header() {
                   </>
                 ) : (
                   <>
+                    <form onSubmit={handleSearch} className="mb-2">
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search events, organizations..."
+                        className="w-full px-3 py-2 border border-[#E5E5E5] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D2A04A]"
+                      />
+                    </form>
                     <div className="space-y-2">
                       <p className="text-xs text-[#A0A0A0] font-medium">Login as:</p>
                       <Link href="/auth/volunteer/login">
@@ -212,6 +269,12 @@ export function Header() {
                         </Button>
                       </Link>
                     </div>
+                    <button 
+                      onClick={toggleLanguage}
+                      className="w-full text-center py-2 text-[#5C3A1F] hover:text-[#D2A04A] font-medium border border-[#E5E5E5] rounded-lg"
+                    >
+                      {language === 'en' ? 'عربي' : 'English'}
+                    </button>
                   </>
                 )}
               </div>
