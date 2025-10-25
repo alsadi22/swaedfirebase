@@ -63,36 +63,10 @@ export default function RegisterPage() {
       if (error) throw error
 
       if (data.user) {
-        // Add a brief delay to allow auth system to fully create user
-        await new Promise(resolve => setTimeout(resolve, 2000));
-
-        // Use Edge Function to create profile (bypasses RLS issues)
-        try {
-          const { data: profileData, error: profileError } = await supabase.functions.invoke('create-profile', {
-            body: {
-              userId: data.user.id,
-              email: formData.email,
-              firstName: formData.firstName,
-              lastName: formData.lastName,
-              phone: formData.phone,
-              role: formData.role,
-              isVolunteer: formData.role === 'volunteer'
-            }
-          })
-
-          if (profileError) {
-            console.error('Profile creation error:', profileError)
-            // Don't throw error here, as the auth user was created successfully
-            // The profile can be created later or manually
-            setError('Account created, but profile setup needs manual completion')
-          } else {
-            console.log('Profile created successfully:', profileData)
-          }
-        } catch (profileError) {
-          console.error('Profile creation failed:', profileError)
-          setError('Account created, but profile setup needs manual completion')
-        }
-
+        // Profile is automatically created by database trigger
+        // No manual profile creation needed
+        console.log('User created successfully:', data.user.id)
+        
         // Redirect to dashboard
         router.push('/dashboard')
       }
