@@ -87,7 +87,7 @@ export function Header() {
                 <div className="relative">
                   <button
                     onClick={() => setIsLoginDropdownOpen(!isLoginDropdownOpen)}
-                    className="flex items-center gap-1 px-4 py-2 bg-[#FF8C42] hover:bg-[#FF7629] text-white rounded-lg font-medium transition-colors"
+                    className="flex items-center gap-1 px-4 py-2 bg-[#D2A04A] hover:bg-[#5C3A1F] text-white rounded-lg font-medium transition-colors"
                   >
                     Login
                     <ChevronDown size={16} />

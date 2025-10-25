@@ -81,7 +81,7 @@ export function EventBrowser() {
             <Card key={event.id} hover className="bg-white">
               <CardContent className="p-6">
                 <div className="mb-4">
-                  <span className="inline-block px-3 py-1 bg-[#E3F2FD] text-[#1976D2] text-xs font-semibold rounded-full">
+                  <span className="inline-block px-3 py-1 bg-[#FDF7E7] text-[#D2A04A] text-xs font-semibold rounded-full border border-[#D2A04A]">
                     {event.category}
                   </span>
                 </div>
@@ -110,7 +110,7 @@ export function EventBrowser() {
                 </p>
 
                 <Link href={`/events/${event.id}`}>
-                  <Button variant="primary" className="w-full bg-[#1976D2] hover:bg-[#1565C0]">
+                  <Button variant="primary" className="w-full bg-[#D2A04A] hover:bg-[#5C3A1F] text-white">
                     Learn More
                   </Button>
                 </Link>
