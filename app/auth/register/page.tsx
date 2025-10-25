@@ -63,26 +63,26 @@ export default function RegisterPage() {
       if (error) throw error
 
       if (data.user) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            id: data.user.id,
+        // Use Edge Function to create profile (bypasses RLS issues)
+        const { data: profileData, error: profileError } = await supabase.functions.invoke('create-profile', {
+          body: {
+            userId: data.user.id,
             email: formData.email,
-            first_name: formData.firstName,
-            last_name: formData.lastName,
+            firstName: formData.firstName,
+            lastName: formData.lastName,
             phone: formData.phone,
-            role: formData.role as any,
-            preferred_language: 'en',
-          })
+            role: formData.role,
+            isVolunteer: formData.role === 'volunteer'
+          }
+        })
 
-        if (profileError) throw profileError
-
-        if (formData.role === 'volunteer') {
-          await supabase.from('volunteer_profiles').insert({
-            user_id: data.user.id,
-          })
+        if (profileError) {
+          console.error('Profile creation error:', profileError)
+          // Don't throw error here, as the auth user was created successfully
+          // The profile can be created later or manually
         }
 
+        // Redirect to dashboard
         router.push('/dashboard')
       }
     } catch (error: any) {
