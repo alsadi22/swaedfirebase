@@ -1,0 +1,198 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isUser(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function hasRole(role) {
+      return isAuthenticated() && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
+    }
+    
+    function isVolunteer() {
+      return hasRole('VOLUNTEER');
+    }
+    
+    function isOrgAdmin() {
+      return hasRole('ORG_ADMIN');
+    }
+    
+    function isOrgSupervisor() {
+      return hasRole('ORG_SUPERVISOR');
+    }
+    
+    function isAdmin() {
+      return hasRole('ADMIN') || hasRole('SUPER_ADMIN');
+    }
+    
+    function isSuperAdmin() {
+      return hasRole('SUPER_ADMIN');
+    }
+    
+    function isOrgMember(orgId) {
+      return isAuthenticated() && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.organizationId == orgId;
+    }
+    
+    // Users Collection
+    match /users/{userId} {
+      // Anyone can read user profiles (for public volunteer/org info)
+      allow read: if isAuthenticated();
+      
+      // Users can create their own profile during registration
+      allow create: if isUser(userId);
+      
+      // Users can update their own profile, or admins can update any profile
+      allow update: if isUser(userId) || isAdmin();
+      
+      // Only super admins can delete users
+      allow delete: if isSuperAdmin();
+    }
+    
+    // Organizations Collection
+    match /organizations/{orgId} {
+      // Anyone can read verified organizations
+      allow read: if isAuthenticated();
+      
+      // Only authenticated users can create organizations
+      allow create: if isAuthenticated();
+      
+      // Org admins and platform admins can update
+      allow update: if isOrgMember(orgId) || isAdmin();
+      
+      // Only super admins can delete organizations
+      allow delete: if isSuperAdmin();
+    }
+    
+    // Events Collection
+    match /events/{eventId} {
+      // Anyone can read published events
+      allow read: if isAuthenticated();
+      
+      // Organization members can create events
+      allow create: if isOrgAdmin() || isOrgSupervisor();
+      
+      // Organization members and admins can update their events
+      allow update: if (isOrgMember(resource.data.organizationId) || isAdmin());
+      
+      // Only org admins and platform admins can delete events
+      allow delete: if (isOrgAdmin() && isOrgMember(resource.data.organizationId)) || isAdmin();
+    }
+    
+    // Applications Collection
+    match /applications/{applicationId} {
+      // Users can read their own applications, org members can read applications for their events
+      allow read: if isAuthenticated() && 
+                     (isUser(resource.data.userId) || 
+                      isOrgMember(get(/databases/$(database)/documents/events/$(resource.data.eventId)).data.organizationId) ||
+                      isAdmin());
+      
+      // Volunteers can create applications
+      allow create: if isAuthenticated() && isUser(request.resource.data.userId);
+      
+      // Org members can update application status, volunteers can cancel their own applications
+      allow update: if (isUser(resource.data.userId) && request.resource.data.status == 'CANCELLED') ||
+                       isOrgMember(get(/databases/$(database)/documents/events/$(resource.data.eventId)).data.organizationId) ||
+                       isAdmin();
+      
+      // Only admins can delete applications
+      allow delete: if isAdmin();
+    }
+    
+    // Attendance Collection
+    match /attendance/{attendanceId} {
+      // Users can read their own attendance, org members can read attendance for their events
+      allow read: if isAuthenticated() && 
+                     (isUser(resource.data.userId) || 
+                      isOrgMember(get(/databases/$(database)/documents/events/$(resource.data.eventId)).data.organizationId) ||
+                      isAdmin());
+      
+      // Attendance can be created by the user or org members
+      allow create: if isAuthenticated() && 
+                       (isUser(request.resource.data.userId) || 
+                        isOrgMember(get(/databases/$(database)/documents/events/$(request.resource.data.eventId)).data.organizationId));
+      
+      // Attendance can be updated by the user or org members
+      allow update: if isAuthenticated() && 
+                       (isUser(resource.data.userId) || 
+                        isOrgMember(get(/databases/$(database)/documents/events/$(resource.data.eventId)).data.organizationId) ||
+                        isAdmin());
+      
+      // Only admins can delete attendance records
+      allow delete: if isAdmin();
+    }
+    
+    // Certificates Collection
+    match /certificates/{certificateId} {
+      // Anyone can read certificates (for public verification)
+      allow read: if true;
+      
+      // Only org members and admins can create certificates
+      allow create: if isOrgMember(request.resource.data.organizationId) || isAdmin();
+      
+      // Only admins can update certificates (for revocation)
+      allow update: if isAdmin();
+      
+      // Only super admins can delete certificates
+      allow delete: if isSuperAdmin();
+    }
+    
+    // Badges Collection
+    match /badges/{badgeId} {
+      // Everyone can read badges
+      allow read: if isAuthenticated();
+      
+      // Only admins can manage badges
+      allow write: if isAdmin();
+    }
+    
+    // User Badges Collection
+    match /userBadges/{userBadgeId} {
+      // Users can read their own badges
+      allow read: if isAuthenticated();
+      
+      // System can create user badges (through cloud functions)
+      allow create: if isAdmin();
+      
+      // No one can update or delete user badges
+      allow update, delete: if false;
+    }
+    
+    // Notifications Collection
+    match /notifications/{notificationId} {
+      // Users can read their own notifications
+      allow read: if isAuthenticated() && isUser(resource.data.userId);
+      
+      // System and admins can create notifications
+      allow create: if isAuthenticated();
+      
+      // Users can mark their own notifications as read
+      allow update: if isUser(resource.data.userId) && 
+                       request.resource.data.read == true && 
+                       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+      
+      // Users can delete their own notifications
+      allow delete: if isUser(resource.data.userId);
+    }
+    
+    // Audit Logs Collection
+    match /auditLogs/{logId} {
+      // Only admins can read audit logs
+      allow read: if isAdmin();
+      
+      // System can create audit logs
+      allow create: if isAuthenticated();
+      
+      // No one can update or delete audit logs
+      allow update, delete: if false;
+    }
+  }
+}
