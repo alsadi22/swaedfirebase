@@ -158,13 +158,21 @@ export default function VolunteerDashboard() {
             <CardTitle>{t('volunteer.quickActions', 'Quick Actions')}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <Link href="/events">
                 <Button className="w-full h-auto py-4 flex flex-col items-center">
                   <svg className="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
                   {t('volunteer.browseEvents', 'Browse Events')}
+                </Button>
+              </Link>
+              <Link href="/volunteer/attendance">
+                <Button variant="outline" className="w-full h-auto py-4 flex flex-col items-center">
+                  <svg className="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                  </svg>
+                  {t('attendance.myAttendance', 'My Attendance')}
                 </Button>
               </Link>
               <Link href="/profile">
