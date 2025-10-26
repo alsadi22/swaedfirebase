@@ -1,0 +1,400 @@
+{
+  "_source_id": 55,
+  "sources": {
+    "SwaedUAE Development Tools & IDEs Research": {
+      "https://firebase.google.com/docs/studio": {
+        "id": 1,
+        "publisher": "Google Firebase",
+        "url": "https://firebase.google.com/docs/studio",
+        "title": "Firebase Studio Documentation - Official Google Guide",
+        "info": "Comprehensive documentation of Firebase Studio features including agentic development environment, Gemini AI integration, project templates, and workspace management capabilities"
+      },
+      "https://nextjs.org/docs/app/guides/testing": {
+        "id": 2,
+        "publisher": "Vercel",
+        "url": "https://nextjs.org/docs/app/guides/testing",
+        "title": "Next.js Testing Guide - Official Documentation",
+        "info": "Official Next.js testing guide covering Jest, Cypress, Playwright, and Vitest setup and best practices for testing Next.js applications"
+      },
+      "https://www.builder.io/blog/react-component-library": {
+        "id": 3,
+        "publisher": "Builder.io",
+        "url": "https://www.builder.io/blog/react-component-library",
+        "title": "React UI Component Libraries in 2025 - Builder.io Analysis",
+        "info": "Detailed analysis of top 10 React UI component libraries for 2025 including Material UI, Chakra UI, Radix UI, Shadcn UI, and emerging trends in accessibility and AI integration"
+      },
+      "https://trillionclues.medium.com/testing-next-js-applications-a-complete-guide-to-catching-bugs-before-qa-does-a1db8d1a0a3b": {
+        "id": 4,
+        "publisher": "Medium - TrillionClues",
+        "url": "https://trillionclues.medium.com/testing-next-js-applications-a-complete-guide-to-catching-bugs-before-qa-does-a1db8d1a0a3b",
+        "title": "Testing Next.js Applications - Complete Guide",
+        "info": "Comprehensive guide to testing Next.js applications using Jest and React Testing Library, including multi-tenant testing strategies and best practices"
+      },
+      "https://www.toptal.com/designers/figma/figma-vs-adobe-xd-vs-sketch": {
+        "id": 5,
+        "publisher": "Toptal",
+        "url": "https://www.toptal.com/designers/figma/figma-vs-adobe-xd-vs-sketch",
+        "title": "Figma vs Adobe XD vs Sketch - UI/UX Tool Comparison",
+        "info": "Expert comparison of leading UI/UX design tools covering features, collaboration capabilities, and developer integration workflows"
+      },
+      "https://www.bairesdev.com/blog/best-react-ide-editors/": {
+        "id": 6,
+        "publisher": "BairesDev",
+        "url": "https://www.bairesdev.com/blog/best-react-ide-editors/",
+        "title": "Best React IDEs & Editors 2025 - BairesDev Review",
+        "info": "Comprehensive review of top 6 React IDEs and editors for 2025, comparing features, pricing, and performance with detailed recommendations"
+      },
+      "https://solutionsindicator.com/blog/nextjs-14-features-complete-guide/": {
+        "id": 7,
+        "publisher": "Solutions Indicator",
+        "url": "https://solutionsindicator.com/blog/nextjs-14-features-complete-guide/",
+        "title": "Next.js 14 Features - Complete Guide",
+        "info": "Detailed guide to Next.js 14 features including App Router, Server Components, SSR/SSG optimization, and best practices for modern development"
+      },
+      "https://www.supernova.io/blog/top-10-pre-built-react-frontend-ui-libraries-for-2025": {
+        "id": 8,
+        "publisher": "Supernova",
+        "url": "https://www.supernova.io/blog/top-10-pre-built-react-frontend-ui-libraries-for-2025",
+        "title": "Top 10 Pre-Built React Frontend UI Libraries for 2025",
+        "info": "Analysis of top React UI libraries focusing on Tailwind CSS integration including Radix UI, Shadcn UI, and DaisyUI with use case recommendations"
+      },
+      "https://uiverse.io/blog/debugging-and-testing-nextjs-applications-a-developers-toolkit": {
+        "id": 9,
+        "publisher": "UIverse",
+        "url": "https://uiverse.io/blog/debugging-and-testing-nextjs-applications-a-developers-toolkit",
+        "title": "Debugging and Testing Next.js Applications - Developer Toolkit",
+        "info": "Comprehensive toolkit for debugging and testing Next.js applications covering development environment setup, debugging techniques, and testing strategies"
+      },
+      "https://developers.googleblog.com/en/new-ai-capabilities-for-popular-frameworks-in-firebase-studio/": {
+        "id": 10,
+        "publisher": "Google Developers",
+        "url": "https://developers.googleblog.com/en/new-ai-capabilities-for-popular-frameworks-in-firebase-studio/",
+        "title": "Firebase Studio AI Capabilities - Google Developers Blog",
+        "info": "Latest Firebase Studio AI capabilities including Gemini integration, agent modes, AI-optimized templates for popular frameworks, and enhanced development workflows"
+      },
+      "https://blog.logrocket.com/comparing-next-js-testing-tools-strategies/": {
+        "id": 11,
+        "publisher": "LogRocket",
+        "url": "https://blog.logrocket.com/comparing-next-js-testing-tools-strategies/",
+        "title": "Comparing Next.js Testing Tools and Strategies",
+        "info": "Detailed comparison of Jest, Cypress, Vitest, and Playwright for Next.js testing including performance benchmarks, feature analysis, and use case recommendations"
+      },
+      "https://www.uxdesigninstitute.com/blog/user-interface-ui-design-tools/": {
+        "id": 12,
+        "publisher": "UX Design Institute",
+        "url": "https://www.uxdesigninstitute.com/blog/user-interface-ui-design-tools/",
+        "title": "The 11 Best UI Design Tools for 2026",
+        "info": "Comprehensive guide to UI design tools including detailed feature comparisons, pricing analysis, and development workflow integration for 2026"
+      },
+      "https://dev.to/andrewbaisden/building-modern-react-apps-in-2025-a-guide-to-cutting-edge-tools-and-tech-stacks-k8g": {
+        "id": 13,
+        "publisher": "DEV Community",
+        "url": "https://dev.to/andrewbaisden/building-modern-react-apps-in-2025-a-guide-to-cutting-edge-tools-and-tech-stacks-k8g",
+        "title": "Building Modern React Apps in 2025 - TypeScript Best Practices",
+        "info": "Guide to modern React development tools and tech stacks for 2025, emphasizing TypeScript adoption and cutting-edge development practices"
+      }
+    },
+    "Payment Processing Solutions for UAE Volunteer Platform": {
+      "https://stripe.com/ae/pricing": {
+        "id": 14,
+        "publisher": "Stripe Inc.",
+        "url": "https://stripe.com/ae/pricing",
+        "title": "Stripe UAE Pricing - Official Rates and Fees",
+        "info": "Comprehensive Stripe pricing for UAE: 2.9% + AED1.00 for domestic cards, 1% additional for international cards, no setup fees, detailed pricing for additional services like Billing, Tax, Radar, and Custom pricing options"
+      },
+      "https://stripe.com/resources/more/payments-in-the-united-arab-emirates": {
+        "id": 15,
+        "publisher": "Stripe Inc.",
+        "url": "https://stripe.com/resources/more/payments-in-the-united-arab-emirates",
+        "title": "Stripe Payment Methods and Features in UAE",
+        "info": "Detailed analysis of Stripe capabilities in UAE including 100+ payment methods, digital wallets (Google Pay, Samsung Pay, Beam, Etisalat Wallet), contactless payments, cryptocurrency support, fraud prevention tools, and regulatory compliance features"
+      },
+      "https://www.network.ae/en/processing-solutions/business-payments/digital-payment-solutions": {
+        "id": 16,
+        "publisher": "Network International",
+        "url": "https://www.network.ae/en/processing-solutions/business-payments/digital-payment-solutions",
+        "title": "Network International Digital Business Payment Solutions",
+        "info": "Net zero foreign currency transaction fees (vs 3.00% UAE benchmark), zero annual/subscription fees, rebate accrual system, API integration capabilities, fraud prevention, and enterprise-grade features for B2B payments"
+      },
+      "https://www.xstak.com/blog/payment-gateways-in-uae": {
+        "id": 17,
+        "publisher": "XStak",
+        "url": "https://www.xstak.com/blog/payment-gateways-in-uae",
+        "title": "11 Best Online Payment Gateways in UAE 2025",
+        "info": "Comprehensive comparison of UAE payment gateways including Telr, XPay, CashU, Checkout.com, Amazon Payment Services, PayTabs with detailed pricing structures, features, integration options, and market statistics showing UAE's $28.74B digital payments market"
+      },
+      "https://scaleupally.io/blog/ecommerce-payment-gateway-uae/": {
+        "id": 18,
+        "publisher": "ScaleupAlly",
+        "url": "https://scaleupally.io/blog/ecommerce-payment-gateway-uae/",
+        "title": "10 Best Ecommerce Payment Gateways in UAE",
+        "info": "Detailed analysis of UAE payment processors covering Stripe (2.9% + AED1), PayTabs (2.90% + AED1), Amazon Payment Services (2.80% + AED1), Telr plans from AED99/month, regulatory requirements, and compliance considerations for UAE Central Bank, PCI DSS, VAT compliance"
+      },
+      "https://infinmobile.com/15-best-payment-gateways-middle-east/": {
+        "id": 19,
+        "publisher": "Infin Mobile Solutions",
+        "url": "https://infinmobile.com/15-best-payment-gateways-middle-east/",
+        "title": "15 Best Payment Gateways for Middle East 2025",
+        "info": "Regional payment gateway analysis covering PayTabs (best for local transactions), HyperPay (high-volume), Telr (startups), Checkout.com (global expansion), Stripe (developers), Amazon Payment Services (enterprise), with focus on Mada, KNET, and local payment methods support"
+      },
+      "https://u.ae/en/information-and-services/charity-and-humanitarian-work/ways-of-doing-charity-in-the-uae": {
+        "id": 20,
+        "publisher": "UAE Government Portal",
+        "url": "https://u.ae/en/information-and-services/charity-and-humanitarian-work/ways-of-doing-charity-in-the-uae",
+        "title": "Ways of Doing Charity in UAE - Official Government Guidance",
+        "info": "Federal Law No. 3 of 2021 compliance requirements for donation platforms: Only licensed charitable organizations can collect donations, natural persons prohibited from fundraising, licensing required through Ministry of Community Development, and Jood platform as Dubai's official contributions platform"
+      },
+      "https://telr.com/pricing": {
+        "id": 21,
+        "publisher": "Telr",
+        "url": "https://telr.com/pricing",
+        "title": "Telr Payment Gateway Pricing UAE and Saudi Arabia",
+        "info": "UAE pricing tiers: Entry Plan AED349/month (0-20k volume), Small Plan AED149/month + 2.69% + AED1 (20k-50k), Medium Plan AED99/month + 2.49% + AED0.50 (50k+), volume pricing for 500k+ monthly volume, all features included with no hidden fees"
+      }
+    },
+    "SwaedUAE Third-Party Integrations Research": {
+      "https://next-auth.js.org/providers/google": {
+        "id": 22,
+        "publisher": "NextAuth.js",
+        "url": "https://next-auth.js.org/providers/google",
+        "title": "Google OAuth Provider Documentation",
+        "info": "Comprehensive guide to integrating Google OAuth with NextAuth.js including configuration options, refresh token management, and email verification"
+      },
+      "https://mailtrap.io/blog/sendgrid-vs-mailgun/": {
+        "id": 23,
+        "publisher": "Mailtrap",
+        "url": "https://mailtrap.io/blog/sendgrid-vs-mailgun/",
+        "title": "SendGrid vs Mailgun Email Service Comparison 2025",
+        "info": "Detailed comparison of SendGrid and Mailgun features, pricing, deliverability rates, and technical specifications"
+      },
+      "https://firebase.google.com/docs/cloud-messaging": {
+        "id": 24,
+        "publisher": "Google Firebase",
+        "url": "https://firebase.google.com/docs/cloud-messaging",
+        "title": "Firebase Cloud Messaging Documentation",
+        "info": "Official FCM documentation covering cross-platform push notifications, API setup, and implementation examples"
+      },
+      "https://www.digitalapplied.com/blog/cloudflare-r2-vs-aws-s3-comparison": {
+        "id": 25,
+        "publisher": "Digital Applied",
+        "url": "https://www.digitalapplied.com/blog/cloudflare-r2-vs-aws-s3-comparison",
+        "title": "Cloudflare R2 vs AWS S3: Complete 2025 Comparison",
+        "info": "Comprehensive pricing and feature comparison between Cloudflare R2 and AWS S3 including performance benchmarks and migration considerations"
+      },
+      "https://developer.apple.com/documentation/signinwithapplerestapi": {
+        "id": 26,
+        "publisher": "Apple Developer",
+        "url": "https://developer.apple.com/documentation/signinwithapplerestapi",
+        "title": "Sign in with Apple REST API Documentation",
+        "info": "Official Apple Sign In API documentation covering JWT token validation, authentication flows, and implementation requirements"
+      },
+      "https://onesignal.com/onesignal-vs-firebase-cloud-messaging": {
+        "id": 27,
+        "publisher": "OneSignal",
+        "url": "https://onesignal.com/onesignal-vs-firebase-cloud-messaging",
+        "title": "OneSignal vs Firebase Cloud Messaging Comparison",
+        "info": "Detailed comparison of OneSignal and Firebase push notification services covering pricing, features, and implementation complexity"
+      },
+      "https://developers.facebook.com/docs/graph-api/get-started/": {
+        "id": 28,
+        "publisher": "Meta for Developers",
+        "url": "https://developers.facebook.com/docs/graph-api/get-started/",
+        "title": "Facebook Graph API Getting Started Guide",
+        "info": "Official Facebook Graph API documentation for user authentication, permissions management, and data access via Facebook Login"
+      },
+      "https://www.twilio.com/en-us/messaging/channels/whatsapp": {
+        "id": 29,
+        "publisher": "Twilio",
+        "url": "https://www.twilio.com/en-us/messaging/channels/whatsapp",
+        "title": "Twilio WhatsApp Business API Documentation",
+        "info": "Technical specifications for Twilio's WhatsApp Business API including message types, pricing, and compliance requirements"
+      },
+      "https://www.smscountry.com/blog/sms-regulations-in-uae/": {
+        "id": 30,
+        "publisher": "SMSCountry",
+        "url": "https://www.smscountry.com/blog/sms-regulations-in-uae/",
+        "title": "Complete Guide to SMS Regulations for Businesses in UAE",
+        "info": "Comprehensive overview of UAE SMS regulations including TRA requirements, timing restrictions, consent guidelines, and compliance penalties"
+      },
+      "https://developers.google.com/identity/protocols/oauth2": {
+        "id": 31,
+        "publisher": "Google Developers",
+        "url": "https://developers.google.com/identity/protocols/oauth2",
+        "title": "OAuth 2.0 Protocol for Google APIs",
+        "info": "Official Google OAuth 2.0 documentation covering authentication flows, token management, and scope configuration for Google Calendar API"
+      }
+    },
+    "SwaedUAE QR & Geolocation Services": {
+      "https://mapsplatform.google.com/pricing/": {
+        "id": 32,
+        "publisher": "Google",
+        "url": "https://mapsplatform.google.com/pricing/",
+        "title": "Google Maps Platform Pricing",
+        "info": "Comprehensive pricing structure with free monthly calls per SKU, pay-as-you-go model, and volume discounts effective March 1, 2025. New categories: Essentials (10K free), Pro (5K free), Enterprise (1K free). Dynamic Maps: $7/1K requests, Geocoding: $5/1K requests."
+      },
+      "https://radar.com/blog/mapbox-alternatives-competitors": {
+        "id": 33,
+        "publisher": "Radar",
+        "url": "https://radar.com/blog/mapbox-alternatives-competitors",
+        "title": "12 Best Mapbox Alternatives",
+        "info": "Radar offers comprehensive geolocation platform with powerful geofencing (polygonal, dwell time, chained, time-based), 50-90% cheaper than Mapbox, free up to 100K requests/month, then $0.50/1K calls. Supports iOS, Android, React Native, Flutter, Web."
+      },
+      "https://www.npmjs.com/package/qrcode": {
+        "id": 34,
+        "publisher": "NPM",
+        "url": "https://www.npmjs.com/package/qrcode",
+        "title": "QRCode NPM Package",
+        "info": "Cross-platform QR code generator with server-side and client-side support, 4M+ weekly downloads, supports PNG/SVG/UTF8 outputs, 4 error correction levels (L~7%, M~15%, Q~25%, H~30%), CLI utility, comprehensive API."
+      },
+      "https://github.com/zpao/qrcode.react": {
+        "id": 35,
+        "publisher": "GitHub",
+        "url": "https://github.com/zpao/qrcode.react",
+        "title": "qrcode.react React Component",
+        "info": "React QR code component with SVG/Canvas rendering, TypeScript support, custom styling options, logo embedding, error correction levels, 4.2K stars, 326K+ projects using, responsive design."
+      },
+      "https://www.maptiler.com/mapbox-alternative/": {
+        "id": 36,
+        "publisher": "MapTiler",
+        "url": "https://www.maptiler.com/mapbox-alternative/",
+        "title": "MapTiler Mapbox Alternative",
+        "info": "Cost-effective Mapbox alternative with 4x lower costs, supports MapLibre, offline capabilities, custom maps, global coverage. 100K map loads: $175 vs Mapbox $250. Geocoding: $25 vs Mapbox $300."
+      },
+      "https://www.pubnub.com/pricing/": {
+        "id": 37,
+        "publisher": "PubNub",
+        "url": "https://www.pubnub.com/pricing/",
+        "title": "PubNub Real-time Platform Pricing",
+        "info": "Monthly Active Users (MAU) based pricing, no per-message fees, free up to 200 MAU, Starter at $98/month for 1K MAU, supports geofencing/geo-triggering through Functions, 99.999% uptime SLA on Pro plan."
+      },
+      "https://leafletjs.com/": {
+        "id": 38,
+        "publisher": "Leaflet",
+        "url": "https://leafletjs.com/",
+        "title": "Leaflet JavaScript Mapping Library",
+        "info": "Free open-source mapping library, ~42KB, no dependencies, supports offline capabilities, mobile-friendly, extensive plugin ecosystem, perfect for volunteer management applications requiring customization."
+      },
+      "https://github.com/mrousavy/react-native-vision-camera": {
+        "id": 39,
+        "publisher": "GitHub",
+        "url": "https://github.com/mrousavy/react-native-vision-camera",
+        "title": "React Native Vision Camera",
+        "info": "High-performance camera library with QR/barcode scanning, 8.9K stars, supports 4K/8K, 30-240 FPS, GPU accelerated, custom frame processors, MIT license, React Native compatible."
+      },
+      "https://github.com/cozmo/jsQR": {
+        "id": 40,
+        "publisher": "GitHub",
+        "url": "https://github.com/cozmo/jsQR",
+        "title": "JSQR JavaScript QR Scanner",
+        "info": "Pure JavaScript QR code decoder, 3.9K stars, platform-agnostic, works with webcam streams and uploaded images, TypeScript support, detects all QR code variants, 72.3K projects using."
+      },
+      "https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API": {
+        "id": 41,
+        "publisher": "MDN Web Docs",
+        "url": "https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API",
+        "title": "HTML5 Geolocation API",
+        "info": "Browser-native location API requiring HTTPS, supports GPS, WiFi, cellular triangulation, user permission required, widely available since 2015, provides current position and continuous tracking with error handling."
+      },
+      "https://www.dlapiperdataprotection.com/countries/uae-general/law.html": {
+        "id": 42,
+        "publisher": "DLA Piper",
+        "url": "https://www.dlapiperdataprotection.com/countries/uae-general/law.html",
+        "title": "UAE Personal Data Protection Law (PDPL)",
+        "info": "Federal Decree-Law No. 45 of 2021 governing personal data, includes location data protection, requires explicit consent, data retention limits, DPO for high-risk processing, aligns with GDPR principles, applies to UAE residents and businesses."
+      },
+      "https://www.npmjs.com/package/@devmehq/react-qr-code": {
+        "id": 43,
+        "publisher": "NPM",
+        "url": "https://www.npmjs.com/package/@devmehq/react-qr-code",
+        "title": "DevMeHQ React QR Code Library",
+        "info": "Advanced React QR component with image embedding, zero dependencies, responsive design, SVG/Canvas rendering, TypeScript support, customizable styling, 780 weekly downloads, lightweight alternative to qrcode.react."
+      }
+    },
+    "GCP Services and Pricing for SwaedUAE": {
+      "https://firebase.google.com/pricing": {
+        "id": 44,
+        "publisher": "Google Firebase",
+        "url": "https://firebase.google.com/pricing",
+        "title": "Firebase Pricing - Authentication",
+        "info": "Official Firebase Authentication pricing including Spark and Blaze plan tiers, 50,000 MAU free tier limit for standard authentication, phone authentication costs via Google Cloud Identity Platform pricing"
+      },
+      "https://cloud.google.com/sql/pricing": {
+        "id": 45,
+        "publisher": "Google Cloud",
+        "url": "https://cloud.google.com/sql/pricing",
+        "title": "Cloud SQL Pricing",
+        "info": "Comprehensive Cloud SQL PostgreSQL pricing for Enterprise and Enterprise Plus editions, shared and dedicated core instances, storage costs, backup pricing, and extended support fees"
+      },
+      "https://cloud.google.com/firestore/pricing": {
+        "id": 46,
+        "publisher": "Google Cloud",
+        "url": "https://cloud.google.com/firestore/pricing",
+        "title": "Firestore Pricing",
+        "info": "Firestore Standard edition pricing including free tier limits (1GB storage, 50k reads, 20k writes, 20k deletes), document operation costs, and regional pricing variations"
+      },
+      "https://docs.cloud.google.com/storage/pricing": {
+        "id": 47,
+        "publisher": "Google Cloud",
+        "url": "https://docs.cloud.google.com/storage/pricing",
+        "title": "Cloud Storage Pricing",
+        "info": "Google Cloud Storage pricing for all storage classes (Standard, Nearline, Coldline, Archive) across different regions, including Middle East regions like Doha and Dammam"
+      },
+      "https://cloud.google.com/functions/pricing-1stgen": {
+        "id": 48,
+        "publisher": "Google Cloud",
+        "url": "https://cloud.google.com/functions/pricing-1stgen",
+        "title": "Cloud Functions 1st Generation Pricing",
+        "info": "Cloud Functions 1st generation pricing: $0.40 per million invocations after 2M free, compute time pricing starting at $0.000000231 per 100ms, and free tier limitations"
+      },
+      "https://cloud.google.com/run/pricing": {
+        "id": 49,
+        "publisher": "Google Cloud",
+        "url": "https://cloud.google.com/run/pricing",
+        "title": "Cloud Run Functions Pricing",
+        "info": "Cloud Run functions (2nd generation) pricing including tier-based regional pricing, free tier of 2M requests/month, compute costs starting at $0.000018 per vCPU-second"
+      },
+      "https://cloud.google.com/pricing": {
+        "id": 50,
+        "publisher": "Google Cloud",
+        "url": "https://cloud.google.com/pricing",
+        "title": "Google Cloud Pricing Overview",
+        "info": "Google Cloud pricing overview including pay-as-you-go model, $300 new customer credits, 20+ free tier products, and committed use discounts up to 57% savings"
+      },
+      "https://firebase.google.com/docs/hosting/usage-quotas-pricing": {
+        "id": 51,
+        "publisher": "Google Firebase",
+        "url": "https://firebase.google.com/docs/hosting/usage-quotas-pricing",
+        "title": "Firebase Hosting Usage and Pricing",
+        "info": "Firebase Hosting pricing: 10GB storage free, $0.026/GB additional, 10GB data transfer free, $0.15/GB additional transfer fees"
+      },
+      "https://docs.cloud.google.com/cdn/pricing": {
+        "id": 52,
+        "publisher": "Google Cloud",
+        "url": "https://docs.cloud.google.com/cdn/pricing",
+        "title": "Cloud CDN Pricing",
+        "info": "Cloud CDN pricing by geographic regions: North America/Europe $0.08-0.03/GiB, Asia Pacific $0.09-0.05/GiB, Middle East $0.09-0.05/GiB"
+      },
+      "https://cloud.google.com/free": {
+        "id": 53,
+        "publisher": "Google Cloud",
+        "url": "https://cloud.google.com/free",
+        "title": "Google Cloud Free Program",
+        "info": "Google Cloud Free Program details including $300 credits for new users, 25+ products with free tiers, and startup program credits up to $350,000"
+      },
+      "https://docs.cloud.google.com/free/docs/free-cloud-features": {
+        "id": 54,
+        "publisher": "Google Cloud",
+        "url": "https://docs.cloud.google.com/free/docs/free-cloud-features",
+        "title": "Free Cloud Features and Trial Offer",
+        "info": "Google Cloud Free Tier limitations for specific services: Compute Engine e2-micro instance, Cloud Storage 5GB, BigQuery 1TB queries, Cloud Run 2M requests, Firestore 1GB storage"
+      },
+      "https://cloud.google.com/pricing/list": {
+        "id": 55,
+        "publisher": "Google Cloud",
+        "url": "https://cloud.google.com/pricing/list",
+        "title": "Google Cloud Platform Pricing Directory",
+        "info": "Comprehensive directory of all Google Cloud Platform services with links to individual pricing pages for over 100 products across AI, compute, databases, networking, and security"
+      }
+    }
+  }
+}
