@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/contexts/AuthContext';
-import { useLanguage } from '@/lib/contexts/LanguageContext';
+import { useAuth } from '@/lib/auth/AuthContext';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { translations } from '@/lib/i18n/translations';
 import { Notification } from '@/types';
 import {
@@ -32,8 +32,8 @@ import {
 export default function NotificationsPage() {
   const router = useRouter();
   const { user } = useAuth();
-  const { language, dir } = useLanguage();
-  const t = translations[language];
+  const { locale, isRTL } = useLanguage();
+  const t = translations[locale];
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
@@ -83,7 +83,7 @@ export default function NotificationsPage() {
   const handleDeleteAll = async () => {
     if (!user) return;
     
-    if (!confirm(language === 'ar' ? 'هل أنت متأكد من حذف جميع الإشعارات؟' : 'Are you sure you want to delete all notifications?')) {
+    if (!confirm( language === 'ar' ? 'هل أنت متأكد من حذف جميع الإشعارات؟' : 'Are you sure you want to delete all notifications?')) {
       return;
     }
 
@@ -132,14 +132,14 @@ export default function NotificationsPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">{language === 'ar' ? 'جاري التحميل...' : 'Loading...'}</p>
+          <p className="text-gray-600">{ language === 'ar' ? 'جاري التحميل...' : 'Loading...'}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8" dir={dir}>
+    <div className="min-h-screen bg-gray-50 py-8" dir={isRTL ? "rtl" : "ltr"}>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
@@ -149,7 +149,7 @@ export default function NotificationsPage() {
             className="mb-4"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            {t.goBack}
+            {t.common.back}
           </Button>
           
           <div className="flex items-center justify-between mb-4">
@@ -157,11 +157,11 @@ export default function NotificationsPage() {
               <Bell className="w-8 h-8 text-emerald-600" />
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">
-                  {language === 'ar' ? 'الإشعارات' : 'Notifications'}
+                  { language === 'ar' ? 'الإشعارات' : 'Notifications'}
                 </h1>
                 {unreadCount > 0 && (
                   <p className="text-sm text-gray-600">
-                    {language === 'ar' 
+                    { language === 'ar' 
                       ? `${unreadCount} إشعار غير مقروء` 
                       : `${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}`}
                   </p>
@@ -178,7 +178,7 @@ export default function NotificationsPage() {
                     onClick={handleMarkAllAsRead}
                   >
                     <CheckCheck className="w-4 h-4 mr-2" />
-                    {language === 'ar' ? 'تحديد الكل كمقروء' : 'Mark All Read'}
+                    { language === 'ar' ? 'تحديد الكل كمقروء' : 'Mark All Read'}
                   </Button>
                 )}
                 <Button
@@ -187,7 +187,7 @@ export default function NotificationsPage() {
                   onClick={handleDeleteAll}
                 >
                   <Trash2 className="w-4 h-4 mr-2" />
-                  {language === 'ar' ? 'حذف الكل' : 'Delete All'}
+                  { language === 'ar' ? 'حذف الكل' : 'Delete All'}
                 </Button>
               </div>
             )}
@@ -203,7 +203,7 @@ export default function NotificationsPage() {
                   : 'border-transparent text-gray-600 hover:text-gray-900'
               }`}
             >
-              {language === 'ar' ? 'الكل' : 'All'} ({notifications.length})
+              { language === 'ar' ? 'الكل' : 'All'} ({notifications.length})
             </button>
             <button
               onClick={() => setFilter('unread')}
@@ -213,7 +213,7 @@ export default function NotificationsPage() {
                   : 'border-transparent text-gray-600 hover:text-gray-900'
               }`}
             >
-              {language === 'ar' ? 'غير مقروء' : 'Unread'} ({unreadCount})
+              { language === 'ar' ? 'غير مقروء' : 'Unread'} ({unreadCount})
             </button>
           </div>
         </div>
@@ -225,8 +225,8 @@ export default function NotificationsPage() {
               <Bell className="w-16 h-16 text-gray-300 mx-auto mb-4" />
               <p className="text-gray-500 text-lg">
                 {filter === 'unread'
-                  ? (language === 'ar' ? 'لا توجد إشعارات غير مقروءة' : 'No unread notifications')
-                  : (language === 'ar' ? 'لا توجد إشعارات' : 'No notifications')}
+                  ? ( language === 'ar' ? 'لا توجد إشعارات غير مقروءة' : 'No unread notifications')
+                  : ( language === 'ar' ? 'لا توجد إشعارات' : 'No notifications')}
               </p>
             </Card>
           ) : (
@@ -248,7 +248,7 @@ export default function NotificationsPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2 mb-1">
                       <h3 className="text-base font-semibold text-gray-900">
-                        {language === 'ar' && notification.titleAr 
+                        { language === 'ar' && notification.titleAr 
                           ? notification.titleAr 
                           : notification.title}
                       </h3>
@@ -257,13 +257,13 @@ export default function NotificationsPage() {
                       )}
                     </div>
                     <p className="text-sm text-gray-700 mb-2">
-                      {language === 'ar' && notification.messageAr 
+                      { language === 'ar' && notification.messageAr 
                         ? notification.messageAr 
                         : notification.message}
                     </p>
                     <div className="flex items-center justify-between">
                       <p className="text-xs text-gray-500">
-                        {formatDistanceToNow(notification.createdAt, language)}
+                        {formatDistanceToNow(notification.createdAt, locale)}
                       </p>
                       <div className="flex gap-2">
                         {!notification.read && (
@@ -276,7 +276,7 @@ export default function NotificationsPage() {
                             }}
                           >
                             <Check className="w-4 h-4 mr-1" />
-                            {language === 'ar' ? 'تحديد كمقروء' : 'Mark Read'}
+                            { language === 'ar' ? 'تحديد كمقروء' : 'Mark Read'}
                           </Button>
                         )}
                         <Button
@@ -288,7 +288,7 @@ export default function NotificationsPage() {
                           }}
                         >
                           <Trash2 className="w-4 h-4 mr-1" />
-                          {language === 'ar' ? 'حذف' : 'Delete'}
+                          { language === 'ar' ? 'حذف' : 'Delete'}
                         </Button>
                       </div>
                     </div>

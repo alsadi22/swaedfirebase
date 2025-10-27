@@ -2,21 +2,21 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/lib/auth/AuthContext';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { getEvent, getEventAttendances, getEventApplications, updateAttendance, createAttendance, getUserProfile } from '@/lib/services/firestore';
 import { collection, onSnapshot, query, where, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { format } from 'date-fns';
 import {
-  UserGroupIcon,
-  CheckCircleIcon,
-  XCircleIcon,
-  ClockIcon,
-  MapPinIcon,
-  ArrowDownTrayIcon,
-  ArrowLeftIcon,
-} from '@heroicons/react/24/outline';
+  Users,
+  CheckCircle,
+  XCircle,
+  Clock,
+  MapPin,
+  Download,
+  ArrowLeft,
+} from 'lucide-react';
 import type { Event, Attendance, Application, User } from '@/types';
 
 interface AttendanceWithUser extends Attendance {
@@ -80,7 +80,7 @@ export default function OrganizationAttendancePage() {
       const attendancesWithUsers = await Promise.all(
         attendancesData.map(async (attendance) => {
           const userProfile = await getUserProfile(attendance.userId);
-          return { ...attendance, user: userProfile };
+          return { ...attendance, user: userProfile || undefined };
         })
       );
 
@@ -115,7 +115,7 @@ export default function OrganizationAttendancePage() {
       const attendancesWithUsers = await Promise.all(
         attendancesData.map(async (attendance) => {
           const userProfile = await getUserProfile(attendance.userId);
-          return { ...attendance, user: userProfile };
+          return { ...attendance, user: userProfile || undefined };
         })
       );
 
@@ -141,15 +141,15 @@ export default function OrganizationAttendancePage() {
     const absent = registered - atts.length;
 
     // Calculate late arrivals (arrived more than 15 minutes after start time)
-    const startTime = evt.dateTime.startDate.toDate
-      ? evt.dateTime.startDate.toDate()
-      : new Date(evt.dateTime.startDate);
+    const startTime = evt.dateTime.startDate instanceof Date
+      ? evt.dateTime.startDate
+      : evt.dateTime.startDate.toDate();
     const lateThreshold = new Date(startTime.getTime() + 15 * 60 * 1000);
     
     const lateArrivals = atts.filter(a => {
-      const checkInTime = a.checkIn.timestamp.toDate
-        ? a.checkIn.timestamp.toDate()
-        : new Date(a.checkIn.timestamp);
+      const checkInTime = a.checkIn.timestamp instanceof Date
+        ? a.checkIn.timestamp
+        : a.checkIn.timestamp.toDate();
       return checkInTime > lateThreshold;
     }).length;
 
@@ -199,9 +199,9 @@ export default function OrganizationAttendancePage() {
       const attendance = attendances.find(a => a.id === attendanceId);
       if (!attendance) return;
 
-      const checkInTime = attendance.checkIn.timestamp.toDate
-        ? attendance.checkIn.timestamp.toDate()
-        : new Date(attendance.checkIn.timestamp);
+      const checkInTime = attendance.checkIn.timestamp instanceof Date
+        ? attendance.checkIn.timestamp
+        : attendance.checkIn.timestamp.toDate();
       const checkOutTime = new Date();
       const hoursCompleted = (checkOutTime.getTime() - checkInTime.getTime()) / (1000 * 60 * 60);
 
@@ -318,23 +318,23 @@ export default function OrganizationAttendancePage() {
             onClick={() => router.back()}
             className="flex items-center text-gray-600 hover:text-gray-900 mb-4"
           >
-            <ArrowLeftIcon className="h-5 w-5 mr-2" />
+            <ArrowLeft className="h-5 w-5 mr-2" />
             {t('common.back')}
           </button>
           
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                {language === 'ar' && event.titleAr ? event.titleAr : event.title}
+                { language === 'ar' && event.titleAr ? event.titleAr : event.title}
               </h1>
               <p className="text-gray-600 mb-2">
                 {t('attendance.liveTracking')}
               </p>
               <div className="flex items-center text-sm text-gray-500">
-                <MapPinIcon className="h-4 w-4 mr-1" />
+                <MapPin className="h-4 w-4 mr-1" />
                 {event.location.emirate}
                 <span className="mx-2">•</span>
-                <ClockIcon className="h-4 w-4 mr-1" />
+                <Clock className="h-4 w-4 mr-1" />
                 {formatDateTime(event.dateTime.startDate)}
               </div>
             </div>
@@ -343,7 +343,7 @@ export default function OrganizationAttendancePage() {
               onClick={exportAttendanceData}
               className="flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
             >
-              <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
+              <Download className="h-5 w-5 mr-2" />
               {t('attendance.exportData')}
             </button>
           </div>
@@ -361,7 +361,7 @@ export default function OrganizationAttendancePage() {
                   {stats.registered}
                 </p>
               </div>
-              <UserGroupIcon className="h-8 w-8 text-gray-400" />
+              <Users className="h-8 w-8 text-gray-400" />
             </div>
           </div>
 
@@ -375,7 +375,7 @@ export default function OrganizationAttendancePage() {
                   {stats.checkedIn}
                 </p>
               </div>
-              <CheckCircleIcon className="h-8 w-8 text-blue-400" />
+              <CheckCircle className="h-8 w-8 text-blue-400" />
             </div>
           </div>
 
@@ -389,7 +389,7 @@ export default function OrganizationAttendancePage() {
                   {stats.checkedOut}
                 </p>
               </div>
-              <XCircleIcon className="h-8 w-8 text-green-400" />
+              <XCircle className="h-8 w-8 text-green-400" />
             </div>
           </div>
 
@@ -403,7 +403,7 @@ export default function OrganizationAttendancePage() {
                   {stats.absent}
                 </p>
               </div>
-              <XCircleIcon className="h-8 w-8 text-red-400" />
+              <XCircle className="h-8 w-8 text-red-400" />
             </div>
           </div>
 
@@ -417,7 +417,7 @@ export default function OrganizationAttendancePage() {
                   {stats.lateArrivals}
                 </p>
               </div>
-              <ClockIcon className="h-8 w-8 text-orange-400" />
+              <Clock className="h-8 w-8 text-orange-400" />
             </div>
           </div>
         </div>
@@ -478,7 +478,7 @@ export default function OrganizationAttendancePage() {
 
           {attendances.length === 0 ? (
             <div className="p-12 text-center">
-              <UserGroupIcon className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+              <Users className="h-16 w-16 text-gray-300 mx-auto mb-4" />
               <p className="text-gray-600">{t('attendance.noAttendanceYet')}</p>
             </div>
           ) : (

@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/contexts/AuthContext';
-import { useLanguage } from '@/lib/contexts/LanguageContext';
+import { useAuth } from '@/lib/auth/AuthContext';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { translations } from '@/lib/i18n/translations';
 import {
   getEmailAnalyticsSummary,
@@ -39,8 +39,8 @@ import {
 export default function EmailManagementPage() {
   const router = useRouter();
   const { user } = useAuth();
-  const { language, dir } = useLanguage();
-  const t = translations[language];
+  const { locale, isRTL } = useLanguage();
+  const t = translations[locale];
 
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d'>('30d');
@@ -117,11 +117,11 @@ export default function EmailManagementPage() {
 
   const getStatusBadge = (status: string) => {
     const statusConfig: Record<string, { label: string; color: string; icon: any }> = {
-      PENDING: { label: language === 'ar' ? 'معلق' : 'Pending', color: 'bg-yellow-100 text-yellow-800', icon: Clock },
-      SENT: { label: language === 'ar' ? 'مرسل' : 'Sent', color: 'bg-blue-100 text-blue-800', icon: Send },
-      DELIVERED: { label: language === 'ar' ? 'تم التسليم' : 'Delivered', color: 'bg-green-100 text-green-800', icon: CheckCircle },
-      FAILED: { label: language === 'ar' ? 'فشل' : 'Failed', color: 'bg-red-100 text-red-800', icon: XCircle },
-      BOUNCED: { label: language === 'ar' ? 'مرتد' : 'Bounced', color: 'bg-orange-100 text-orange-800', icon: AlertCircle },
+      PENDING: { label: locale === 'ar' ? 'معلق' : 'Pending', color: 'bg-yellow-100 text-yellow-800', icon: Clock },
+      SENT: { label: locale === 'ar' ? 'مرسل' : 'Sent', color: 'bg-blue-100 text-blue-800', icon: Send },
+      DELIVERED: { label: locale === 'ar' ? 'تم التسليم' : 'Delivered', color: 'bg-green-100 text-green-800', icon: CheckCircle },
+      FAILED: { label: locale === 'ar' ? 'فشل' : 'Failed', color: 'bg-red-100 text-red-800', icon: XCircle },
+      BOUNCED: { label: locale === 'ar' ? 'مرتد' : 'Bounced', color: 'bg-orange-100 text-orange-800', icon: AlertCircle },
     };
 
     const config = statusConfig[status] || statusConfig.PENDING;
@@ -140,14 +140,14 @@ export default function EmailManagementPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">{language === 'ar' ? 'جاري التحميل...' : 'Loading...'}</p>
+          <p className="text-gray-600">{ language === 'ar' ? 'جاري التحميل...' : 'Loading...'}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8" dir={dir}>
+    <div className="min-h-screen bg-gray-50 py-8" dir={isRTL ? "rtl" : "ltr"}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
@@ -156,11 +156,11 @@ export default function EmailManagementPage() {
               <div className="flex items-center gap-3 mb-2">
                 <Mail className="w-8 h-8 text-emerald-600" />
                 <h1 className="text-3xl font-bold text-gray-900">
-                  {language === 'ar' ? 'إدارة البريد الإلكتروني' : 'Email Management'}
+                  { language === 'ar' ? 'إدارة البريد الإلكتروني' : 'Email Management'}
                 </h1>
               </div>
               <p className="text-gray-600">
-                {language === 'ar' 
+                { language === 'ar' 
                   ? 'تتبع أداء البريد الإلكتروني والمشاركة' 
                   : 'Track email performance and engagement'}
               </p>
@@ -171,14 +171,14 @@ export default function EmailManagementPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="7d">{language === 'ar' ? '7 أيام' : 'Last 7 Days'}</SelectItem>
-                  <SelectItem value="30d">{language === 'ar' ? '30 يوم' : 'Last 30 Days'}</SelectItem>
-                  <SelectItem value="90d">{language === 'ar' ? '90 يوم' : 'Last 90 Days'}</SelectItem>
+                  <SelectItem value="7d">{ language === 'ar' ? '7 أيام' : 'Last 7 Days'}</SelectItem>
+                  <SelectItem value="30d">{ language === 'ar' ? '30 يوم' : 'Last 30 Days'}</SelectItem>
+                  <SelectItem value="90d">{ language === 'ar' ? '90 يوم' : 'Last 90 Days'}</SelectItem>
                 </SelectContent>
               </Select>
               <Button onClick={handleExportCSV} variant="outline">
                 <Download className="w-4 h-4 mr-2" />
-                {language === 'ar' ? 'تصدير CSV' : 'Export CSV'}
+                { language === 'ar' ? 'تصدير CSV' : 'Export CSV'}
               </Button>
             </div>
           </div>
@@ -192,12 +192,12 @@ export default function EmailManagementPage() {
                 <Send className="w-6 h-6 text-blue-600" />
               </div>
               <div className="text-right">
-                <p className="text-sm text-gray-600">{language === 'ar' ? 'معدل التسليم' : 'Delivery Rate'}</p>
+                <p className="text-sm text-gray-600">{ language === 'ar' ? 'معدل التسليم' : 'Delivery Rate'}</p>
                 <p className="text-2xl font-bold text-blue-600">{analytics.deliveryRate}%</p>
               </div>
             </div>
             <p className="text-sm text-gray-600">
-              {analytics.totalDelivered.toLocaleString()} / {analytics.totalSent.toLocaleString()} {language === 'ar' ? 'تم التسليم' : 'delivered'}
+              {analytics.totalDelivered.toLocaleString()} / {analytics.totalSent.toLocaleString()} { language === 'ar' ? 'تم التسليم' : 'delivered'}
             </p>
           </Card>
 
@@ -207,12 +207,12 @@ export default function EmailManagementPage() {
                 <Eye className="w-6 h-6 text-green-600" />
               </div>
               <div className="text-right">
-                <p className="text-sm text-gray-600">{language === 'ar' ? 'معدل الفتح' : 'Open Rate'}</p>
+                <p className="text-sm text-gray-600">{ language === 'ar' ? 'معدل الفتح' : 'Open Rate'}</p>
                 <p className="text-2xl font-bold text-green-600">{analytics.openRate}%</p>
               </div>
             </div>
             <p className="text-sm text-gray-600">
-              {analytics.totalOpened.toLocaleString()} {language === 'ar' ? 'فتح' : 'opens'}
+              {analytics.totalOpened.toLocaleString()} { language === 'ar' ? 'فتح' : 'opens'}
             </p>
           </Card>
 
@@ -222,12 +222,12 @@ export default function EmailManagementPage() {
                 <MousePointerClick className="w-6 h-6 text-purple-600" />
               </div>
               <div className="text-right">
-                <p className="text-sm text-gray-600">{language === 'ar' ? 'معدل النقر' : 'Click Rate'}</p>
+                <p className="text-sm text-gray-600">{ language === 'ar' ? 'معدل النقر' : 'Click Rate'}</p>
                 <p className="text-2xl font-bold text-purple-600">{analytics.clickRate}%</p>
               </div>
             </div>
             <p className="text-sm text-gray-600">
-              {analytics.totalClicked.toLocaleString()} {language === 'ar' ? 'نقرة' : 'clicks'}
+              {analytics.totalClicked.toLocaleString()} { language === 'ar' ? 'نقرة' : 'clicks'}
             </p>
           </Card>
 
@@ -237,12 +237,12 @@ export default function EmailManagementPage() {
                 <AlertCircle className="w-6 h-6 text-red-600" />
               </div>
               <div className="text-right">
-                <p className="text-sm text-gray-600">{language === 'ar' ? 'معدل الارتداد' : 'Bounce Rate'}</p>
+                <p className="text-sm text-gray-600">{ language === 'ar' ? 'معدل الارتداد' : 'Bounce Rate'}</p>
                 <p className="text-2xl font-bold text-red-600">{analytics.bounceRate}%</p>
               </div>
             </div>
             <p className="text-sm text-gray-600">
-              {analytics.totalBounced.toLocaleString()} {language === 'ar' ? 'ارتداد' : 'bounces'}
+              {analytics.totalBounced.toLocaleString()} { language === 'ar' ? 'ارتداد' : 'bounces'}
             </p>
           </Card>
         </div>
@@ -250,7 +250,7 @@ export default function EmailManagementPage() {
         {/* Email Queue Status */}
         <Card className="p-6 mb-8">
           <h2 className="text-xl font-bold text-gray-900 mb-4">
-            {language === 'ar' ? 'حالة قائمة الانتظار' : 'Queue Status'}
+            { language === 'ar' ? 'حالة قائمة الانتظار' : 'Queue Status'}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="flex items-center gap-4">
@@ -258,7 +258,7 @@ export default function EmailManagementPage() {
                 <Clock className="w-8 h-8 text-yellow-600" />
               </div>
               <div>
-                <p className="text-sm text-gray-600">{language === 'ar' ? 'قيد الانتظار' : 'Pending'}</p>
+                <p className="text-sm text-gray-600">{ language === 'ar' ? 'قيد الانتظار' : 'Pending'}</p>
                 <p className="text-2xl font-bold text-gray-900">{queueStatus.pending}</p>
               </div>
             </div>
@@ -267,7 +267,7 @@ export default function EmailManagementPage() {
                 <Send className="w-8 h-8 text-blue-600" />
               </div>
               <div>
-                <p className="text-sm text-gray-600">{language === 'ar' ? 'جاري الإرسال' : 'Sending'}</p>
+                <p className="text-sm text-gray-600">{ language === 'ar' ? 'جاري الإرسال' : 'Sending'}</p>
                 <p className="text-2xl font-bold text-gray-900">{queueStatus.sending}</p>
               </div>
             </div>
@@ -276,7 +276,7 @@ export default function EmailManagementPage() {
                 <XCircle className="w-8 h-8 text-red-600" />
               </div>
               <div>
-                <p className="text-sm text-gray-600">{language === 'ar' ? 'فشل' : 'Failed'}</p>
+                <p className="text-sm text-gray-600">{ language === 'ar' ? 'فشل' : 'Failed'}</p>
                 <p className="text-2xl font-bold text-gray-900">{queueStatus.failed}</p>
               </div>
             </div>
@@ -286,23 +286,23 @@ export default function EmailManagementPage() {
         {/* Template Performance */}
         <Card className="p-6 mb-8">
           <h2 className="text-xl font-bold text-gray-900 mb-4">
-            {language === 'ar' ? 'أداء القوالب' : 'Template Performance'}
+            { language === 'ar' ? 'أداء القوالب' : 'Template Performance'}
           </h2>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200">
                   <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
-                    {language === 'ar' ? 'القالب' : 'Template'}
+                    { language === 'ar' ? 'القالب' : 'Template'}
                   </th>
                   <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">
-                    {language === 'ar' ? 'مرسل' : 'Sent'}
+                    { language === 'ar' ? 'مرسل' : 'Sent'}
                   </th>
                   <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">
-                    {language === 'ar' ? 'معدل الفتح' : 'Open Rate'}
+                    { language === 'ar' ? 'معدل الفتح' : 'Open Rate'}
                   </th>
                   <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">
-                    {language === 'ar' ? 'معدل النقر' : 'Click Rate'}
+                    { language === 'ar' ? 'معدل النقر' : 'Click Rate'}
                   </th>
                 </tr>
               </thead>
@@ -323,14 +323,14 @@ export default function EmailManagementPage() {
         {/* Recent Emails */}
         <Card className="p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-4">
-            {language === 'ar' ? 'الرسائل الأخيرة' : 'Recent Emails'}
+            { language === 'ar' ? 'الرسائل الأخيرة' : 'Recent Emails'}
           </h2>
           <div className="overflow-x-auto">
             {emailTracking.length === 0 ? (
               <div className="text-center py-12">
                 <Mail className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <p className="text-gray-500 text-lg">
-                  {language === 'ar' ? 'لا توجد رسائل بريد إلكتروني' : 'No emails found'}
+                  { language === 'ar' ? 'لا توجد رسائل بريد إلكتروني' : 'No emails found'}
                 </p>
               </div>
             ) : (
@@ -338,22 +338,22 @@ export default function EmailManagementPage() {
                 <thead>
                   <tr className="border-b border-gray-200">
                     <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
-                      {language === 'ar' ? 'المستلم' : 'Recipient'}
+                      { language === 'ar' ? 'المستلم' : 'Recipient'}
                     </th>
                     <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
-                      {language === 'ar' ? 'الموضوع' : 'Subject'}
+                      { language === 'ar' ? 'الموضوع' : 'Subject'}
                     </th>
                     <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
-                      {language === 'ar' ? 'الحالة' : 'Status'}
+                      { language === 'ar' ? 'الحالة' : 'Status'}
                     </th>
                     <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
-                      {language === 'ar' ? 'تاريخ الإرسال' : 'Sent At'}
+                      { language === 'ar' ? 'تاريخ الإرسال' : 'Sent At'}
                     </th>
                     <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">
-                      {language === 'ar' ? 'فتح' : 'Opened'}
+                      { language === 'ar' ? 'فتح' : 'Opened'}
                     </th>
                     <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">
-                      {language === 'ar' ? 'نقر' : 'Clicked'}
+                      { language === 'ar' ? 'نقر' : 'Clicked'}
                     </th>
                   </tr>
                 </thead>
@@ -364,7 +364,7 @@ export default function EmailManagementPage() {
                       <td className="py-3 px-4 text-sm text-gray-900">{email.subject}</td>
                       <td className="py-3 px-4">{getStatusBadge(email.status)}</td>
                       <td className="py-3 px-4 text-sm text-gray-600">
-                        {email.sentAt ? formatDateTime(email.sentAt, language) : '-'}
+                        {email.sentAt ? formatDateTime(email.sentAt, locale) : '-'}
                       </td>
                       <td className="py-3 px-4 text-center">
                         {email.opened ? (

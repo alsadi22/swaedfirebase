@@ -24,7 +24,7 @@ import { t } from '@/lib/i18n/translations';
 export default function ResetPasswordPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { locale } = useLanguage();
+  const { language } = useLanguage();
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -76,14 +76,14 @@ export default function ResetPasswordPage() {
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900">SwaedUAE</h1>
-          <p className="mt-2 text-gray-600">{t(locale, 'auth.resetPassword')}</p>
+          <p className="mt-2 text-gray-600">{t(language, 'auth.resetPassword')}</p>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>{t(locale, 'auth.resetPassword')}</CardTitle>
+            <CardTitle>{t(language, 'auth.resetPassword')}</CardTitle>
             <CardDescription>
-              {locale === 'en'
+              { language === 'en'
                 ? 'Enter your new password below.'
                 : 'أدخل كلمة المرور الجديدة أدناه.'}
             </CardDescription>
@@ -101,9 +101,9 @@ export default function ResetPasswordPage() {
                 <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded flex items-start">
                   <CheckCircle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
                   <div className="text-sm">
-                    <p className="font-medium">{t(locale, 'messages.passwordReset')}</p>
+                    <p className="font-medium">{t(language, 'messages.passwordReset')}</p>
                     <p className="mt-1">
-                      {locale === 'en'
+                      { language === 'en'
                         ? 'Redirecting you to login...'
                         : 'جاري إعادة توجيهك لتسجيل الدخول...'}
                     </p>
@@ -112,19 +112,19 @@ export default function ResetPasswordPage() {
 
                 <Link href="/auth/login">
                   <Button className="w-full">
-                    <ArrowLeft className={`h-4 w-4 ${locale === 'ar' ? 'ml-2' : 'mr-2'}`} />
-                    {t(locale, 'auth.signIn')}
+                    <ArrowLeft className={`h-4 w-4 ${ language === 'ar' ? 'ml-2' : 'mr-2'}`} />
+                    {t(language, 'auth.signIn')}
                   </Button>
                 </Link>
               </div>
             ) : (
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="password">{t(locale, 'auth.password')}</Label>
+                  <Label htmlFor="password">{t(language, 'auth.password')}</Label>
                   <Input
                     id="password"
                     type="password"
-                    placeholder={t(locale, 'auth.minCharacters')}
+                    placeholder={t(language, 'auth.minCharacters')}
                     {...register('password')}
                     className={errors.password ? 'border-red-500' : ''}
                     autoFocus
@@ -136,11 +136,11 @@ export default function ResetPasswordPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="confirmPassword">{t(locale, 'auth.confirmPassword')}</Label>
+                  <Label htmlFor="confirmPassword">{t(language, 'auth.confirmPassword')}</Label>
                   <Input
                     id="confirmPassword"
                     type="password"
-                    placeholder={t(locale, 'auth.reenterPassword')}
+                    placeholder={t(language, 'auth.reenterPassword')}
                     {...register('confirmPassword')}
                     className={errors.confirmPassword ? 'border-red-500' : ''}
                     disabled={!oobCode}
@@ -152,14 +152,14 @@ export default function ResetPasswordPage() {
 
                 <Button type="submit" className="w-full" disabled={loading || !oobCode}>
                   {loading
-                    ? (locale === 'en' ? 'Resetting...' : 'جاري إعادة التعيين...')
-                    : t(locale, 'auth.resetPassword')}
+                    ? ( language === 'en' ? 'Resetting...' : 'جاري إعادة التعيين...')
+                    : t(language, 'auth.resetPassword')}
                 </Button>
 
                 <Link href="/auth/login">
                   <Button className="w-full" variant="ghost">
-                    <ArrowLeft className={`h-4 w-4 ${locale === 'ar' ? 'ml-2' : 'mr-2'}`} />
-                    {locale === 'en' ? 'Back to Sign In' : 'العودة لتسجيل الدخول'}
+                    <ArrowLeft className={`h-4 w-4 ${ language === 'ar' ? 'ml-2' : 'mr-2'}`} />
+                    { language === 'en' ? 'Back to Sign In' : 'العودة لتسجيل الدخول'}
                   </Button>
                 </Link>
               </form>

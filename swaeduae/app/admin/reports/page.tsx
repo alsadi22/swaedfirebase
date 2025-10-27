@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/contexts/AuthContext';
-import { useLanguage } from '@/lib/contexts/LanguageContext';
+import { useAuth } from '@/lib/auth/AuthContext';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { translations } from '@/lib/i18n/translations';
 import { getAllCertificates } from '@/lib/services/certificateManagement';
 import { getAllUsers, getAllOrganizations, getEvents } from '@/lib/services/firestore';
@@ -31,8 +31,8 @@ import {
 export default function AdminReportsPage() {
   const router = useRouter();
   const { user } = useAuth();
-  const { language, dir } = useLanguage();
-  const t = translations[language];
+  const { locale, isRTL } = useLanguage();
+  const t = translations[locale];
 
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d' | 'all'>('30d');
@@ -148,24 +148,24 @@ Growth Rate,${stats.growthRate}%
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">{language === 'ar' ? 'جاري التحميل...' : 'Loading...'}</p>
+          <p className="text-gray-600">{ language === 'ar' ? 'جاري التحميل...' : 'Loading...'}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8" dir={dir}>
+    <div className="min-h-screen bg-gray-50 py-8" dir={isRTL ? "rtl" : "ltr"}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                {language === 'ar' ? 'التقارير المالية' : 'Financial Reports'}
+                { language === 'ar' ? 'التقارير المالية' : 'Financial Reports'}
               </h1>
               <p className="text-gray-600">
-                {language === 'ar' 
+                { language === 'ar' 
                   ? 'نظرة شاملة على أداء المنصة والإيرادات' 
                   : 'Comprehensive overview of platform performance and revenue'}
               </p>
@@ -176,15 +176,15 @@ Growth Rate,${stats.growthRate}%
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="7d">{language === 'ar' ? '7 أيام' : 'Last 7 Days'}</SelectItem>
-                  <SelectItem value="30d">{language === 'ar' ? '30 يوم' : 'Last 30 Days'}</SelectItem>
-                  <SelectItem value="90d">{language === 'ar' ? '90 يوم' : 'Last 90 Days'}</SelectItem>
-                  <SelectItem value="all">{language === 'ar' ? 'كل الوقت' : 'All Time'}</SelectItem>
+                  <SelectItem value="7d">{ language === 'ar' ? '7 أيام' : 'Last 7 Days'}</SelectItem>
+                  <SelectItem value="30d">{ language === 'ar' ? '30 يوم' : 'Last 30 Days'}</SelectItem>
+                  <SelectItem value="90d">{ language === 'ar' ? '90 يوم' : 'Last 90 Days'}</SelectItem>
+                  <SelectItem value="all">{ language === 'ar' ? 'كل الوقت' : 'All Time'}</SelectItem>
                 </SelectContent>
               </Select>
               <Button onClick={handleExportCSV} variant="outline">
                 <Download className="w-4 h-4 mr-2" />
-                {language === 'ar' ? 'تصدير CSV' : 'Export CSV'}
+                { language === 'ar' ? 'تصدير CSV' : 'Export CSV'}
               </Button>
             </div>
           </div>
@@ -203,10 +203,10 @@ Growth Rate,${stats.growthRate}%
               </div>
             </div>
             <p className="text-sm text-gray-600 mb-1">
-              {language === 'ar' ? 'إجمالي الإيرادات' : 'Total Revenue'}
+              { language === 'ar' ? 'إجمالي الإيرادات' : 'Total Revenue'}
             </p>
             <p className="text-2xl font-bold text-gray-900">
-              {stats.totalRevenue.toLocaleString()} {language === 'ar' ? 'درهم' : 'AED'}
+              {stats.totalRevenue.toLocaleString()} { language === 'ar' ? 'درهم' : 'AED'}
             </p>
           </Card>
 
@@ -217,7 +217,7 @@ Growth Rate,${stats.growthRate}%
               </div>
             </div>
             <p className="text-sm text-gray-600 mb-1">
-              {language === 'ar' ? 'الشهادات المباعة' : 'Certificates Sold'}
+              { language === 'ar' ? 'الشهادات المباعة' : 'Certificates Sold'}
             </p>
             <p className="text-2xl font-bold text-gray-900">{stats.certificatesSold}</p>
           </Card>
@@ -229,10 +229,10 @@ Growth Rate,${stats.growthRate}%
               </div>
             </div>
             <p className="text-sm text-gray-600 mb-1">
-              {language === 'ar' ? 'متوسط سعر الشهادة' : 'Avg Certificate Price'}
+              { language === 'ar' ? 'متوسط سعر الشهادة' : 'Avg Certificate Price'}
             </p>
             <p className="text-2xl font-bold text-gray-900">
-              {stats.avgCertificatePrice} {language === 'ar' ? 'درهم' : 'AED'}
+              {stats.avgCertificatePrice} { language === 'ar' ? 'درهم' : 'AED'}
             </p>
           </Card>
 
@@ -243,7 +243,7 @@ Growth Rate,${stats.growthRate}%
               </div>
             </div>
             <p className="text-sm text-gray-600 mb-1">
-              {language === 'ar' ? 'الأحداث المكتملة' : 'Completed Events'}
+              { language === 'ar' ? 'الأحداث المكتملة' : 'Completed Events'}
             </p>
             <p className="text-2xl font-bold text-gray-900">{stats.completedEvents}</p>
           </Card>
@@ -252,7 +252,7 @@ Growth Rate,${stats.growthRate}%
         {/* Platform Statistics */}
         <Card className="p-6 mb-8">
           <h2 className="text-xl font-bold text-gray-900 mb-6">
-            {language === 'ar' ? 'إحصائيات المنصة' : 'Platform Statistics'}
+            { language === 'ar' ? 'إحصائيات المنصة' : 'Platform Statistics'}
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -262,7 +262,7 @@ Growth Rate,${stats.growthRate}%
               </div>
               <div>
                 <p className="text-sm text-gray-600">
-                  {language === 'ar' ? 'إجمالي المستخدمين' : 'Total Users'}
+                  { language === 'ar' ? 'إجمالي المستخدمين' : 'Total Users'}
                 </p>
                 <p className="text-2xl font-bold text-gray-900">{stats.totalUsers}</p>
               </div>
@@ -274,7 +274,7 @@ Growth Rate,${stats.growthRate}%
               </div>
               <div>
                 <p className="text-sm text-gray-600">
-                  {language === 'ar' ? 'المنظمات النشطة' : 'Active Organizations'}
+                  { language === 'ar' ? 'المنظمات النشطة' : 'Active Organizations'}
                 </p>
                 <p className="text-2xl font-bold text-gray-900">{stats.activeOrganizations}</p>
               </div>
@@ -286,7 +286,7 @@ Growth Rate,${stats.growthRate}%
               </div>
               <div>
                 <p className="text-sm text-gray-600">
-                  {language === 'ar' ? 'الأحداث المكتملة' : 'Completed Events'}
+                  { language === 'ar' ? 'الأحداث المكتملة' : 'Completed Events'}
                 </p>
                 <p className="text-2xl font-bold text-gray-900">{stats.completedEvents}</p>
               </div>
@@ -298,28 +298,28 @@ Growth Rate,${stats.growthRate}%
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <Card className="p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">
-              {language === 'ar' ? 'تفصيل الإيرادات' : 'Revenue Breakdown'}
+              { language === 'ar' ? 'تفصيل الإيرادات' : 'Revenue Breakdown'}
             </h2>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-gray-600">{language === 'ar' ? 'الشهادات' : 'Certificates'}</span>
+                <span className="text-gray-600">{ language === 'ar' ? 'الشهادات' : 'Certificates'}</span>
                 <span className="font-semibold text-gray-900">
-                  {stats.totalRevenue.toLocaleString()} {language === 'ar' ? 'درهم' : 'AED'}
+                  {stats.totalRevenue.toLocaleString()} { language === 'ar' ? 'درهم' : 'AED'}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-600">{language === 'ar' ? 'التبرعات' : 'Donations'}</span>
-                <span className="font-semibold text-gray-900">0 {language === 'ar' ? 'درهم' : 'AED'}</span>
+                <span className="text-gray-600">{ language === 'ar' ? 'التبرعات' : 'Donations'}</span>
+                <span className="font-semibold text-gray-900">0 { language === 'ar' ? 'درهم' : 'AED'}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-600">{language === 'ar' ? 'اشتراكات المنظمات' : 'Organization Subscriptions'}</span>
-                <span className="font-semibold text-gray-900">0 {language === 'ar' ? 'درهم' : 'AED'}</span>
+                <span className="text-gray-600">{ language === 'ar' ? 'اشتراكات المنظمات' : 'Organization Subscriptions'}</span>
+                <span className="font-semibold text-gray-900">0 { language === 'ar' ? 'درهم' : 'AED'}</span>
               </div>
               <div className="pt-4 border-t border-gray-200">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-gray-900">{language === 'ar' ? 'الإجمالي' : 'Total'}</span>
+                  <span className="font-bold text-gray-900">{ language === 'ar' ? 'الإجمالي' : 'Total'}</span>
                   <span className="text-xl font-bold text-emerald-600">
-                    {stats.totalRevenue.toLocaleString()} {language === 'ar' ? 'درهم' : 'AED'}
+                    {stats.totalRevenue.toLocaleString()} { language === 'ar' ? 'درهم' : 'AED'}
                   </span>
                 </div>
               </div>
@@ -328,12 +328,12 @@ Growth Rate,${stats.growthRate}%
 
           <Card className="p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">
-              {language === 'ar' ? 'أعلى مصادر الإيرادات' : 'Top Revenue Sources'}
+              { language === 'ar' ? 'أعلى مصادر الإيرادات' : 'Top Revenue Sources'}
             </h2>
             <div className="space-y-4">
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-gray-600">{language === 'ar' ? 'شهادات التطوع' : 'Volunteer Certificates'}</span>
+                  <span className="text-gray-600">{ language === 'ar' ? 'شهادات التطوع' : 'Volunteer Certificates'}</span>
                   <span className="font-semibold text-gray-900">100%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
@@ -342,7 +342,7 @@ Growth Rate,${stats.growthRate}%
               </div>
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-gray-600">{language === 'ar' ? 'تبرعات مباشرة' : 'Direct Donations'}</span>
+                  <span className="text-gray-600">{ language === 'ar' ? 'تبرعات مباشرة' : 'Direct Donations'}</span>
                   <span className="font-semibold text-gray-900">0%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
@@ -351,7 +351,7 @@ Growth Rate,${stats.growthRate}%
               </div>
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-gray-600">{language === 'ar' ? 'اشتراكات مميزة' : 'Premium Subscriptions'}</span>
+                  <span className="text-gray-600">{ language === 'ar' ? 'اشتراكات مميزة' : 'Premium Subscriptions'}</span>
                   <span className="font-semibold text-gray-900">0%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
@@ -365,18 +365,18 @@ Growth Rate,${stats.growthRate}%
         {/* Growth Insights */}
         <Card className="p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-4">
-            {language === 'ar' ? 'رؤى النمو' : 'Growth Insights'}
+            { language === 'ar' ? 'رؤى النمو' : 'Growth Insights'}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="p-4 bg-green-50 rounded-lg border border-green-200">
               <div className="flex items-center gap-2 mb-2">
                 <ArrowUpRight className="w-5 h-5 text-green-600" />
                 <span className="font-semibold text-green-900">
-                  {language === 'ar' ? 'زيادة في المستخدمين' : 'User Growth'}
+                  { language === 'ar' ? 'زيادة في المستخدمين' : 'User Growth'}
                 </span>
               </div>
               <p className="text-sm text-green-700">
-                {language === 'ar' 
+                { language === 'ar' 
                   ? `+${stats.growthRate}% في آخر ${timeRange === '7d' ? '7 أيام' : timeRange === '30d' ? '30 يوم' : '90 يوم'}` 
                   : `+${stats.growthRate}% in the last ${timeRange === '7d' ? '7 days' : timeRange === '30d' ? '30 days' : '90 days'}`}
               </p>
@@ -385,11 +385,11 @@ Growth Rate,${stats.growthRate}%
               <div className="flex items-center gap-2 mb-2">
                 <TrendingUp className="w-5 h-5 text-blue-600" />
                 <span className="font-semibold text-blue-900">
-                  {language === 'ar' ? 'زيادة في الإيرادات' : 'Revenue Growth'}
+                  { language === 'ar' ? 'زيادة في الإيرادات' : 'Revenue Growth'}
                 </span>
               </div>
               <p className="text-sm text-blue-700">
-                {language === 'ar' 
+                { language === 'ar' 
                   ? 'نمو مستمر في مبيعات الشهادات' 
                   : 'Steady growth in certificate sales'}
               </p>

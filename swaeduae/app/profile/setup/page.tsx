@@ -26,7 +26,7 @@ import { EventCategory } from '@/types';
 export default function ProfileSetupPage() {
   const router = useRouter();
   const { user, refreshUser } = useAuth();
-  const { locale } = useLanguage();
+  const { language } = useLanguage();
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [selectedInterests, setSelectedInterests] = useState<EventCategory[]>([]);
@@ -115,12 +115,12 @@ export default function ProfileSetupPage() {
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900">SwaedUAE</h1>
-          <p className="mt-2 text-gray-600">{t(locale, 'profile.setupProfile')}</p>
+          <p className="mt-2 text-gray-600">{t(language, 'profile.setupProfile')}</p>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>{t(locale, 'profile.setupProfile')}</CardTitle>
+            <CardTitle>{t(language, 'profile.setupProfile')}</CardTitle>
             <CardDescription>
               {locale === 'en'
                 ? 'Complete your profile to start volunteering'
@@ -138,11 +138,11 @@ export default function ProfileSetupPage() {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               {/* Personal Information */}
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold">{t(locale, 'profile.personalInfo')}</h3>
+                <h3 className="text-lg font-semibold">{t(language, 'profile.personalInfo')}</h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="displayName">{t(locale, 'form.displayName')} *</Label>
+                    <Label htmlFor="displayName">{t(language, 'form.displayName')} *</Label>
                     <Input
                       id="displayName"
                       {...register('displayName')}
@@ -154,7 +154,7 @@ export default function ProfileSetupPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="phoneNumber">{t(locale, 'form.phoneNumber')} *</Label>
+                    <Label htmlFor="phoneNumber">{t(language, 'form.phoneNumber')} *</Label>
                     <Input
                       id="phoneNumber"
                       type="tel"
@@ -168,7 +168,7 @@ export default function ProfileSetupPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="dateOfBirth">{t(locale, 'form.dateOfBirth')}</Label>
+                    <Label htmlFor="dateOfBirth">{t(language, 'form.dateOfBirth')}</Label>
                     <Input
                       id="dateOfBirth"
                       type="date"
@@ -183,7 +183,7 @@ export default function ProfileSetupPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="nationality">{t(locale, 'form.nationality')}</Label>
+                    <Label htmlFor="nationality">{t(language, 'form.nationality')}</Label>
                     <Input
                       id="nationality"
                       placeholder="UAE"
@@ -193,16 +193,16 @@ export default function ProfileSetupPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="gender">{t(locale, 'form.gender')}</Label>
+                    <Label htmlFor="gender">{t(language, 'form.gender')}</Label>
                     <select
                       id="gender"
                       {...register('gender')}
                       className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
                     >
                       <option value="">Select...</option>
-                      <option value="MALE">{t(locale, 'form.male')}</option>
-                      <option value="FEMALE">{t(locale, 'form.female')}</option>
-                      <option value="OTHER">{t(locale, 'form.other')}</option>
+                      <option value="MALE">{t(language, 'form.male')}</option>
+                      <option value="FEMALE">{t(language, 'form.female')}</option>
+                      <option value="OTHER">{t(language, 'form.other')}</option>
                     </select>
                   </div>
 
@@ -218,7 +218,7 @@ export default function ProfileSetupPage() {
 
               {/* Interests */}
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold">{t(locale, 'profile.interests')}</h3>
+                <h3 className="text-lg font-semibold">{t(language, 'profile.interests')}</h3>
                 <p className="text-sm text-gray-600">
                   {locale === 'en'
                     ? 'Select your areas of interest to get personalized event recommendations'
@@ -250,12 +250,12 @@ export default function ProfileSetupPage() {
                   className="flex-1"
                   onClick={() => router.push('/dashboard')}
                 >
-                  {t(locale, 'common.cancel')}
+                  {t(language, 'common.cancel')}
                 </Button>
                 <Button type="submit" className="flex-1" disabled={loading}>
                   {loading
-                    ? (locale === 'en' ? 'Saving...' : 'جاري الحفظ...')
-                    : t(locale, 'common.save')}
+                    ? ( language === 'en' ? 'Saving...' : 'جاري الحفظ...')
+                    : t(language, 'common.save')}
                 </Button>
               </div>
             </form>

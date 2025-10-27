@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/lib/auth/AuthContext';
 import { useRouter } from 'next/navigation';
 import {
   collection,
@@ -18,11 +18,11 @@ import { sendOrganizationVerificationEmail } from '@/lib/services/email';
 import { logOrganizationVerification } from '@/lib/services/auditLogger';
 import type { Organization } from '@/types';
 import {
-  CheckCircleIcon,
-  XCircleIcon,
-  ClockIcon,
-  BuildingOfficeIcon,
-} from '@heroicons/react/24/outline';
+  CheckCircle,
+  XCircle,
+  Clock,
+  Building,
+} from 'lucide-react';
 
 export default function AdminOrganizationsPage() {
   const { user } = useAuth();
@@ -119,10 +119,10 @@ export default function AdminOrganizationsPage() {
 
   const getStatusBadge = (status: string) => {
     const badges = {
-      PENDING: { label: 'Pending', color: 'bg-yellow-100 text-yellow-800', icon: ClockIcon },
-      VERIFIED: { label: 'Verified', color: 'bg-green-100 text-green-800', icon: CheckCircleIcon },
-      REJECTED: { label: 'Rejected', color: 'bg-red-100 text-red-800', icon: XCircleIcon },
-      EXPIRED: { label: 'Expired', color: 'bg-gray-100 text-gray-800', icon: ClockIcon },
+      PENDING: { label: 'Pending', color: 'bg-yellow-100 text-yellow-800', icon: Clock },
+      VERIFIED: { label: 'Verified', color: 'bg-green-100 text-green-800', icon: CheckCircle },
+      REJECTED: { label: 'Rejected', color: 'bg-red-100 text-red-800', icon: XCircle },
+      EXPIRED: { label: 'Expired', color: 'bg-gray-100 text-gray-800', icon: Clock },
     };
 
     const badge = badges[status as keyof typeof badges] || badges.PENDING;

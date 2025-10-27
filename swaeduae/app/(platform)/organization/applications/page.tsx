@@ -43,7 +43,7 @@ export default function ApplicationManagementPage() {
     try {
       setLoading(true);
 
-      const profile = await getUserProfile(user.uid);
+      const profile = await getUserProfile(user.id);
       setUserProfile(profile);
 
       if (!profile?.organizationId) return;
@@ -113,7 +113,7 @@ export default function ApplicationManagementPage() {
       setProcessing(applicationId);
 
       const message = responseMessage[applicationId] || '';
-      await updateApplicationStatus(applicationId, newStatus, message, user?.uid);
+      await updateApplicationStatus(applicationId, newStatus, message, user?.id);
 
       // Send notification to volunteer
       const notificationMessage = newStatus === 'APPROVED' 

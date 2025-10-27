@@ -33,7 +33,7 @@ export default function OrganizationDashboard() {
       setLoading(true);
 
       // Load user profile
-      const profile = await getUserProfile(user.uid);
+      const profile = await getUserProfile(user.id);
       setUserProfile(profile);
 
       if (!profile?.organizationId) {

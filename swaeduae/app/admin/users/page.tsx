@@ -32,7 +32,7 @@ export default function UserManagementPage() {
 
 function UserManagementContent() {
   const { user: currentUser } = useAuth();
-  const { locale } = useLanguage();
+  const { language } = useLanguage();
   const [users, setUsers] = useState<User[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -152,7 +152,7 @@ function UserManagementContent() {
               <Link href="/admin/dashboard">
                 <h1 className="text-2xl font-bold text-gray-900">SwaedUAE Admin</h1>
               </Link>
-              <p className="text-sm text-gray-500">{t(locale, 'admin.userManagement')}</p>
+              <p className="text-sm text-gray-500">{t(language, 'admin.userManagement')}</p>
             </div>
             <div className="flex items-center space-x-4">
               <LanguageSwitcher />
@@ -165,7 +165,7 @@ function UserManagementContent() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Card>
           <CardHeader>
-            <CardTitle>{t(locale, 'admin.userManagement')}</CardTitle>
+            <CardTitle>{t(language, 'admin.userManagement')}</CardTitle>
             <CardDescription>
               {locale === 'en'
                 ? 'View and manage all platform users'
@@ -176,7 +176,7 @@ function UserManagementContent() {
             {/* Filters */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="search">{t(locale, 'common.search')}</Label>
+                <Label htmlFor="search">{t(language, 'common.search')}</Label>
                 <div className="relative">
                   <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
                   <Input
@@ -198,12 +198,12 @@ function UserManagementContent() {
                   className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
                 >
                   <option value="ALL">{locale === 'en' ? 'All Roles' : 'جميع الأدوار'}</option>
-                  <option value="VOLUNTEER">{t(locale, 'roles.volunteer')}</option>
-                  <option value="ORG_SUPERVISOR">{t(locale, 'roles.orgSupervisor')}</option>
-                  <option value="ORG_ADMIN">{t(locale, 'roles.orgAdmin')}</option>
-                  <option value="OPERATOR">{t(locale, 'roles.operator')}</option>
-                  <option value="ADMIN">{t(locale, 'roles.admin')}</option>
-                  <option value="SUPER_ADMIN">{t(locale, 'roles.superAdmin')}</option>
+                  <option value="VOLUNTEER">{t(language, 'roles.volunteer')}</option>
+                  <option value="ORG_SUPERVISOR">{t(language, 'roles.orgSupervisor')}</option>
+                  <option value="ORG_ADMIN">{t(language, 'roles.orgAdmin')}</option>
+                  <option value="OPERATOR">{t(language, 'roles.operator')}</option>
+                  <option value="ADMIN">{t(language, 'roles.admin')}</option>
+                  <option value="SUPER_ADMIN">{t(language, 'roles.superAdmin')}</option>
                 </select>
               </div>
 
@@ -216,9 +216,9 @@ function UserManagementContent() {
                   className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
                 >
                   <option value="ALL">{locale === 'en' ? 'All Statuses' : 'جميع الحالات'}</option>
-                  <option value="ACTIVE">{t(locale, 'admin.active')}</option>
-                  <option value="INACTIVE">{t(locale, 'admin.inactive')}</option>
-                  <option value="SUSPENDED">{t(locale, 'admin.suspended')}</option>
+                  <option value="ACTIVE">{t(language, 'admin.active')}</option>
+                  <option value="INACTIVE">{t(language, 'admin.inactive')}</option>
+                  <option value="SUSPENDED">{t(language, 'admin.suspended')}</option>
                   <option value="PENDING_VERIFICATION">{locale === 'en' ? 'Pending Verification' : 'في انتظار التحقق'}</option>
                 </select>
               </div>
@@ -229,7 +229,7 @@ function UserManagementContent() {
               {loading ? (
                 <div className="p-8 text-center">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-                  <p className="mt-4 text-gray-600">{t(locale, 'common.loading')}</p>
+                  <p className="mt-4 text-gray-600">{t(language, 'common.loading')}</p>
                 </div>
               ) : filteredUsers.length === 0 ? (
                 <div className="p-8 text-center text-gray-500">
@@ -268,12 +268,12 @@ function UserManagementContent() {
                           </td>
                           <td className="px-6 py-4">
                             <span className={`px-2 py-1 text-xs font-medium rounded ${getRoleBadgeColor(user.role)}`}>
-                              {t(locale, `roles.${user.role.toLowerCase().replace('_', '')}`)}
+                              {t(language, `roles.${user.role.toLowerCase().replace('_', '')}`)}
                             </span>
                           </td>
                           <td className="px-6 py-4">
                             <span className={`px-2 py-1 text-xs font-medium rounded ${getStatusBadgeColor(user.status)}`}>
-                              {t(locale, `admin.${user.status.toLowerCase().replace('_', '')}`)}
+                              {t(language, `admin.${user.status.toLowerCase().replace('_', '')}`)}
                             </span>
                           </td>
                           <td className="px-6 py-4 text-sm text-gray-500">
@@ -321,7 +321,7 @@ function UserManagementContent() {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <Card className="w-full max-w-md">
               <CardHeader>
-                <CardTitle>{t(locale, 'admin.changeRole')}</CardTitle>
+                <CardTitle>{t(language, 'admin.changeRole')}</CardTitle>
                 <CardDescription>
                   {editingUser.displayName} ({editingUser.email})
                 </CardDescription>
@@ -339,13 +339,13 @@ function UserManagementContent() {
                           : 'bg-white hover:border-primary'
                       }`}
                     >
-                      {t(locale, `roles.${role.toLowerCase().replace('_', '')}`)}
+                      {t(language, `roles.${role.toLowerCase().replace('_', '')}`)}
                     </button>
                   ))}
                 </div>
 
                 <Button variant="outline" className="w-full" onClick={() => setEditingUser(null)}>
-                  {t(locale, 'common.cancel')}
+                  {t(language, 'common.cancel')}
                 </Button>
               </CardContent>
             </Card>

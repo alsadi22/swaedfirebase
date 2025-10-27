@@ -47,7 +47,7 @@ export default function ProfilePage() {
 
     try {
       setLoading(true);
-      const profile = await getUserProfile(user.uid);
+      const profile = await getUserProfile(user.id);
       
       if (profile) {
         setUserProfile(profile);
@@ -87,7 +87,7 @@ export default function ProfilePage() {
     try {
       setSaving(true);
 
-      await updateUserProfile(user.uid, {
+      await updateUserProfile(user.id, {
         displayName,
         phoneNumber: phoneNumber || undefined,
         emiratesId: emiratesId || undefined,

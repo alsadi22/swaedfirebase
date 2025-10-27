@@ -75,7 +75,7 @@ export default function CreateEventPage() {
 
     try {
       setLoading(true);
-      const profile = await getUserProfile(user.uid);
+      const profile = await getUserProfile(user.id);
       setUserProfile(profile);
 
       if (profile?.organizationId) {
@@ -176,7 +176,7 @@ export default function CreateEventPage() {
           checkIn: qrCodeCheckIn,
           checkOut: qrCodeCheckOut,
         },
-        createdBy: user.uid,
+        createdBy: user.id,
       };
 
       const eventId = await createEvent(eventData as any);

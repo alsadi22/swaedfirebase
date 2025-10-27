@@ -40,7 +40,7 @@ export default function EventDetailPage() {
 
       // Check if user already applied
       if (user && fetchedEvent) {
-        const application = await checkExistingApplication(user.uid, eventId);
+        const application = await checkExistingApplication(user.id, eventId);
         setExistingApplication(application);
       }
     } catch (error) {
@@ -67,7 +67,7 @@ export default function EventDetailPage() {
     try {
       setApplying(true);
 
-      const userProfile = await getUserProfile(user.uid);
+      const userProfile = await getUserProfile(user.id);
       if (!userProfile) {
         alert(t('events.completeProfile', 'Please complete your profile first'));
         router.push('/profile/setup');
@@ -76,7 +76,7 @@ export default function EventDetailPage() {
 
       await createApplication({
         eventId,
-        userId: user.uid,
+        userId: user.id,
         status: 'PENDING',
         message: applicationMessage,
       });
@@ -186,7 +186,7 @@ export default function EventDetailPage() {
                   <span className="text-sm text-gray-500">{event.location.emirate}</span>
                 </div>
                 <CardTitle className="text-3xl mb-2">
-                  {language === 'ar' && event.titleAr ? event.titleAr : event.title}
+                  { language === 'ar' && event.titleAr ? event.titleAr : event.title}
                 </CardTitle>
                 <CardDescription className="text-lg">{event.organizationName}</CardDescription>
               </div>
@@ -214,7 +214,7 @@ export default function EventDetailPage() {
             <div className="mb-6">
               <h3 className="text-lg font-semibold mb-2">{t('events.description', 'Description')}</h3>
               <p className="text-gray-700 whitespace-pre-wrap">
-                {language === 'ar' && event.descriptionAr ? event.descriptionAr : event.description}
+                { language === 'ar' && event.descriptionAr ? event.descriptionAr : event.description}
               </p>
             </div>
 

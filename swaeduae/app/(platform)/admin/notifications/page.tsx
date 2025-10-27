@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/contexts/AuthContext';
-import { useLanguage } from '@/lib/contexts/LanguageContext';
+import { useAuth } from '@/lib/auth/AuthContext';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { translations } from '@/lib/i18n/translations';
 import { User } from '@/types';
 import { getAllUsers } from '@/lib/services/firestore';
@@ -25,8 +25,8 @@ import { Bell, Send, Users, Filter, Info, CheckCircle, AlertTriangle, XCircle } 
 export default function AdminNotificationsPage() {
   const router = useRouter();
   const { user } = useAuth();
-  const { language, dir } = useLanguage();
-  const t = translations[language];
+  const { locale, isRTL } = useLanguage();
+  const t = translations[locale];
 
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -82,14 +82,14 @@ export default function AdminNotificationsPage() {
 
   const handleSend = async () => {
     if (!title.trim() || !message.trim()) {
-      alert(language === 'ar' ? 'يرجى ملء جميع الحقول المطلوبة' : 'Please fill all required fields');
+      alert( language === 'ar' ? 'يرجى ملء جميع الحقول المطلوبة' : 'Please fill all required fields');
       return;
     }
 
     const targetUserIds = getTargetUserIds();
     
     if (targetUserIds.length === 0) {
-      alert(language === 'ar' ? 'يرجى اختيار المستلمين' : 'Please select recipients');
+      alert( language === 'ar' ? 'يرجى اختيار المستلمين' : 'Please select recipients');
       return;
     }
 
@@ -125,7 +125,7 @@ export default function AdminNotificationsPage() {
         );
       }
 
-      alert(language === 'ar' ? 'تم إرسال الإشعارات بنجاح' : 'Notifications sent successfully');
+      alert( language === 'ar' ? 'تم إرسال الإشعارات بنجاح' : 'Notifications sent successfully');
       
       // Reset form
       setTitle('');
@@ -136,7 +136,7 @@ export default function AdminNotificationsPage() {
       setSelectedUsers([]);
     } catch (error) {
       console.error('Error sending notifications:', error);
-      alert(language === 'ar' ? 'حدث خطأ أثناء إرسال الإشعارات' : 'Error sending notifications');
+      alert( language === 'ar' ? 'حدث خطأ أثناء إرسال الإشعارات' : 'Error sending notifications');
     } finally {
       setSending(false);
     }
@@ -151,25 +151,25 @@ export default function AdminNotificationsPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">{language === 'ar' ? 'جاري التحميل...' : 'Loading...'}</p>
+          <p className="text-gray-600">{ language === 'ar' ? 'جاري التحميل...' : 'Loading...'}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8" dir={dir}>
+    <div className="min-h-screen bg-gray-50 py-8" dir={isRTL ? "rtl" : "ltr"}>
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
             <Bell className="w-8 h-8 text-emerald-600" />
             <h1 className="text-3xl font-bold text-gray-900">
-              {language === 'ar' ? 'إدارة الإشعارات' : 'Notification Management'}
+              { language === 'ar' ? 'إدارة الإشعارات' : 'Notification Management'}
             </h1>
           </div>
           <p className="text-gray-600">
-            {language === 'ar' 
+            { language === 'ar' 
               ? 'إرسال إشعارات جماعية للمستخدمين' 
               : 'Send broadcast notifications to users'}
           </p>
@@ -180,7 +180,7 @@ export default function AdminNotificationsPage() {
           <Card className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">{language === 'ar' ? 'إجمالي المستخدمين' : 'Total Users'}</p>
+                <p className="text-sm text-gray-600">{ language === 'ar' ? 'إجمالي المستخدمين' : 'Total Users'}</p>
                 <p className="text-2xl font-bold text-gray-900">{users.length}</p>
               </div>
               <Users className="w-10 h-10 text-gray-400" />
@@ -189,7 +189,7 @@ export default function AdminNotificationsPage() {
           <Card className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">{language === 'ar' ? 'المتطوعين' : 'Volunteers'}</p>
+                <p className="text-sm text-gray-600">{ language === 'ar' ? 'المتطوعين' : 'Volunteers'}</p>
                 <p className="text-2xl font-bold text-blue-600">
                   {users.filter(u => u.role === 'VOLUNTEER').length}
                 </p>
@@ -200,7 +200,7 @@ export default function AdminNotificationsPage() {
           <Card className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">{language === 'ar' ? 'المنظمات' : 'Organizations'}</p>
+                <p className="text-sm text-gray-600">{ language === 'ar' ? 'المنظمات' : 'Organizations'}</p>
                 <p className="text-2xl font-bold text-green-600">
                   {users.filter(u => u.role === 'ORG_ADMIN' || u.role === 'ORG_SUPERVISOR').length}
                 </p>
@@ -213,14 +213,14 @@ export default function AdminNotificationsPage() {
         {/* Notification Form */}
         <Card className="p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-6">
-            {language === 'ar' ? 'إنشاء إشعار جديد' : 'Create New Notification'}
+            { language === 'ar' ? 'إنشاء إشعار جديد' : 'Create New Notification'}
           </h2>
 
           <div className="space-y-6">
             {/* Target Audience */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                {language === 'ar' ? 'الجمهور المستهدف *' : 'Target Audience *'}
+                { language === 'ar' ? 'الجمهور المستهدف *' : 'Target Audience *'}
               </label>
               <div className="flex items-center gap-2">
                 <Filter className="w-5 h-5 text-gray-400" />
@@ -230,15 +230,15 @@ export default function AdminNotificationsPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="ALL">
-                      {language === 'ar' ? `جميع المستخدمين (${users.length})` : `All Users (${users.length})`}
+                      { language === 'ar' ? `جميع المستخدمين (${users.length})` : `All Users (${users.length})`}
                     </SelectItem>
                     <SelectItem value="VOLUNTEERS">
-                      {language === 'ar' 
+                      { language === 'ar' 
                         ? `المتطوعين فقط (${users.filter(u => u.role === 'VOLUNTEER').length})` 
                         : `Volunteers Only (${users.filter(u => u.role === 'VOLUNTEER').length})`}
                     </SelectItem>
                     <SelectItem value="ORGANIZATIONS">
-                      {language === 'ar' 
+                      { language === 'ar' 
                         ? `المنظمات فقط (${users.filter(u => u.role === 'ORG_ADMIN' || u.role === 'ORG_SUPERVISOR').length})` 
                         : `Organizations Only (${users.filter(u => u.role === 'ORG_ADMIN' || u.role === 'ORG_SUPERVISOR').length})`}
                     </SelectItem>
@@ -246,7 +246,7 @@ export default function AdminNotificationsPage() {
                 </Select>
               </div>
               <p className="text-sm text-gray-500 mt-1">
-                {language === 'ar' 
+                { language === 'ar' 
                   ? `سيتم إرسال الإشعار إلى ${getAudienceCount()} مستخدم` 
                   : `Notification will be sent to ${getAudienceCount()} user(s)`}
               </p>
@@ -255,7 +255,7 @@ export default function AdminNotificationsPage() {
             {/* Notification Type */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                {language === 'ar' ? 'نوع الإشعار *' : 'Notification Type *'}
+                { language === 'ar' ? 'نوع الإشعار *' : 'Notification Type *'}
               </label>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <button
@@ -268,7 +268,7 @@ export default function AdminNotificationsPage() {
                   }`}
                 >
                   <Info className="w-5 h-5 text-blue-500" />
-                  <span className="text-sm font-medium">{language === 'ar' ? 'معلومات' : 'Info'}</span>
+                  <span className="text-sm font-medium">{ language === 'ar' ? 'معلومات' : 'Info'}</span>
                 </button>
                 <button
                   type="button"
@@ -280,7 +280,7 @@ export default function AdminNotificationsPage() {
                   }`}
                 >
                   <CheckCircle className="w-5 h-5 text-green-500" />
-                  <span className="text-sm font-medium">{language === 'ar' ? 'نجاح' : 'Success'}</span>
+                  <span className="text-sm font-medium">{ language === 'ar' ? 'نجاح' : 'Success'}</span>
                 </button>
                 <button
                   type="button"
@@ -292,7 +292,7 @@ export default function AdminNotificationsPage() {
                   }`}
                 >
                   <AlertTriangle className="w-5 h-5 text-yellow-500" />
-                  <span className="text-sm font-medium">{language === 'ar' ? 'تحذير' : 'Warning'}</span>
+                  <span className="text-sm font-medium">{ language === 'ar' ? 'تحذير' : 'Warning'}</span>
                 </button>
                 <button
                   type="button"
@@ -304,7 +304,7 @@ export default function AdminNotificationsPage() {
                   }`}
                 >
                   <XCircle className="w-5 h-5 text-red-500" />
-                  <span className="text-sm font-medium">{language === 'ar' ? 'خطأ' : 'Error'}</span>
+                  <span className="text-sm font-medium">{ language === 'ar' ? 'خطأ' : 'Error'}</span>
                 </button>
               </div>
             </div>
@@ -312,13 +312,13 @@ export default function AdminNotificationsPage() {
             {/* English Title */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                {language === 'ar' ? 'العنوان (إنجليزي) *' : 'Title (English) *'}
+                { language === 'ar' ? 'العنوان (إنجليزي) *' : 'Title (English) *'}
               </label>
               <Input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder={language === 'ar' ? 'أدخل عنوان الإشعار بالإنجليزية' : 'Enter notification title in English'}
+                placeholder={ language === 'ar' ? 'أدخل عنوان الإشعار بالإنجليزية' : 'Enter notification title in English'}
                 required
               />
             </div>
@@ -326,13 +326,13 @@ export default function AdminNotificationsPage() {
             {/* Arabic Title */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                {language === 'ar' ? 'العنوان (عربي)' : 'Title (Arabic)'}
+                { language === 'ar' ? 'العنوان (عربي)' : 'Title (Arabic)'}
               </label>
               <Input
                 type="text"
                 value={titleAr}
                 onChange={(e) => setTitleAr(e.target.value)}
-                placeholder={language === 'ar' ? 'أدخل عنوان الإشعار بالعربية' : 'Enter notification title in Arabic'}
+                placeholder={ language === 'ar' ? 'أدخل عنوان الإشعار بالعربية' : 'Enter notification title in Arabic'}
                 dir="rtl"
               />
             </div>
@@ -340,12 +340,12 @@ export default function AdminNotificationsPage() {
             {/* English Message */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                {language === 'ar' ? 'الرسالة (إنجليزي) *' : 'Message (English) *'}
+                { language === 'ar' ? 'الرسالة (إنجليزي) *' : 'Message (English) *'}
               </label>
               <Textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                placeholder={language === 'ar' ? 'أدخل نص الإشعار بالإنجليزية' : 'Enter notification message in English'}
+                placeholder={ language === 'ar' ? 'أدخل نص الإشعار بالإنجليزية' : 'Enter notification message in English'}
                 rows={4}
                 required
               />
@@ -354,12 +354,12 @@ export default function AdminNotificationsPage() {
             {/* Arabic Message */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                {language === 'ar' ? 'الرسالة (عربي)' : 'Message (Arabic)'}
+                { language === 'ar' ? 'الرسالة (عربي)' : 'Message (Arabic)'}
               </label>
               <Textarea
                 value={messageAr}
                 onChange={(e) => setMessageAr(e.target.value)}
-                placeholder={language === 'ar' ? 'أدخل نص الإشعار بالعربية' : 'Enter notification message in Arabic'}
+                placeholder={ language === 'ar' ? 'أدخل نص الإشعار بالعربية' : 'Enter notification message in Arabic'}
                 rows={4}
                 dir="rtl"
               />
@@ -368,7 +368,7 @@ export default function AdminNotificationsPage() {
             {/* Action URL */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                {language === 'ar' ? 'رابط الإجراء (اختياري)' : 'Action URL (Optional)'}
+                { language === 'ar' ? 'رابط الإجراء (اختياري)' : 'Action URL (Optional)'}
               </label>
               <Input
                 type="text"
@@ -377,7 +377,7 @@ export default function AdminNotificationsPage() {
                 placeholder="/events/123"
               />
               <p className="text-sm text-gray-500 mt-1">
-                {language === 'ar' 
+                { language === 'ar' 
                   ? 'رابط داخلي للتطبيق (مثال: /events/123)' 
                   : 'Internal app link (e.g., /events/123)'}
               </p>
@@ -392,8 +392,8 @@ export default function AdminNotificationsPage() {
               >
                 <Send className="w-4 h-4 mr-2" />
                 {sending 
-                  ? (language === 'ar' ? 'جاري الإرسال...' : 'Sending...') 
-                  : (language === 'ar' ? `إرسال إلى ${getAudienceCount()} مستخدم` : `Send to ${getAudienceCount()} user(s)`)}
+                  ? ( language === 'ar' ? 'جاري الإرسال...' : 'Sending...') 
+                  : ( language === 'ar' ? `إرسال إلى ${getAudienceCount()} مستخدم` : `Send to ${getAudienceCount()} user(s)`)}
               </Button>
             </div>
           </div>

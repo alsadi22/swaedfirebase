@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { t as tFunc } from '@/lib/i18n/translations';
 import { useRouter } from 'next/navigation';
 import { QRScanner } from '@/components/attendance/QRScanner';
 import { Button } from '@/components/ui/button';
@@ -15,6 +16,7 @@ import {
 import {
   getEvent,
   getUserProfile,
+  updateUserProfile,
   checkExistingAttendance,
   createAttendance,
   updateAttendance,
@@ -26,7 +28,8 @@ type ScanStep = 'scanning' | 'validating' | 'success' | 'error';
 
 export default function AttendanceCheckPage() {
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const { language } = useLanguage();
+  const t = (key: string, fallback?: string) => tFunc(language, key, fallback);
   const router = useRouter();
   
   const [step, setStep] = useState<ScanStep>('scanning');
@@ -94,7 +97,7 @@ export default function AttendanceCheckPage() {
       }
 
       // Check existing attendance
-      const existingAttendance = await checkExistingAttendance(user.uid, eventData.id);
+      const existingAttendance = await checkExistingAttendance(user.id, eventData.id);
 
       if (action === 'CHECKIN') {
         // Handle check-in
@@ -105,7 +108,7 @@ export default function AttendanceCheckPage() {
         // Create attendance record
         const attendanceId = await createAttendance({
           eventId: eventData.id,
-          userId: user.uid,
+          userId: user.id,
           status: 'CHECKED_IN',
           checkIn: {
             timestamp: new Date(),
@@ -158,9 +161,9 @@ export default function AttendanceCheckPage() {
         });
 
         // Update user's total hours
-        const userProfile = await getUserProfile(user.uid);
+        const userProfile = await getUserProfile(user.id);
         if (userProfile) {
-          await updateUserProfile(user.uid, {
+          await updateUserProfile(user.id, {
             totalHours: (userProfile.totalHours || 0) + hoursCompleted,
             totalEvents: (userProfile.totalEvents || 0) + 1,
           });

@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/lib/auth/AuthContext';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { useRouter } from 'next/navigation';
 import { 
   collection,
@@ -16,13 +16,13 @@ import {
 import { db } from '@/lib/firebase/config';
 import Link from 'next/link';
 import { 
-  UsersIcon, 
-  BuildingOfficeIcon, 
-  CalendarIcon, 
-  DocumentCheckIcon,
-  ChartBarIcon,
-  CurrencyDollarIcon
-} from '@heroicons/react/24/outline';
+  Users, 
+  Building, 
+  Calendar, 
+  FileCheck,
+  BarChart3,
+  DollarSign
+} from 'lucide-react';
 
 interface DashboardStats {
   totalUsers: number;
@@ -168,7 +168,7 @@ export default function AdminDashboard() {
       title: 'Events',
       value: stats.totalEvents,
       change: `+${stats.recentEvents} this month`,
-      icon: CalendarIcon,
+      icon: Calendar,
       color: 'bg-emerald-500',
       href: '/admin/events',
     },
@@ -210,7 +210,7 @@ export default function AdminDashboard() {
       title: 'Moderate Events',
       description: 'Review pending events',
       href: '/admin/events',
-      icon: CalendarIcon,
+      icon: Calendar,
       color: 'bg-emerald-500',
     },
     {

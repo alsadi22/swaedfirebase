@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/contexts/AuthContext';
-import { useLanguage } from '@/lib/contexts/LanguageContext';
+import { useAuth } from '@/lib/auth/AuthContext';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { translations } from '@/lib/i18n/translations';
 import { Event, EventStatus } from '@/types';
 import { getEvents, updateEvent, deleteEvent } from '@/lib/services/firestore';
@@ -39,8 +39,8 @@ import {
 export default function AdminEventsPage() {
   const router = useRouter();
   const { user } = useAuth();
-  const { language, dir } = useLanguage();
-  const t = translations[language];
+  const { locale, isRTL } = useLanguage();
+  const t = translations[locale];
 
   const [events, setEvents] = useState<Event[]>([]);
   const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
@@ -122,17 +122,17 @@ export default function AdminEventsPage() {
           subject: language === 'ar' ? 'تم الموافقة على الحدث' : 'Event Approved',
           htmlContent: `
             <div dir="${dir}">
-              <h2>${language === 'ar' ? 'تم الموافقة على حدثك' : 'Your Event Has Been Approved'}</h2>
-              <p>${language === 'ar' ? 'مرحباً' : 'Hello'} ${orgAdmin.displayName},</p>
-              <p>${language === 'ar' 
+              <h2>${ language === 'ar' ? 'تم الموافقة على حدثك' : 'Your Event Has Been Approved'}</h2>
+              <p>${ language === 'ar' ? 'مرحباً' : 'Hello'} ${orgAdmin.displayName},</p>
+              <p>${ language === 'ar' 
                 ? `تم الموافقة على حدثك "${selectedEvent.title}" ونشره على المنصة.` 
                 : `Your event "${selectedEvent.title}" has been approved and published on the platform.`
               }</p>
-              ${approvalNotes ? `<p><strong>${language === 'ar' ? 'ملاحظات:' : 'Notes:'}</strong> ${approvalNotes}</p>` : ''}
-              <p>${language === 'ar' ? 'يمكن للمتطوعين الآن التقديم على حدثك.' : 'Volunteers can now apply to your event.'}</p>
+              ${approvalNotes ? `<p><strong>${ language === 'ar' ? 'ملاحظات:' : 'Notes:'}</strong> ${approvalNotes}</p>` : ''}
+              <p>${ language === 'ar' ? 'يمكن للمتطوعين الآن التقديم على حدثك.' : 'Volunteers can now apply to your event.'}</p>
               <a href="${process.env.NEXT_PUBLIC_APP_URL}/organization/events/${selectedEvent.id}" 
                  style="background-color: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; margin-top: 16px;">
-                ${language === 'ar' ? 'عرض الحدث' : 'View Event'}
+                ${ language === 'ar' ? 'عرض الحدث' : 'View Event'}
               </a>
             </div>
           `,
@@ -172,7 +172,7 @@ export default function AdminEventsPage() {
       setApprovalNotes('');
     } catch (error) {
       console.error('Error approving event:', error);
-      alert(language === 'ar' ? 'حدث خطأ أثناء الموافقة على الحدث' : 'Error approving event');
+      alert( language === 'ar' ? 'حدث خطأ أثناء الموافقة على الحدث' : 'Error approving event');
     } finally {
       setProcessing(false);
     }
@@ -180,7 +180,7 @@ export default function AdminEventsPage() {
 
   const handleReject = async () => {
     if (!selectedEvent || !rejectionReason.trim()) {
-      alert(language === 'ar' ? 'يرجى إدخال سبب الرفض' : 'Please enter rejection reason');
+      alert( language === 'ar' ? 'يرجى إدخال سبب الرفض' : 'Please enter rejection reason');
       return;
     }
 
@@ -203,14 +203,14 @@ export default function AdminEventsPage() {
           subject: language === 'ar' ? 'تم رفض الحدث' : 'Event Rejected',
           htmlContent: `
             <div dir="${dir}">
-              <h2>${language === 'ar' ? 'تم رفض حدثك' : 'Your Event Has Been Rejected'}</h2>
-              <p>${language === 'ar' ? 'مرحباً' : 'Hello'} ${orgAdmin.displayName},</p>
-              <p>${language === 'ar' 
+              <h2>${ language === 'ar' ? 'تم رفض حدثك' : 'Your Event Has Been Rejected'}</h2>
+              <p>${ language === 'ar' ? 'مرحباً' : 'Hello'} ${orgAdmin.displayName},</p>
+              <p>${ language === 'ar' 
                 ? `نأسف لإبلاغك بأن حدثك "${selectedEvent.title}" لم يتم الموافقة عليه.` 
                 : `We regret to inform you that your event "${selectedEvent.title}" has not been approved.`
               }</p>
-              <p><strong>${language === 'ar' ? 'السبب:' : 'Reason:'}</strong> ${rejectionReason}</p>
-              <p>${language === 'ar' 
+              <p><strong>${ language === 'ar' ? 'السبب:' : 'Reason:'}</strong> ${rejectionReason}</p>
+              <p>${ language === 'ar' 
                 ? 'يمكنك تعديل الحدث وإعادة تقديمه للمراجعة.' 
                 : 'You can edit the event and resubmit it for review.'
               }</p>
@@ -251,14 +251,14 @@ export default function AdminEventsPage() {
       setRejectionReason('');
     } catch (error) {
       console.error('Error rejecting event:', error);
-      alert(language === 'ar' ? 'حدث خطأ أثناء رفض الحدث' : 'Error rejecting event');
+      alert( language === 'ar' ? 'حدث خطأ أثناء رفض الحدث' : 'Error rejecting event');
     } finally {
       setProcessing(false);
     }
   };
 
   const handleDelete = async (eventId: string) => {
-    if (!confirm(language === 'ar' ? 'هل أنت متأكد من حذف هذا الحدث؟' : 'Are you sure you want to delete this event?')) {
+    if (!confirm( language === 'ar' ? 'هل أنت متأكد من حذف هذا الحدث؟' : 'Are you sure you want to delete this event?')) {
       return;
     }
 
@@ -267,7 +267,7 @@ export default function AdminEventsPage() {
       await loadEvents();
     } catch (error) {
       console.error('Error deleting event:', error);
-      alert(language === 'ar' ? 'حدث خطأ أثناء حذف الحدث' : 'Error deleting event');
+      alert( language === 'ar' ? 'حدث خطأ أثناء حذف الحدث' : 'Error deleting event');
     }
   };
 
@@ -294,22 +294,22 @@ export default function AdminEventsPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">{language === 'ar' ? 'جاري التحميل...' : 'Loading...'}</p>
+          <p className="text-gray-600">{ language === 'ar' ? 'جاري التحميل...' : 'Loading...'}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8" dir={dir}>
+    <div className="min-h-screen bg-gray-50 py-8" dir={isRTL ? "rtl" : "ltr"}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {language === 'ar' ? 'إدارة الأحداث' : 'Event Moderation'}
+            { language === 'ar' ? 'إدارة الأحداث' : 'Event Moderation'}
           </h1>
           <p className="text-gray-600">
-            {language === 'ar' 
+            { language === 'ar' 
               ? 'مراجعة والموافقة على الأحداث المقدمة من المنظمات' 
               : 'Review and approve events submitted by organizations'}
           </p>
@@ -320,7 +320,7 @@ export default function AdminEventsPage() {
           <Card className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">{language === 'ar' ? 'إجمالي الأحداث' : 'Total Events'}</p>
+                <p className="text-sm text-gray-600">{ language === 'ar' ? 'إجمالي الأحداث' : 'Total Events'}</p>
                 <p className="text-2xl font-bold text-gray-900">{events.length}</p>
               </div>
               <Calendar className="w-10 h-10 text-gray-400" />
@@ -329,7 +329,7 @@ export default function AdminEventsPage() {
           <Card className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">{language === 'ar' ? 'قيد المراجعة' : 'Pending Review'}</p>
+                <p className="text-sm text-gray-600">{ language === 'ar' ? 'قيد المراجعة' : 'Pending Review'}</p>
                 <p className="text-2xl font-bold text-yellow-600">
                   {events.filter(e => e.status === 'PENDING_APPROVAL').length}
                 </p>
@@ -340,7 +340,7 @@ export default function AdminEventsPage() {
           <Card className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">{language === 'ar' ? 'منشور' : 'Published'}</p>
+                <p className="text-sm text-gray-600">{ language === 'ar' ? 'منشور' : 'Published'}</p>
                 <p className="text-2xl font-bold text-green-600">
                   {events.filter(e => e.status === 'PUBLISHED').length}
                 </p>
@@ -351,7 +351,7 @@ export default function AdminEventsPage() {
           <Card className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">{language === 'ar' ? 'ملغي' : 'Cancelled'}</p>
+                <p className="text-sm text-gray-600">{ language === 'ar' ? 'ملغي' : 'Cancelled'}</p>
                 <p className="text-2xl font-bold text-red-600">
                   {events.filter(e => e.status === 'CANCELLED').length}
                 </p>
@@ -368,7 +368,7 @@ export default function AdminEventsPage() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <Input
                 type="text"
-                placeholder={language === 'ar' ? 'ابحث عن حدث، منظمة، أو موقع...' : 'Search event, organization, or location...'}
+                placeholder={ language === 'ar' ? 'ابحث عن حدث، منظمة، أو موقع...' : 'Search event, organization, or location...'}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -381,12 +381,12 @@ export default function AdminEventsPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ALL">{language === 'ar' ? 'جميع الحالات' : 'All Statuses'}</SelectItem>
-                  <SelectItem value="PENDING_APPROVAL">{language === 'ar' ? 'قيد المراجعة' : 'Pending Approval'}</SelectItem>
-                  <SelectItem value="PUBLISHED">{language === 'ar' ? 'منشور' : 'Published'}</SelectItem>
-                  <SelectItem value="ONGOING">{language === 'ar' ? 'جاري' : 'Ongoing'}</SelectItem>
-                  <SelectItem value="COMPLETED">{language === 'ar' ? 'مكتمل' : 'Completed'}</SelectItem>
-                  <SelectItem value="CANCELLED">{language === 'ar' ? 'ملغي' : 'Cancelled'}</SelectItem>
+                  <SelectItem value="ALL">{ language === 'ar' ? 'جميع الحالات' : 'All Statuses'}</SelectItem>
+                  <SelectItem value="PENDING_APPROVAL">{ language === 'ar' ? 'قيد المراجعة' : 'Pending Approval'}</SelectItem>
+                  <SelectItem value="PUBLISHED">{ language === 'ar' ? 'منشور' : 'Published'}</SelectItem>
+                  <SelectItem value="ONGOING">{ language === 'ar' ? 'جاري' : 'Ongoing'}</SelectItem>
+                  <SelectItem value="COMPLETED">{ language === 'ar' ? 'مكتمل' : 'Completed'}</SelectItem>
+                  <SelectItem value="CANCELLED">{ language === 'ar' ? 'ملغي' : 'Cancelled'}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -399,7 +399,7 @@ export default function AdminEventsPage() {
             <Card className="p-12 text-center">
               <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
               <p className="text-gray-500 text-lg">
-                {language === 'ar' ? 'لا توجد أحداث' : 'No events found'}
+                { language === 'ar' ? 'لا توجد أحداث' : 'No events found'}
               </p>
             </Card>
           ) : (
@@ -411,12 +411,12 @@ export default function AdminEventsPage() {
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
                           <h3 className="text-xl font-semibold text-gray-900">
-                            {language === 'ar' && event.titleAr ? event.titleAr : event.title}
+                            { language === 'ar' && event.titleAr ? event.titleAr : event.title}
                           </h3>
                           {getStatusBadge(event.status)}
                         </div>
                         <p className="text-gray-600 mb-3 line-clamp-2">
-                          {language === 'ar' && event.descriptionAr ? event.descriptionAr : event.description}
+                          { language === 'ar' && event.descriptionAr ? event.descriptionAr : event.description}
                         </p>
                         <div className="flex flex-wrap gap-4 text-sm text-gray-600">
                           <div className="flex items-center gap-1">
@@ -434,7 +434,7 @@ export default function AdminEventsPage() {
                           <div className="flex items-center gap-1">
                             <Users className="w-4 h-4" />
                             <span>
-                              {event.capacity.currentVolunteers}/{event.capacity.maxVolunteers} {language === 'ar' ? 'متطوع' : 'volunteers'}
+                              {event.capacity.currentVolunteers}/{event.capacity.maxVolunteers} { language === 'ar' ? 'متطوع' : 'volunteers'}
                             </span>
                           </div>
                         </div>
@@ -450,7 +450,7 @@ export default function AdminEventsPage() {
                       onClick={() => router.push(`/events/${event.id}`)}
                     >
                       <Eye className="w-4 h-4 mr-2" />
-                      {language === 'ar' ? 'عرض' : 'View'}
+                      { language === 'ar' ? 'عرض' : 'View'}
                     </Button>
                     {event.status === 'PENDING_APPROVAL' && (
                       <>
@@ -464,7 +464,7 @@ export default function AdminEventsPage() {
                           className="bg-green-600 hover:bg-green-700"
                         >
                           <CheckCircle className="w-4 h-4 mr-2" />
-                          {language === 'ar' ? 'موافقة' : 'Approve'}
+                          { language === 'ar' ? 'موافقة' : 'Approve'}
                         </Button>
                         <Button
                           variant="destructive"
@@ -475,7 +475,7 @@ export default function AdminEventsPage() {
                           }}
                         >
                           <XCircle className="w-4 h-4 mr-2" />
-                          {language === 'ar' ? 'رفض' : 'Reject'}
+                          { language === 'ar' ? 'رفض' : 'Reject'}
                         </Button>
                       </>
                     )}
@@ -486,7 +486,7 @@ export default function AdminEventsPage() {
                         onClick={() => handleDelete(event.id)}
                       >
                         <Trash2 className="w-4 h-4 mr-2" />
-                        {language === 'ar' ? 'حذف' : 'Delete'}
+                        { language === 'ar' ? 'حذف' : 'Delete'}
                       </Button>
                     )}
                   </div>
@@ -501,21 +501,21 @@ export default function AdminEventsPage() {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <Card className="max-w-md w-full p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4">
-                {language === 'ar' ? 'الموافقة على الحدث' : 'Approve Event'}
+                { language === 'ar' ? 'الموافقة على الحدث' : 'Approve Event'}
               </h2>
               <p className="text-gray-600 mb-4">
-                {language === 'ar' 
+                { language === 'ar' 
                   ? `هل أنت متأكد من الموافقة على حدث "${selectedEvent.title}"؟` 
                   : `Are you sure you want to approve the event "${selectedEvent.title}"?`}
               </p>
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {language === 'ar' ? 'ملاحظات (اختياري)' : 'Notes (Optional)'}
+                  { language === 'ar' ? 'ملاحظات (اختياري)' : 'Notes (Optional)'}
                 </label>
                 <Textarea
                   value={approvalNotes}
                   onChange={(e) => setApprovalNotes(e.target.value)}
-                  placeholder={language === 'ar' ? 'أضف ملاحظات للمنظمة...' : 'Add notes for the organization...'}
+                  placeholder={ language === 'ar' ? 'أضف ملاحظات للمنظمة...' : 'Add notes for the organization...'}
                   rows={3}
                 />
               </div>
@@ -526,7 +526,7 @@ export default function AdminEventsPage() {
                   disabled={processing}
                   className="flex-1 bg-green-600 hover:bg-green-700"
                 >
-                  {processing ? (language === 'ar' ? 'جاري المعالجة...' : 'Processing...') : (language === 'ar' ? 'موافقة' : 'Approve')}
+                  {processing ? ( language === 'ar' ? 'جاري المعالجة...' : 'Processing...') : ( language === 'ar' ? 'موافقة' : 'Approve')}
                 </Button>
                 <Button
                   variant="outline"
@@ -538,7 +538,7 @@ export default function AdminEventsPage() {
                   disabled={processing}
                   className="flex-1"
                 >
-                  {language === 'ar' ? 'إلغاء' : 'Cancel'}
+                  { language === 'ar' ? 'إلغاء' : 'Cancel'}
                 </Button>
               </div>
             </Card>
@@ -550,21 +550,21 @@ export default function AdminEventsPage() {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <Card className="max-w-md w-full p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4">
-                {language === 'ar' ? 'رفض الحدث' : 'Reject Event'}
+                { language === 'ar' ? 'رفض الحدث' : 'Reject Event'}
               </h2>
               <p className="text-gray-600 mb-4">
-                {language === 'ar' 
+                { language === 'ar' 
                   ? `يرجى تقديم سبب رفض حدث "${selectedEvent.title}".` 
                   : `Please provide a reason for rejecting the event "${selectedEvent.title}".`}
               </p>
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {language === 'ar' ? 'سبب الرفض *' : 'Rejection Reason *'}
+                  { language === 'ar' ? 'سبب الرفض *' : 'Rejection Reason *'}
                 </label>
                 <Textarea
                   value={rejectionReason}
                   onChange={(e) => setRejectionReason(e.target.value)}
-                  placeholder={language === 'ar' ? 'أدخل سبب الرفض...' : 'Enter rejection reason...'}
+                  placeholder={ language === 'ar' ? 'أدخل سبب الرفض...' : 'Enter rejection reason...'}
                   rows={4}
                   required
                 />
@@ -576,7 +576,7 @@ export default function AdminEventsPage() {
                   disabled={processing || !rejectionReason.trim()}
                   className="flex-1"
                 >
-                  {processing ? (language === 'ar' ? 'جاري المعالجة...' : 'Processing...') : (language === 'ar' ? 'رفض' : 'Reject')}
+                  {processing ? ( language === 'ar' ? 'جاري المعالجة...' : 'Processing...') : ( language === 'ar' ? 'رفض' : 'Reject')}
                 </Button>
                 <Button
                   variant="outline"
@@ -588,7 +588,7 @@ export default function AdminEventsPage() {
                   disabled={processing}
                   className="flex-1"
                 >
-                  {language === 'ar' ? 'إلغاء' : 'Cancel'}
+                  { language === 'ar' ? 'إلغاء' : 'Cancel'}
                 </Button>
               </div>
             </Card>

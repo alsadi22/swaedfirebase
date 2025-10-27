@@ -43,7 +43,7 @@ export default function EventQRCodesPage() {
       }
 
       // Check if user is authorized (belongs to the organization)
-      const userProfile = await getUserProfile(user.uid);
+      const userProfile = await getUserProfile(user.id);
       if (userProfile?.organizationId === eventData.organizationId) {
         setEvent(eventData);
         setAuthorized(true);

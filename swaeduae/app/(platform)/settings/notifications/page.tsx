@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/contexts/AuthContext';
-import { useLanguage } from '@/lib/contexts/LanguageContext';
+import { useAuth } from '@/lib/auth/AuthContext';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { translations } from '@/lib/i18n/translations';
 import {
   getUserNotificationPreferences,
@@ -19,8 +19,8 @@ import { Bell, Mail, Smartphone, Save, ArrowLeft } from 'lucide-react';
 export default function NotificationPreferencesPage() {
   const router = useRouter();
   const { user } = useAuth();
-  const { language, dir } = useLanguage();
-  const t = translations[language];
+  const { locale, isRTL } = useLanguage();
+  const t = translations[locale];
 
   const [preferences, setPreferences] = useState<NotificationPreferences | null>(null);
   const [loading, setLoading] = useState(true);
@@ -55,10 +55,10 @@ export default function NotificationPreferencesPage() {
     try {
       setSaving(true);
       await updateNotificationPreferences(user.id, preferences);
-      alert(language === 'ar' ? 'تم حفظ التفضيلات بنجاح' : 'Preferences saved successfully');
+      alert( language === 'ar' ? 'تم حفظ التفضيلات بنجاح' : 'Preferences saved successfully');
     } catch (error) {
       console.error('Error saving preferences:', error);
-      alert(language === 'ar' ? 'حدث خطأ أثناء حفظ التفضيلات' : 'Error saving preferences');
+      alert( language === 'ar' ? 'حدث خطأ أثناء حفظ التفضيلات' : 'Error saving preferences');
     } finally {
       setSaving(false);
     }
@@ -85,7 +85,7 @@ export default function NotificationPreferencesPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">{language === 'ar' ? 'جاري التحميل...' : 'Loading...'}</p>
+          <p className="text-gray-600">{ language === 'ar' ? 'جاري التحميل...' : 'Loading...'}</p>
         </div>
       </div>
     );
@@ -94,7 +94,7 @@ export default function NotificationPreferencesPage() {
   if (!preferences) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8" dir={dir}>
+    <div className="min-h-screen bg-gray-50 py-8" dir={isRTL ? "rtl" : "ltr"}>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
@@ -104,17 +104,17 @@ export default function NotificationPreferencesPage() {
             className="mb-4"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            {t.goBack}
+            {t.common.back}
           </Button>
 
           <div className="flex items-center gap-3 mb-2">
             <Bell className="w-8 h-8 text-emerald-600" />
             <h1 className="text-3xl font-bold text-gray-900">
-              {language === 'ar' ? 'تفضيلات الإشعارات' : 'Notification Preferences'}
+              { language === 'ar' ? 'تفضيلات الإشعارات' : 'Notification Preferences'}
             </h1>
           </div>
           <p className="text-gray-600">
-            {language === 'ar' 
+            { language === 'ar' 
               ? 'اختر كيف ومتى تريد تلقي الإشعارات' 
               : 'Choose how and when you want to receive notifications'}
           </p>
@@ -125,7 +125,7 @@ export default function NotificationPreferencesPage() {
           <div className="flex items-center gap-3 mb-6">
             <Mail className="w-6 h-6 text-emerald-600" />
             <h2 className="text-xl font-bold text-gray-900">
-              {language === 'ar' ? 'إشعارات البريد الإلكتروني' : 'Email Notifications'}
+              { language === 'ar' ? 'إشعارات البريد الإلكتروني' : 'Email Notifications'}
             </h2>
           </div>
 
@@ -133,10 +133,10 @@ export default function NotificationPreferencesPage() {
             <div className="flex items-center justify-between py-3 border-b border-gray-100">
               <div className="flex-1">
                 <Label htmlFor="email-application-updates" className="text-base font-medium text-gray-900">
-                  {language === 'ar' ? 'تحديثات الطلبات' : 'Application Updates'}
+                  { language === 'ar' ? 'تحديثات الطلبات' : 'Application Updates'}
                 </Label>
                 <p className="text-sm text-gray-600">
-                  {language === 'ar' 
+                  { language === 'ar' 
                     ? 'تلقي إشعارات عند قبول أو رفض طلباتك' 
                     : 'Receive notifications when your applications are approved or rejected'}
                 </p>
@@ -151,10 +151,10 @@ export default function NotificationPreferencesPage() {
             <div className="flex items-center justify-between py-3 border-b border-gray-100">
               <div className="flex-1">
                 <Label htmlFor="email-event-reminders" className="text-base font-medium text-gray-900">
-                  {language === 'ar' ? 'تذكيرات الأحداث' : 'Event Reminders'}
+                  { language === 'ar' ? 'تذكيرات الأحداث' : 'Event Reminders'}
                 </Label>
                 <p className="text-sm text-gray-600">
-                  {language === 'ar' 
+                  { language === 'ar' 
                     ? 'تذكيرك بالأحداث القادمة التي سجلت فيها' 
                     : 'Remind you about upcoming events you registered for'}
                 </p>
@@ -169,10 +169,10 @@ export default function NotificationPreferencesPage() {
             <div className="flex items-center justify-between py-3 border-b border-gray-100">
               <div className="flex-1">
                 <Label htmlFor="email-certificate-issued" className="text-base font-medium text-gray-900">
-                  {language === 'ar' ? 'إصدار الشهادات' : 'Certificate Issued'}
+                  { language === 'ar' ? 'إصدار الشهادات' : 'Certificate Issued'}
                 </Label>
                 <p className="text-sm text-gray-600">
-                  {language === 'ar' 
+                  { language === 'ar' 
                     ? 'إشعارك عند إصدار شهادة تطوع جديدة' 
                     : 'Notify you when a new volunteer certificate is issued'}
                 </p>
@@ -188,10 +188,10 @@ export default function NotificationPreferencesPage() {
               <div className="flex items-center justify-between py-3 border-b border-gray-100">
                 <div className="flex-1">
                   <Label htmlFor="email-new-applications" className="text-base font-medium text-gray-900">
-                    {language === 'ar' ? 'طلبات تطوع جديدة' : 'New Applications'}
+                    { language === 'ar' ? 'طلبات تطوع جديدة' : 'New Applications'}
                   </Label>
                   <p className="text-sm text-gray-600">
-                    {language === 'ar' 
+                    { language === 'ar' 
                       ? 'إشعارك عند تلقي طلبات تطوع جديدة' 
                       : 'Notify you when new volunteer applications are received'}
                   </p>
@@ -207,10 +207,10 @@ export default function NotificationPreferencesPage() {
             <div className="flex items-center justify-between py-3 border-b border-gray-100">
               <div className="flex-1">
                 <Label htmlFor="email-organization-updates" className="text-base font-medium text-gray-900">
-                  {language === 'ar' ? 'تحديثات المنظمة' : 'Organization Updates'}
+                  { language === 'ar' ? 'تحديثات المنظمة' : 'Organization Updates'}
                 </Label>
                 <p className="text-sm text-gray-600">
-                  {language === 'ar' 
+                  { language === 'ar' 
                     ? 'تحديثات حول المنظمات التي تتابعها' 
                     : 'Updates about organizations you follow'}
                 </p>
@@ -225,10 +225,10 @@ export default function NotificationPreferencesPage() {
             <div className="flex items-center justify-between py-3">
               <div className="flex-1">
                 <Label htmlFor="email-platform-news" className="text-base font-medium text-gray-900">
-                  {language === 'ar' ? 'أخبار المنصة' : 'Platform News'}
+                  { language === 'ar' ? 'أخبار المنصة' : 'Platform News'}
                 </Label>
                 <p className="text-sm text-gray-600">
-                  {language === 'ar' 
+                  { language === 'ar' 
                     ? 'أخبار وتحديثات حول منصة سواعد الإمارات' 
                     : 'News and updates about SwaedUAE platform'}
                 </p>
@@ -247,7 +247,7 @@ export default function NotificationPreferencesPage() {
           <div className="flex items-center gap-3 mb-6">
             <Bell className="w-6 h-6 text-emerald-600" />
             <h2 className="text-xl font-bold text-gray-900">
-              {language === 'ar' ? 'إشعارات داخل التطبيق' : 'In-App Notifications'}
+              { language === 'ar' ? 'إشعارات داخل التطبيق' : 'In-App Notifications'}
             </h2>
           </div>
 
@@ -255,7 +255,7 @@ export default function NotificationPreferencesPage() {
             <div className="flex items-center justify-between py-3 border-b border-gray-100">
               <div className="flex-1">
                 <Label htmlFor="inapp-application-updates" className="text-base font-medium text-gray-900">
-                  {language === 'ar' ? 'تحديثات الطلبات' : 'Application Updates'}
+                  { language === 'ar' ? 'تحديثات الطلبات' : 'Application Updates'}
                 </Label>
               </div>
               <Switch
@@ -268,7 +268,7 @@ export default function NotificationPreferencesPage() {
             <div className="flex items-center justify-between py-3 border-b border-gray-100">
               <div className="flex-1">
                 <Label htmlFor="inapp-event-reminders" className="text-base font-medium text-gray-900">
-                  {language === 'ar' ? 'تذكيرات الأحداث' : 'Event Reminders'}
+                  { language === 'ar' ? 'تذكيرات الأحداث' : 'Event Reminders'}
                 </Label>
               </div>
               <Switch
@@ -281,7 +281,7 @@ export default function NotificationPreferencesPage() {
             <div className="flex items-center justify-between py-3 border-b border-gray-100">
               <div className="flex-1">
                 <Label htmlFor="inapp-certificate-issued" className="text-base font-medium text-gray-900">
-                  {language === 'ar' ? 'إصدار الشهادات' : 'Certificate Issued'}
+                  { language === 'ar' ? 'إصدار الشهادات' : 'Certificate Issued'}
                 </Label>
               </div>
               <Switch
@@ -295,7 +295,7 @@ export default function NotificationPreferencesPage() {
               <div className="flex items-center justify-between py-3 border-b border-gray-100">
                 <div className="flex-1">
                   <Label htmlFor="inapp-new-applications" className="text-base font-medium text-gray-900">
-                    {language === 'ar' ? 'طلبات تطوع جديدة' : 'New Applications'}
+                    { language === 'ar' ? 'طلبات تطوع جديدة' : 'New Applications'}
                   </Label>
                 </div>
                 <Switch
@@ -309,7 +309,7 @@ export default function NotificationPreferencesPage() {
             <div className="flex items-center justify-between py-3 border-b border-gray-100">
               <div className="flex-1">
                 <Label htmlFor="inapp-organization-updates" className="text-base font-medium text-gray-900">
-                  {language === 'ar' ? 'تحديثات المنظمة' : 'Organization Updates'}
+                  { language === 'ar' ? 'تحديثات المنظمة' : 'Organization Updates'}
                 </Label>
               </div>
               <Switch
@@ -322,7 +322,7 @@ export default function NotificationPreferencesPage() {
             <div className="flex items-center justify-between py-3">
               <div className="flex-1">
                 <Label htmlFor="inapp-platform-news" className="text-base font-medium text-gray-900">
-                  {language === 'ar' ? 'أخبار المنصة' : 'Platform News'}
+                  { language === 'ar' ? 'أخبار المنصة' : 'Platform News'}
                 </Label>
               </div>
               <Switch
@@ -339,7 +339,7 @@ export default function NotificationPreferencesPage() {
           <div className="flex items-center gap-3 mb-6">
             <Smartphone className="w-6 h-6 text-emerald-600" />
             <h2 className="text-xl font-bold text-gray-900">
-              {language === 'ar' ? 'إشعارات الدفع' : 'Push Notifications'}
+              { language === 'ar' ? 'إشعارات الدفع' : 'Push Notifications'}
             </h2>
           </div>
 
@@ -347,10 +347,10 @@ export default function NotificationPreferencesPage() {
             <div className="flex items-center justify-between py-3 border-b border-gray-100">
               <div className="flex-1">
                 <Label htmlFor="push-enabled" className="text-base font-medium text-gray-900">
-                  {language === 'ar' ? 'تفعيل إشعارات الدفع' : 'Enable Push Notifications'}
+                  { language === 'ar' ? 'تفعيل إشعارات الدفع' : 'Enable Push Notifications'}
                 </Label>
                 <p className="text-sm text-gray-600">
-                  {language === 'ar' 
+                  { language === 'ar' 
                     ? 'السماح بإرسال إشعارات الدفع إلى متصفحك' 
                     : 'Allow push notifications to be sent to your browser'}
                 </p>
@@ -367,7 +367,7 @@ export default function NotificationPreferencesPage() {
                 <div className="flex items-center justify-between py-3 border-b border-gray-100">
                   <div className="flex-1">
                     <Label htmlFor="push-application-updates" className="text-base font-medium text-gray-900">
-                      {language === 'ar' ? 'تحديثات الطلبات' : 'Application Updates'}
+                      { language === 'ar' ? 'تحديثات الطلبات' : 'Application Updates'}
                     </Label>
                   </div>
                   <Switch
@@ -380,7 +380,7 @@ export default function NotificationPreferencesPage() {
                 <div className="flex items-center justify-between py-3 border-b border-gray-100">
                   <div className="flex-1">
                     <Label htmlFor="push-event-reminders" className="text-base font-medium text-gray-900">
-                      {language === 'ar' ? 'تذكيرات الأحداث' : 'Event Reminders'}
+                      { language === 'ar' ? 'تذكيرات الأحداث' : 'Event Reminders'}
                     </Label>
                   </div>
                   <Switch
@@ -393,7 +393,7 @@ export default function NotificationPreferencesPage() {
                 <div className="flex items-center justify-between py-3">
                   <div className="flex-1">
                     <Label htmlFor="push-certificate-issued" className="text-base font-medium text-gray-900">
-                      {language === 'ar' ? 'إصدار الشهادات' : 'Certificate Issued'}
+                      { language === 'ar' ? 'إصدار الشهادات' : 'Certificate Issued'}
                     </Label>
                   </div>
                   <Switch
@@ -416,8 +416,8 @@ export default function NotificationPreferencesPage() {
           >
             <Save className="w-4 h-4 mr-2" />
             {saving 
-              ? (language === 'ar' ? 'جاري الحفظ...' : 'Saving...') 
-              : (language === 'ar' ? 'حفظ التفضيلات' : 'Save Preferences')}
+              ? ( language === 'ar' ? 'جاري الحفظ...' : 'Saving...') 
+              : ( language === 'ar' ? 'حفظ التفضيلات' : 'Save Preferences')}
           </Button>
         </div>
       </div>

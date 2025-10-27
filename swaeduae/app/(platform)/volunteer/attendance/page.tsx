@@ -1,12 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/lib/auth/AuthContext';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { getUserAttendances, getEvent, getUserProfile } from '@/lib/services/firestore';
 import { downloadCertificate } from '@/lib/services/certificate';
 import { format } from 'date-fns';
-import { CalendarIcon, ClockIcon, MapPinIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
+import { Calendar, Clock, MapPin, CheckCircle, XCircle } from 'lucide-react';
 import type { Attendance, Event, User } from '@/types';
 
 interface AttendanceWithEvent extends Attendance {
@@ -46,7 +46,7 @@ export default function VolunteerAttendancePage() {
       const attendancesWithEvents = await Promise.all(
         attendanceData.map(async (attendance) => {
           const event = await getEvent(attendance.eventId);
-          return { ...attendance, event };
+          return { ...attendance, event: event || undefined };
         })
       );
 
@@ -157,9 +157,9 @@ export default function VolunteerAttendancePage() {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <CalendarIcon className="h-8 w-8 text-emerald-600" />
+                <Calendar className="h-8 w-8 text-emerald-600" />
               </div>
-              <div className={`ml-4 ${language === 'ar' ? 'mr-4 ml-0' : ''}`}>
+              <div className={`ml-4 ${ language === 'ar' ? 'mr-4 ml-0' : ''}`}>
                 <p className="text-sm font-medium text-gray-600">
                   {t('attendance.totalEvents')}
                 </p>
@@ -173,9 +173,9 @@ export default function VolunteerAttendancePage() {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <ClockIcon className="h-8 w-8 text-blue-600" />
+                <Clock className="h-8 w-8 text-blue-600" />
               </div>
-              <div className={`ml-4 ${language === 'ar' ? 'mr-4 ml-0' : ''}`}>
+              <div className={`ml-4 ${ language === 'ar' ? 'mr-4 ml-0' : ''}`}>
                 <p className="text-sm font-medium text-gray-600">
                   {t('attendance.totalHours')}
                 </p>
@@ -189,9 +189,9 @@ export default function VolunteerAttendancePage() {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <CheckCircleIcon className="h-8 w-8 text-green-600" />
+                <CheckCircle className="h-8 w-8 text-green-600" />
               </div>
-              <div className={`ml-4 ${language === 'ar' ? 'mr-4 ml-0' : ''}`}>
+              <div className={`ml-4 ${ language === 'ar' ? 'mr-4 ml-0' : ''}`}>
                 <p className="text-sm font-medium text-gray-600">
                   {t('attendance.completionRate')}
                 </p>
@@ -244,7 +244,7 @@ export default function VolunteerAttendancePage() {
         {/* Attendance List */}
         {filteredAttendances.length === 0 ? (
           <div className="bg-white rounded-lg shadow p-12 text-center">
-            <CalendarIcon className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+            <Calendar className="h-16 w-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">
               {t('attendance.noAttendance')}
             </h3>
@@ -263,7 +263,7 @@ export default function VolunteerAttendancePage() {
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
                       <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                        {language === 'ar' && attendance.event?.titleAr
+                        { language === 'ar' && attendance.event?.titleAr
                           ? attendance.event.titleAr
                           : attendance.event?.title}
                       </h3>
@@ -277,8 +277,8 @@ export default function VolunteerAttendancePage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     {/* Check-in Info */}
                     <div className="flex items-start">
-                      <CheckCircleIcon className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-                      <div className={`ml-3 ${language === 'ar' ? 'mr-3 ml-0' : ''}`}>
+                      <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                      <div className={`ml-3 ${ language === 'ar' ? 'mr-3 ml-0' : ''}`}>
                         <p className="text-sm font-medium text-gray-900">
                           {t('attendance.checkInTime')}
                         </p>
@@ -295,8 +295,8 @@ export default function VolunteerAttendancePage() {
                     {/* Check-out Info */}
                     {attendance.checkOut && (
                       <div className="flex items-start">
-                        <XCircleIcon className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
-                        <div className={`ml-3 ${language === 'ar' ? 'mr-3 ml-0' : ''}`}>
+                        <XCircle className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
+                        <div className={`ml-3 ${ language === 'ar' ? 'mr-3 ml-0' : ''}`}>
                           <p className="text-sm font-medium text-gray-900">
                             {t('attendance.checkOutTime')}
                           </p>
@@ -315,7 +315,7 @@ export default function VolunteerAttendancePage() {
                   {/* Hours and Location */}
                   <div className="flex items-center justify-between pt-4 border-t border-gray-200">
                     <div className="flex items-center text-sm text-gray-600">
-                      <ClockIcon className="h-5 w-5 mr-2" />
+                      <Clock className="h-5 w-5 mr-2" />
                       <span className="font-medium">
                         {attendance.hoursCompleted > 0
                           ? `${attendance.hoursCompleted} ${t('attendance.hours')}`
@@ -324,7 +324,7 @@ export default function VolunteerAttendancePage() {
                     </div>
                     {attendance.event?.location && (
                       <div className="flex items-center text-sm text-gray-600">
-                        <MapPinIcon className="h-5 w-5 mr-2" />
+                        <MapPin className="h-5 w-5 mr-2" />
                         <span>{attendance.event.location.emirate}</span>
                       </div>
                     )}

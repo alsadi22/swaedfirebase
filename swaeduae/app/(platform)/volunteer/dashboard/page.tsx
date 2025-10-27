@@ -31,11 +31,11 @@ export default function VolunteerDashboard() {
       setLoading(true);
 
       // Load user profile
-      const profile = await getUserProfile(user.uid);
+      const profile = await getUserProfile(user.id);
       setUserProfile(profile);
 
       // Load applications
-      const userApplications = await getUserApplications(user.uid);
+      const userApplications = await getUserApplications(user.id);
       setApplications(userApplications);
 
       // Load events for applications

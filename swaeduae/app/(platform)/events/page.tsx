@@ -241,13 +241,13 @@ export default function EventsPage() {
                     </span>
                   </div>
                   <CardTitle className="text-xl line-clamp-2">
-                    {language === 'ar' && event.titleAr ? event.titleAr : event.title}
+                    { language === 'ar' && event.titleAr ? event.titleAr : event.title}
                   </CardTitle>
                   <CardDescription>{event.organizationName}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-gray-600 line-clamp-3 mb-4">
-                    {language === 'ar' && event.descriptionAr ? event.descriptionAr : event.description}
+                    { language === 'ar' && event.descriptionAr ? event.descriptionAr : event.description}
                   </p>
                   <div className="space-y-2 text-sm text-gray-600">
                     <div className="flex items-center">
