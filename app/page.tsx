@@ -12,26 +12,42 @@ export default function HomePage() {
     <div className="min-h-screen bg-[#FDFBF7]">
       <Header />
       
-      <main className="pt-20">
+      <main className="pt-20" role="main" id="main-content">
         {/* Hero Section */}
-        <section className="bg-gradient-to-br from-[#5C3A1F] via-[#7a4d28] to-[#D2A04A] text-white py-20 md:py-32">
+        <section 
+          className="bg-gradient-to-br from-[#5C3A1F] via-[#7a4d28] to-[#D2A04A] text-white py-20 md:py-32"
+          aria-labelledby="hero-heading"
+        >
           <div className="container-custom">
             <div className="max-w-3xl">
-              <h1 className="text-4xl md:text-6xl font-bold mb-6">
+              <h1 
+                id="hero-heading"
+                className="text-4xl md:text-6xl font-bold mb-6"
+              >
                 Empowering Communities Through Volunteerism
               </h1>
               <p className="text-xl md:text-2xl mb-8 text-[#FDFBF7] opacity-90">
                 Join UAE's premier volunteer management platform. Connect with verified organizations, 
                 track your impact, and earn recognition for making a difference.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-4" role="group" aria-label="Main actions">
                 <Link href="/auth/register">
-                  <Button size="lg" variant="secondary" className="w-full sm:w-auto">
+                  <Button 
+                    size="lg" 
+                    variant="secondary" 
+                    className="w-full sm:w-auto"
+                    aria-label="Register to get started with volunteering"
+                  >
                     Get Started Today
                   </Button>
                 </Link>
                 <Link href="/events">
-                  <Button size="lg" variant="outline" className="w-full sm:w-auto bg-transparent text-white border-white hover:bg-white hover:text-[#5C3A1F]">
+                  <Button 
+                    size="lg" 
+                    variant="outline" 
+                    className="w-full sm:w-auto bg-transparent text-white border-white hover:bg-white hover:text-[#5C3A1F]"
+                    aria-label="Browse available volunteer events"
+                  >
                     Browse Events
                   </Button>
                 </Link>
@@ -41,23 +57,24 @@ export default function HomePage() {
         </section>
 
         {/* Stats Section */}
-        <section className="py-16 bg-white">
+        <section className="py-16 bg-white" aria-labelledby="stats-heading">
           <div className="container-custom">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-              <div className="text-center">
-                <div className="text-4xl md:text-5xl font-bold text-[#D2A04A] mb-2">1,500+</div>
+            <h2 id="stats-heading" className="sr-only">Platform Statistics</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8" role="list">
+              <div className="text-center" role="listitem">
+                <div className="text-4xl md:text-5xl font-bold text-[#D2A04A] mb-2" aria-label="1,500 plus active volunteers">1,500+</div>
                 <div className="text-[#5C3A1F] font-medium">Active Volunteers</div>
               </div>
-              <div className="text-center">
-                <div className="text-4xl md:text-5xl font-bold text-[#D2A04A] mb-2">250+</div>
+              <div className="text-center" role="listitem">
+                <div className="text-4xl md:text-5xl font-bold text-[#D2A04A] mb-2" aria-label="250 plus organizations">250+</div>
                 <div className="text-[#5C3A1F] font-medium">Organizations</div>
               </div>
-              <div className="text-center">
-                <div className="text-4xl md:text-5xl font-bold text-[#D2A04A] mb-2">800+</div>
+              <div className="text-center" role="listitem">
+                <div className="text-4xl md:text-5xl font-bold text-[#D2A04A] mb-2" aria-label="800 plus events">800+</div>
                 <div className="text-[#5C3A1F] font-medium">Events</div>
               </div>
-              <div className="text-center">
-                <div className="text-4xl md:text-5xl font-bold text-[#D2A04A] mb-2">50K+</div>
+              <div className="text-center" role="listitem">
+                <div className="text-4xl md:text-5xl font-bold text-[#D2A04A] mb-2" aria-label="50,000 plus hours contributed">50K+</div>
                 <div className="text-[#5C3A1F] font-medium">Hours Contributed</div>
               </div>
             </div>
@@ -65,10 +82,10 @@ export default function HomePage() {
         </section>
 
         {/* Features Section */}
-        <section className="py-20">
+        <section className="py-20" aria-labelledby="features-heading">
           <div className="container-custom">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-[#5C3A1F] mb-4">
+              <h2 id="features-heading" className="text-3xl md:text-4xl font-bold text-[#5C3A1F] mb-4">
                 Why Choose SwaedUAE?
               </h2>
               <p className="text-lg text-[#A0A0A0] max-w-2xl mx-auto">
@@ -76,10 +93,13 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <Card hover>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8" role="list">
+              <Card hover role="listitem">
                 <CardContent className="text-center pt-6">
-                  <div className="w-16 h-16 bg-[#5C3A1F] rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div 
+                    className="w-16 h-16 bg-[#5C3A1F] rounded-full flex items-center justify-center mx-auto mb-4"
+                    aria-hidden="true"
+                  >
                     <Users className="text-white" size={32} />
                   </div>
                   <h3 className="text-xl font-semibold text-[#5C3A1F] mb-2">
@@ -91,9 +111,12 @@ export default function HomePage() {
                 </CardContent>
               </Card>
 
-              <Card hover>
+              <Card hover role="listitem">
                 <CardContent className="text-center pt-6">
-                  <div className="w-16 h-16 bg-[#D2A04A] rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div 
+                    className="w-16 h-16 bg-[#D2A04A] rounded-full flex items-center justify-center mx-auto mb-4"
+                    aria-hidden="true"
+                  >
                     <Calendar className="text-white" size={32} />
                   </div>
                   <h3 className="text-xl font-semibold text-[#5C3A1F] mb-2">
@@ -105,9 +128,12 @@ export default function HomePage() {
                 </CardContent>
               </Card>
 
-              <Card hover>
+              <Card hover role="listitem">
                 <CardContent className="text-center pt-6">
-                  <div className="w-16 h-16 bg-[#00732F] rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div 
+                    className="w-16 h-16 bg-[#00732F] rounded-full flex items-center justify-center mx-auto mb-4"
+                    aria-hidden="true"
+                  >
                     <Award className="text-white" size={32} />
                   </div>
                   <h3 className="text-xl font-semibold text-[#5C3A1F] mb-2">

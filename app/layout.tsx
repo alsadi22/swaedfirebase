@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { ToastProvider } from "@/components/ui/toast";
+import { UserProvider } from '@auth0/nextjs-auth0/client';
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -21,7 +23,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} antialiased`}>
-        {children}
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
+        <UserProvider>
+          <ToastProvider>
+            {children}
+          </ToastProvider>
+        </UserProvider>
       </body>
     </html>
   );

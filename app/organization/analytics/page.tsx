@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -10,6 +10,7 @@ export default function OrganizationAnalyticsPage() {
   const [stats, setStats] = useState<any>({});
   const [eventData, setEventData] = useState<any[]>([]);
   const [applicationData, setApplicationData] = useState<any[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
     fetchAnalytics();
@@ -17,70 +18,31 @@ export default function OrganizationAnalyticsPage() {
 
   async function fetchAnalytics() {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      // Check authentication
+      const authResponse = await fetch('/api/auth/check');
+      if (!authResponse.ok) {
+        router.push('/auth/login');
+        return;
+      }
 
-      const { data: orgMember } = await supabase
-        .from('organization_members')
-        .select('organization_id')
-        .eq('user_id', user.id)
-        .single();
+      // Fetch analytics data
+      const analyticsResponse = await fetch('/api/organization/analytics');
+      if (!analyticsResponse.ok) {
+        if (analyticsResponse.status === 401) {
+          router.push('/auth/login');
+          return;
+        } else if (analyticsResponse.status === 403) {
+          router.push('/dashboard');
+          return;
+        }
+        throw new Error('Failed to fetch analytics data');
+      }
 
-      if (!orgMember) return;
+      const analyticsData = await analyticsResponse.json();
+      setStats(analyticsData.stats);
+      setEventData(analyticsData.eventData);
+      setApplicationData(analyticsData.applicationData);
 
-      // Overall stats
-      const { data: events } = await supabase
-        .from('events')
-        .select('id, status')
-        .eq('organization_id', orgMember.organization_id);
-
-      const { data: applications } = await supabase
-        .from('event_applications')
-        .select('status, user_id, event:events!inner(organization_id)')
-        .eq('event.organization_id', orgMember.organization_id);
-
-      const { data: hours } = await supabase
-        .from('volunteer_hours')
-        .select('hours_logged, event:events!inner(organization_id)')
-        .eq('event.organization_id', orgMember.organization_id)
-        .eq('status', 'approved');
-
-      const totalHours = hours?.reduce((sum, h) => sum + (h.hours_logged || 0), 0) || 0;
-      const totalVolunteers = new Set(applications?.filter(a => a.status === 'approved').map(a => a.user_id)).size;
-
-      setStats({
-        totalEvents: events?.length || 0,
-        activeEvents: events?.filter(e => e.status === 'published' || e.status === 'in_progress').length || 0,
-        totalApplications: applications?.length || 0,
-        totalHours: totalHours,
-        totalVolunteers: totalVolunteers,
-      });
-
-      // Events by status
-      const statusCounts = events?.reduce((acc: any, e) => {
-        acc[e.status] = (acc[e.status] || 0) + 1;
-        return acc;
-      }, {});
-
-      setEventData(
-        Object.entries(statusCounts || {}).map(([status, count]) => ({
-          status,
-          count,
-        }))
-      );
-
-      // Applications by status
-      const appStatusCounts = applications?.reduce((acc: any, a) => {
-        acc[a.status] = (acc[a.status] || 0) + 1;
-        return acc;
-      }, {});
-
-      setApplicationData(
-        Object.entries(appStatusCounts || {}).map(([status, count]) => ({
-          status,
-          count,
-        }))
-      );
     } catch (error) {
       console.error('Error fetching analytics:', error);
     } finally {

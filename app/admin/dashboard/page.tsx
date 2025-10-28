@@ -2,16 +2,17 @@
 
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useUser } from '@auth0/nextjs-auth0/client'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { supabase } from '@/lib/supabase'
 import { Users, Building2, Calendar, Award, TrendingUp, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
 
 export default function AdminDashboard() {
   const router = useRouter()
+  const { user, error, isLoading } = useUser()
   const [loading, setLoading] = useState(true)
   const [isAdmin, setIsAdmin] = useState(false)
   const [stats, setStats] = useState({
@@ -26,49 +27,38 @@ export default function AdminDashboard() {
   useEffect(() => {
     async function loadAdminDashboard() {
       try {
-        const { data: { user } } = await supabase.auth.getUser()
+        if (isLoading) return
         
-        if (!user) {
+        if (!user || error) {
           router.push('/auth/login')
           return
         }
 
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', user.id)
-          .maybeSingle()
-
-        if (profile?.role !== 'admin' && profile?.role !== 'super_admin') {
+        // Check if user is admin
+        const userType = user.user_metadata?.user_type || 'volunteer'
+        if (!['admin', 'super_admin'].includes(userType)) {
           router.push('/dashboard')
           return
         }
 
-        setIsAdmin(true)
-
-        // Load statistics
-        const [users, organizations, events, volunteerProfiles] = await Promise.all([
-          supabase.from('profiles').select('id', { count: 'exact', head: true }),
-          supabase.from('organizations').select('id', { count: 'exact', head: true }),
-          supabase.from('events').select('id', { count: 'exact', head: true }),
-          supabase.from('volunteer_profiles').select('total_hours', { count: 'exact' })
-        ])
-
-        const pendingOrgs = await supabase
-          .from('organizations')
-          .select('id', { count: 'exact', head: true })
-          .eq('verification_status', 'pending')
-
-        const totalHours = volunteerProfiles.data?.reduce((sum, v) => sum + (v.total_hours || 0), 0) || 0
-
-        setStats({
-          totalUsers: users.count || 0,
-          totalOrganizations: organizations.count || 0,
-          totalEvents: events.count || 0,
-          pendingOrganizations: pendingOrgs?.count || 0,
-          activeVolunteers: volunteerProfiles.count || 0,
-          totalHours: totalHours,
+        // Fetch dashboard stats from API endpoint
+        const response = await fetch('/api/admin/dashboard', {
+          credentials: 'include'
         })
+
+        if (response.ok) {
+          const data = await response.json()
+          setStats(data.stats)
+          setIsAdmin(true)
+        } else if (response.status === 401) {
+          router.push('/auth/login')
+          return
+        } else if (response.status === 403) {
+          router.push('/dashboard')
+          return
+        } else {
+          console.error('Failed to fetch dashboard stats:', response.statusText)
+        }
       } catch (error) {
         console.error('Error loading admin dashboard:', error)
       } finally {
@@ -77,7 +67,7 @@ export default function AdminDashboard() {
     }
 
     loadAdminDashboard()
-  }, [router])
+  }, [router, user, error, isLoading])
 
   if (loading) {
     return (

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/database';
 import Link from 'next/link';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 
@@ -19,26 +19,24 @@ export default function AdminReportsPage() {
   async function fetchReportData() {
     try {
       // Overall stats
-      const { data: users } = await supabase.from('users').select('id', { count: 'exact' });
-      const { data: events } = await supabase.from('events').select('id', { count: 'exact' });
-      const { data: organizations } = await supabase.from('organizations').select('id', { count: 'exact' });
-      const { data: hours } = await supabase.from('volunteer_hours').select('hours_logged');
+      const usersResult = await db.query('SELECT COUNT(*) as count FROM users');
+      const eventsResult = await db.query('SELECT COUNT(*) as count FROM events');
+      const organizationsResult = await db.query('SELECT COUNT(*) as count FROM organizations');
+      const hoursResult = await db.query('SELECT hours_logged FROM volunteer_hours');
 
-      const totalHours = hours?.reduce((sum, h) => sum + (h.hours_logged || 0), 0) || 0;
+      const totalHours = hoursResult.rows?.reduce((sum: number, h: any) => sum + (h.hours_logged || 0), 0) || 0;
 
       setStats({
-        totalUsers: users?.length || 0,
-        totalEvents: events?.length || 0,
-        totalOrganizations: organizations?.length || 0,
+        totalUsers: parseInt(usersResult.rows[0]?.count) || 0,
+        totalEvents: parseInt(eventsResult.rows[0]?.count) || 0,
+        totalOrganizations: parseInt(organizationsResult.rows[0]?.count) || 0,
         totalHours: totalHours,
       });
 
       // Events by Emirate
-      const { data: eventsByEmirate } = await supabase
-        .from('events')
-        .select('emirate');
+      const eventsByEmirateResult = await db.query('SELECT emirate FROM events');
 
-      const emirateCounts = eventsByEmirate?.reduce((acc: any, event) => {
+      const emirateCounts = eventsByEmirateResult.rows?.reduce((acc: any, event: any) => {
         acc[event.emirate] = (acc[event.emirate] || 0) + 1;
         return acc;
       }, {});
@@ -51,11 +49,9 @@ export default function AdminReportsPage() {
       );
 
       // Events by Category
-      const { data: eventsByCategory } = await supabase
-        .from('events')
-        .select('category');
+      const eventsByCategoryResult = await db.query('SELECT category FROM events');
 
-      const categoryCounts = eventsByCategory?.reduce((acc: any, event) => {
+      const categoryCounts = eventsByCategoryResult.rows?.reduce((acc: any, event: any) => {
         acc[event.category] = (acc[event.category] || 0) + 1;
         return acc;
       }, {});
@@ -81,14 +77,12 @@ export default function AdminReportsPage() {
         const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1).toISOString();
         const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).toISOString();
 
-        const { data: monthHours } = await supabase
-          .from('volunteer_hours')
-          .select('hours_logged')
-          .eq('status', 'approved')
-          .gte('date_logged', startOfMonth)
-          .lte('date_logged', endOfMonth);
+        const monthHoursResult = await db.query(
+          'SELECT hours_logged FROM volunteer_hours WHERE status = $1 AND date_logged >= $2 AND date_logged <= $3',
+          ['approved', startOfMonth, endOfMonth]
+        );
 
-        const totalHours = monthHours?.reduce((sum, h) => sum + (h.hours_logged || 0), 0) || 0;
+        const totalHours = monthHoursResult.rows?.reduce((sum: number, h: any) => sum + (h.hours_logged || 0), 0) || 0;
 
         monthlyHours.push({
           month: `${month} ${year}`,

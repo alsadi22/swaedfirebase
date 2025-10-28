@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 interface StudentStats {
@@ -23,6 +23,7 @@ export default function StudentDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [upcomingEvents, setUpcomingEvents] = useState<any[]>([]);
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
     fetchStudentData();
@@ -30,54 +31,31 @@ export default function StudentDashboardPage() {
 
   async function fetchStudentData() {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      // Check authentication
+      const authResponse = await fetch('/api/auth/check');
+      if (!authResponse.ok) {
+        router.push('/auth/login');
+        return;
+      }
 
-      // Get volunteer hours
-      const { data: hours } = await supabase
-        .from('volunteer_hours')
-        .select('hours_logged')
-        .eq('user_id', user.id)
-        .eq('status', 'approved');
+      // Fetch student dashboard data
+      const dashboardResponse = await fetch('/api/student/dashboard');
+      if (!dashboardResponse.ok) {
+        if (dashboardResponse.status === 401) {
+          router.push('/auth/login');
+          return;
+        } else if (dashboardResponse.status === 403) {
+          router.push('/dashboard');
+          return;
+        }
+        throw new Error('Failed to fetch dashboard data');
+      }
 
-      const totalHours = hours?.reduce((sum, h) => sum + (h.hours_logged || 0), 0) || 0;
+      const dashboardData = await dashboardResponse.json();
+      setStats(dashboardData.stats);
+      setUpcomingEvents(dashboardData.upcomingEvents);
+      setRecentActivity(dashboardData.recentActivity);
 
-      // Get badges
-      const { data: badges } = await supabase
-        .from('user_badges')
-        .select('id')
-        .eq('user_id', user.id);
-
-      // Get student profile
-      const { data: profile } = await supabase
-        .from('student_profiles')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
-
-      // Get upcoming events
-      const { data: events } = await supabase
-        .from('event_applications')
-        .select('*, event:events(*)')
-        .eq('user_id', user.id)
-        .eq('status', 'approved')
-        .gte('event.start_date', new Date().toISOString())
-        .limit(3);
-
-      setStats({
-        totalHours,
-        eventsCompleted: Math.floor(totalHours / 4), // Assuming 4 hours per event average
-        badgesEarned: badges?.length || 0,
-        academicCredits: profile?.academic_credits || 0,
-        currentGPA: profile?.current_gpa || 0,
-      });
-
-      setUpcomingEvents(events || []);
-      setRecentActivity([
-        { type: 'event', message: 'Completed Beach Cleanup Event', date: '2 days ago' },
-        { type: 'badge', message: 'Earned Community Hero Badge', date: '5 days ago' },
-        { type: 'credit', message: 'Academic credit approved: 2.0', date: '1 week ago' },
-      ]);
     } catch (error) {
       console.error('Error fetching student data:', error);
     } finally {

@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/database';
+import { auth } from '@/lib/auth';
 import Link from 'next/link';
 
 interface GuardianInfo {
@@ -26,16 +27,16 @@ export default function StudentGuardianPage() {
 
   async function fetchGuardianInfo() {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      // Using useUser hook instead of auth.getUser();
+      const user = userResponse.data?.user;
       if (!user) return;
 
-      const { data, error } = await supabase
-        .from('student_profiles')
-        .select('guardian_name, guardian_email, guardian_phone, guardian_relationship, consent_given, consent_date')
-        .eq('user_id', user.id)
-        .single();
+      const result = await db.query(
+        'SELECT guardian_name, guardian_email, guardian_phone, guardian_relationship, consent_given, consent_date FROM student_profiles WHERE user_id = $1',
+        [user.id]
+      );
 
-      if (error && error.code !== 'PGRST116') throw error;
+      const data = result.rows?.[0];
       
       if (data) {
         setGuardianInfo(data);
@@ -50,20 +51,22 @@ export default function StudentGuardianPage() {
 
   async function saveGuardianInfo() {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      // Using useUser hook instead of auth.getUser();
+      const user = userResponse.data?.user;
       if (!user) return;
 
-      const { error } = await supabase
-        .from('student_profiles')
-        .update({
-          guardian_name: formData.guardian_name,
-          guardian_email: formData.guardian_email,
-          guardian_phone: formData.guardian_phone,
-          guardian_relationship: formData.guardian_relationship,
-        })
-        .eq('user_id', user.id);
-
-      if (error) throw error;
+      await db.query(
+        `UPDATE student_profiles SET 
+         guardian_name = $1, guardian_email = $2, guardian_phone = $3, guardian_relationship = $4 
+         WHERE user_id = $5`,
+        [
+          formData.guardian_name,
+          formData.guardian_email,
+          formData.guardian_phone,
+          formData.guardian_relationship,
+          user.id
+        ]
+      );
       
       setIsEditing(false);
       fetchGuardianInfo();

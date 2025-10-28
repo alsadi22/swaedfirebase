@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/database';
+import { useUser } from '@auth0/nextjs-auth0/client';
 import Link from 'next/link';
 import { jsPDF } from 'jspdf';
 
@@ -34,37 +35,41 @@ export default function CertificatesPage() {
 
   async function fetchCertificates() {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      // Using useUser hook instead of auth.getUser()
+      if (!data?.user) return;
 
-      const { data, error } = await supabase
-        .from('certificates')
-        .select(`
-          id,
-          certificate_number,
-          issue_date,
-          hours_earned,
-          status,
-          user:users(first_name, last_name),
-          event:events(
-            title,
-            organization:organizations(name)
-          )
-        `)
-        .eq('user_id', user.id)
-        .order('issue_date', { ascending: false });
+      const result = await db.query(`
+        SELECT 
+          c.id,
+          c.certificate_number,
+          c.issue_date,
+          c.hours_earned,
+          c.status,
+          u.first_name,
+          u.last_name,
+          e.title as event_title,
+          o.name as organization_name
+        FROM certificates c
+        JOIN users u ON c.user_id = u.id
+        JOIN events e ON c.event_id = e.id
+        JOIN organizations o ON e.organization_id = o.id
+        WHERE c.user_id = $1
+        ORDER BY c.issue_date DESC
+      `, [data.user.id]);
 
-      if (error) throw error;
-      
       // Map the data to match the expected interface
-      const mappedData = data?.map(cert => ({
-        ...cert,
-        user: Array.isArray(cert.user) ? cert.user[0] : cert.user,
-        event: Array.isArray(cert.event) ? {
-          ...cert.event[0],
-          organization: Array.isArray(cert.event[0]?.organization) ? cert.event[0].organization[0] : cert.event[0]?.organization
-        } : cert.event
-      })) || [];
+      const mappedData = result.rows.map((cert: any) => ({
+        id: cert.id,
+        certificate_number: cert.certificate_number,
+        issue_date: cert.issue_date,
+        hours_earned: cert.hours_earned,
+        status: cert.status,
+        user: { first_name: cert.first_name, last_name: cert.last_name },
+        event: { 
+          title: cert.event_title,
+          organization: { name: cert.organization_name }
+        }
+      }));
       
       setCertificates(mappedData);
     } catch (error) {

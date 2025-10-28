@@ -1,193 +1,102 @@
 'use client'
 
-import React, { useState } from 'react'
-import Link from 'next/link'
+import { useUser } from '@auth0/nextjs-auth0/client'
 import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Input, Select } from '@/components/ui/form'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Header } from '@/components/layout/header'
-import { supabase } from '@/lib/supabase'
+import { useEffect } from 'react'
+import Link from 'next/link'
 
 export default function RegisterPage() {
+  const { user, isLoading } = useUser()
   const router = useRouter()
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
-    firstName: '',
-    lastName: '',
-    phone: '',
-    role: 'volunteer',
-  })
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    })
+  useEffect(() => {
+    if (user) {
+      // User is already logged in, redirect to dashboard
+      router.push('/dashboard')
+    }
+  }, [user, router])
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    )
   }
 
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match')
-      return
-    }
-
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters')
-      return
-    }
-
-    setLoading(true)
-
-    try {
-      const { data, error } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          data: {
-            first_name: formData.firstName,
-            last_name: formData.lastName,
-            phone: formData.phone,
-            role: formData.role,
-          },
-        },
-      })
-
-      if (error) throw error
-
-      if (data.user) {
-        // Profile is automatically created by database trigger
-        // No manual profile creation needed
-        console.log('User created successfully:', data.user.id)
-        
-        // Redirect to dashboard
-        router.push('/dashboard')
-      }
-    } catch (error: any) {
-      setError(error.message || 'Failed to create account')
-    } finally {
-      setLoading(false)
-    }
+  if (user) {
+    return null // Will redirect
   }
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7]">
-      <Header />
-      
-      <main className="pt-32 pb-20">
-        <div className="container-custom">
-          <div className="max-w-md mx-auto">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-2xl text-center">Create Your Account</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSignUp} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <Input
-                      label="First Name"
-                      name="firstName"
-                      value={formData.firstName}
-                      onChange={handleChange}
-                      placeholder="John"
-                      required
-                    />
-                    
-                    <Input
-                      label="Last Name"
-                      name="lastName"
-                      value={formData.lastName}
-                      onChange={handleChange}
-                      placeholder="Doe"
-                      required
-                    />
-                  </div>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Create your account
+          </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Or{' '}
+            <Link
+              href="/auth/login"
+              className="font-medium text-indigo-600 hover:text-indigo-500"
+            >
+              sign in to your existing account
+            </Link>
+          </p>
+        </div>
 
-                  <Input
-                    label="Email"
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="your@email.com"
-                    required
-                  />
+        <div className="mt-8 space-y-6">
+          <div className="text-center">
+            <p className="text-sm text-gray-600 mb-6">
+              Choose your account type to get started:
+            </p>
+            
+            <div className="space-y-4">
+              <a
+                href="/api/auth/login?screen_hint=signup&user_type=volunteer"
+                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                Register as Volunteer
+              </a>
+              
+              <a
+                href="/api/auth/login?screen_hint=signup&user_type=organization"
+                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+              >
+                Register as Organization
+              </a>
+              
+              <a
+                href="/api/auth/login?screen_hint=signup&user_type=student"
+                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Register as Student
+              </a>
+            </div>
+          </div>
 
-                  <Input
-                    label="Phone"
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    placeholder="+971 50 123 4567"
-                  />
-
-                  <Select
-                    label="I am a"
-                    name="role"
-                    value={formData.role}
-                    onChange={handleChange}
-                    options={[
-                      { value: 'volunteer', label: 'Volunteer' },
-                      { value: 'student', label: 'Student Volunteer' },
-                      { value: 'organization', label: 'Organization Representative' },
-                    ]}
-                  />
-                  
-                  <Input
-                    label="Password"
-                    type="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    placeholder="At least 6 characters"
-                    required
-                  />
-
-                  <Input
-                    label="Confirm Password"
-                    type="password"
-                    name="confirmPassword"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    placeholder="Re-enter your password"
-                    required
-                  />
-
-                  {error && (
-                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-                      {error}
-                    </div>
-                  )}
-
-                  <Button
-                    type="submit"
-                    variant="primary"
-                    className="w-full"
-                    disabled={loading}
-                  >
-                    {loading ? 'Creating Account...' : 'Create Account'}
-                  </Button>
-                </form>
-
-                <div className="mt-6 text-center text-sm text-[#A0A0A0]">
-                  Already have an account?{' '}
-                  <Link href="/auth/login" className="text-[#5C3A1F] font-medium hover:underline">
-                    Sign In
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
+          <div className="text-center">
+            <div className="text-sm text-gray-600 mb-4">
+              Or register for specific roles:
+            </div>
+            <div className="space-y-2">
+              <Link
+                href="/auth/organization/register"
+                className="block w-full text-center py-2 px-4 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+              >
+                Organization Registration
+              </Link>
+              <Link
+                href="/auth/volunteer/register"
+                className="block w-full text-center py-2 px-4 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+              >
+                Volunteer Registration
+              </Link>
+            </div>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   )
 }

@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/database';
+import { useUser } from '@auth0/nextjs-auth0/client';
 import Link from 'next/link';
 
 interface Certificate {
@@ -26,27 +27,32 @@ export default function AdminCertificatesPage() {
 
   async function fetchCertificates() {
     try {
-      const { data, error } = await supabase
-        .from('certificates')
-        .select(`
-          id,
-          hours_earned,
-          issue_date,
-          certificate_number,
-          status,
-          users!certificates_user_id_fkey(first_name, last_name),
-          events!certificates_event_id_fkey(title)
-        `)
-        .order('issue_date', { ascending: false });
+      const result = await db.query(`
+        SELECT 
+          c.id,
+          c.hours_earned,
+          c.issue_date,
+          c.certificate_number,
+          c.status,
+          u.first_name,
+          u.last_name,
+          e.title as event_title
+        FROM certificates c
+        JOIN users u ON c.user_id = u.id
+        JOIN events e ON c.event_id = e.id
+        ORDER BY c.issue_date DESC
+      `);
 
-      if (error) throw error;
-      
       // Map the data to match the expected interface
-      const mappedData = data?.map(cert => ({
-        ...cert,
-        user: Array.isArray(cert.users) ? cert.users[0] : cert.users,
-        event: Array.isArray(cert.events) ? cert.events[0] : cert.events
-      })) || [];
+      const mappedData = result.rows.map((cert: any) => ({
+        id: cert.id,
+        hours_earned: cert.hours_earned,
+        issue_date: cert.issue_date,
+        certificate_number: cert.certificate_number,
+        status: cert.status,
+        user: { first_name: cert.first_name, last_name: cert.last_name },
+        event: { title: cert.event_title }
+      }));
       
       setcertificates(mappedData);
     } catch (error) {
@@ -58,12 +64,10 @@ export default function AdminCertificatesPage() {
 
   async function updateCertificateStatus(certId: string, newStatus: string) {
     try {
-      const { error } = await supabase
-        .from('certificates')
-        .update({ status: newStatus })
-        .eq('id', certId);
-
-      if (error) throw error;
+      await db.query(
+        'UPDATE certificates SET status = $1 WHERE id = $2',
+        [newStatus, certId]
+      );
       fetchCertificates();
     } catch (error) {
       console.error('Error updating certificate:', error);

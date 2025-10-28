@@ -18,9 +18,9 @@ A comprehensive volunteer management platform connecting volunteers with verifie
 
 - **Frontend**: Next.js 16 with TypeScript
 - **Styling**: Tailwind CSS with UAE Ministry design system
-- **Backend**: Supabase (PostgreSQL + Edge Functions)
-- **Authentication**: Supabase Auth
-- **Storage**: Supabase Storage
+- **Backend**: Local PostgreSQL Database + Next.js API Routes
+- **Authentication**: NextAuth.js with local database
+- **Storage**: Local file system storage
 - **UI Components**: Radix UI + Custom components
 - **Icons**: Lucide React
 
@@ -54,8 +54,9 @@ A comprehensive volunteer management platform connecting volunteers with verifie
 
 3. Set up environment variables:
    ```bash
-   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+   DATABASE_URL=postgresql://username:password@localhost:5432/swaeduae
+   NEXTAUTH_URL=http://localhost:3000
+   NEXTAUTH_SECRET=your_secret_key
    ```
 
 4. Run the development server:
@@ -85,13 +86,13 @@ swaeduae-platform/
 ├── components/       # React components
 │   ├── ui/           # UI components
 │   └── layout/       # Layout components
-├── lib/              # Utilities and Supabase client
-└── supabase/         # Database migrations
+├── lib/              # Utilities and database client
+└── database/         # Database schema and migrations and setup
 ```
 
 ## Deployment
 
-The application is deployed on Vercel with automatic Supabase integration.
+The application is deployed on Vercel with automatic PostgreSQL integration.
 
 ## License
 

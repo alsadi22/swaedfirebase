@@ -1,102 +1,82 @@
 'use client'
 
-import React, { useState } from 'react'
-import Link from 'next/link'
+import { useUser } from '@auth0/nextjs-auth0/client'
 import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/form'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Header } from '@/components/layout/header'
-import { supabase } from '@/lib/supabase'
+import { useEffect } from 'react'
+import Link from 'next/link'
 
 export default function LoginPage() {
+  const { user, isLoading } = useUser()
   const router = useRouter()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
 
-  const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
-
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
-
-      if (error) throw error
-
-      if (data.user) {
-        router.push('/dashboard')
-      }
-    } catch (error: any) {
-      setError(error.message || 'Failed to sign in')
-    } finally {
-      setLoading(false)
+  useEffect(() => {
+    if (user) {
+      // User is already logged in, redirect to dashboard
+      router.push('/dashboard')
     }
+  }, [user, router])
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    )
+  }
+
+  if (user) {
+    return null // Will redirect
   }
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7]">
-      <Header />
-      
-      <main className="pt-32 pb-20">
-        <div className="container-custom">
-          <div className="max-w-md mx-auto">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-2xl text-center">Sign In to Your Account</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSignIn} className="space-y-4">
-                  <Input
-                    label="Email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="your@email.com"
-                    required
-                  />
-                  
-                  <Input
-                    label="Password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
-                    required
-                  />
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Sign in to your account
+          </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Or{' '}
+            <Link
+              href="/auth/register"
+              className="font-medium text-indigo-600 hover:text-indigo-500"
+            >
+              create a new account
+            </Link>
+          </p>
+        </div>
 
-                  {error && (
-                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-                      {error}
-                    </div>
-                  )}
+        <div className="mt-8 space-y-6">
+          <div className="text-center">
+            <a
+              href="/api/auth/login"
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              Sign In with Auth0
+            </a>
+          </div>
 
-                  <Button
-                    type="submit"
-                    variant="primary"
-                    className="w-full"
-                    disabled={loading}
-                  >
-                    {loading ? 'Signing In...' : 'Sign In'}
-                  </Button>
-                </form>
-
-                <div className="mt-6 text-center text-sm text-[#A0A0A0]">
-                  Do not have an account?{' '}
-                  <Link href="/auth/register" className="text-[#5C3A1F] font-medium hover:underline">
-                    Sign Up
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
+          <div className="text-center">
+            <div className="text-sm text-gray-600 mb-4">
+              Or access specific portals:
+            </div>
+            <div className="space-y-2">
+              <Link
+                href="/auth/organization/login"
+                className="block w-full text-center py-2 px-4 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+              >
+                Organization Portal
+              </Link>
+              <Link
+                href="/auth/volunteer/login"
+                className="block w-full text-center py-2 px-4 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+              >
+                Volunteer Portal
+              </Link>
+            </div>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   )
 }

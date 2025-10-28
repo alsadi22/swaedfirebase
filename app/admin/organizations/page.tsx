@@ -7,7 +7,7 @@ import { Footer } from '@/components/layout/footer'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/form'
-import { supabase } from '@/lib/supabase'
+import { useUser } from '@auth0/nextjs-auth0/client'
 import { CheckCircle, XCircle, FileText, Building2, AlertCircle } from 'lucide-react'
 
 export default function AdminOrganizationsPage() {
@@ -21,32 +21,30 @@ export default function AdminOrganizationsPage() {
   useEffect(() => {
     async function loadOrganizations() {
       try {
-        const { data: { user } } = await supabase.auth.getUser()
+        // Using useUser hook instead of auth.getUser()
         
-        if (!user) {
+        if (userResponse.error || !userResponse.data?.user) {
           router.push('/auth/login')
           return
         }
 
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', user.id)
-          .maybeSingle()
+        // Fetch organizations from API endpoint
+        const response = await fetch('/api/admin/organizations', {
+          credentials: 'include'
+        })
 
-        if (profile?.role !== 'admin' && profile?.role !== 'super_admin') {
+        if (response.ok) {
+          const data = await response.json()
+          setOrganizations(data.organizations || [])
+        } else if (response.status === 401) {
+          router.push('/auth/login')
+          return
+        } else if (response.status === 403) {
           router.push('/dashboard')
           return
+        } else {
+          console.error('Failed to fetch organizations:', response.statusText)
         }
-
-        const { data, error } = await supabase
-          .from('organizations')
-          .select('*')
-          .order('created_at', { ascending: false })
-
-        if (error) throw error
-
-        setOrganizations(data || [])
       } catch (error) {
         console.error('Error loading organizations:', error)
       } finally {
@@ -60,25 +58,28 @@ export default function AdminOrganizationsPage() {
   const handleApprove = async (orgId: string) => {
     setProcessing(true)
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      
-      const { error } = await supabase
-        .from('organizations')
-        .update({
-          verification_status: 'approved',
-          verification_date: new Date().toISOString(),
-          verified_by: user?.id
+      const response = await fetch('/api/admin/organizations', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          orgId,
+          action: 'approve'
         })
-        .eq('id', orgId)
+      })
 
-      if (error) throw error
-
-      setOrganizations(organizations.map(org =>
-        org.id === orgId ? { ...org, verification_status: 'approved' } : org
-      ))
-
-      setSelectedOrg(null)
-      alert('Organization approved successfully!')
+      if (response.ok) {
+        setOrganizations(organizations.map(org =>
+          org.id === orgId ? { ...org, verification_status: 'approved' } : org
+        ))
+        setSelectedOrg(null)
+        alert('Organization approved successfully!')
+      } else {
+        const errorData = await response.json()
+        alert(errorData.error || 'Failed to approve organization')
+      }
     } catch (error: any) {
       alert(error.message || 'Failed to approve organization')
     } finally {
@@ -94,27 +95,30 @@ export default function AdminOrganizationsPage() {
 
     setProcessing(true)
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      
-      const { error } = await supabase
-        .from('organizations')
-        .update({
-          verification_status: 'rejected',
-          verification_date: new Date().toISOString(),
-          verified_by: user?.id,
-          rejection_reason: rejectionReason
+      const response = await fetch('/api/admin/organizations', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          orgId,
+          action: 'reject',
+          rejectionReason
         })
-        .eq('id', orgId)
+      })
 
-      if (error) throw error
-
-      setOrganizations(organizations.map(org =>
-        org.id === orgId ? { ...org, verification_status: 'rejected', rejection_reason: rejectionReason } : org
-      ))
-
-      setSelectedOrg(null)
-      setRejectionReason('')
-      alert('Organization rejected')
+      if (response.ok) {
+        setOrganizations(organizations.map(org =>
+          org.id === orgId ? { ...org, verification_status: 'rejected', rejection_reason: rejectionReason } : org
+        ))
+        setSelectedOrg(null)
+        setRejectionReason('')
+        alert('Organization rejected')
+      } else {
+        const errorData = await response.json()
+        alert(errorData.error || 'Failed to reject organization')
+      }
     } catch (error: any) {
       alert(error.message || 'Failed to reject organization')
     } finally {

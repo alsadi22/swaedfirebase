@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import jsPDF from 'jspdf';
 
@@ -26,6 +26,7 @@ export default function StudentTranscriptsPage() {
   const [certificates, setCertificates] = useState<Certificate[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalHours, setTotalHours] = useState(0);
+  const router = useRouter();
 
   useEffect(() => {
     fetchTranscriptData();
@@ -33,55 +34,31 @@ export default function StudentTranscriptsPage() {
 
   async function fetchTranscriptData() {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      // Check authentication
+      const authResponse = await fetch('/api/auth/check');
+      if (!authResponse.ok) {
+        router.push('/auth/login');
+        return;
+      }
 
-      // Fetch volunteer hours
-      const { data: hours } = await supabase
-        .from('volunteer_hours')
-        .select(`
-          id,
-          hours_logged,
-          date_logged,
-          status,
-          event:events(title, organization:organizations(name))
-        `)
-        .eq('user_id', user.id)
-        .order('date_logged', { ascending: false });
+      // Fetch student transcript data
+      const transcriptResponse = await fetch('/api/student/transcripts');
+      if (!transcriptResponse.ok) {
+        if (transcriptResponse.status === 401) {
+          router.push('/auth/login');
+          return;
+        } else if (transcriptResponse.status === 403) {
+          router.push('/dashboard');
+          return;
+        }
+        throw new Error('Failed to fetch transcript data');
+      }
 
-      // Fetch certificates
-      const { data: certs } = await supabase
-        .from('certificates')
-        .select(`
-          id,
-          certificate_number,
-          issue_date,
-          hours_earned,
-          event:events(title)
-        `)
-        .eq('user_id', user.id)
-        .order('issue_date', { ascending: false });
+      const transcriptData = await transcriptResponse.json();
+      setRecords(transcriptData.records);
+      setCertificates(transcriptData.certificates);
+      setTotalHours(transcriptData.totalHours);
 
-      // Map the data to match the expected interface
-      const mappedHours = hours?.map(hour => ({
-        ...hour,
-        event: Array.isArray(hour.event) ? {
-          ...hour.event[0],
-          organization: Array.isArray(hour.event[0]?.organization) ? hour.event[0].organization[0] : hour.event[0]?.organization
-        } : hour.event
-      })) || [];
-      
-      const mappedCerts = certs?.map(cert => ({
-        ...cert,
-        event: Array.isArray(cert.event) ? cert.event[0] : cert.event
-      })) || [];
-
-      setRecords(mappedHours);
-      setCertificates(mappedCerts);
-
-      const total = mappedHours?.filter(h => h.status === 'approved')
-        .reduce((sum, h) => sum + (h.hours_logged || 0), 0) || 0;
-      setTotalHours(total);
     } catch (error) {
       console.error('Error fetching transcript data:', error);
     } finally {

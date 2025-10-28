@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 interface Event {
@@ -18,6 +18,7 @@ export default function OrganizationEventsPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
+  const router = useRouter();
 
   useEffect(() => {
     fetchEvents();
@@ -25,34 +26,29 @@ export default function OrganizationEventsPage() {
 
   async function fetchEvents() {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      // Check authentication
+      const authResponse = await fetch('/api/auth/check');
+      if (!authResponse.ok) {
+        router.push('/auth/login');
+        return;
+      }
 
-      // Get organization
-      const { data: orgMember } = await supabase
-        .from('organization_members')
-        .select('organization_id')
-        .eq('user_id', user.id)
-        .single();
+      // Fetch organization events
+      const eventsResponse = await fetch('/api/organization/events');
+      if (!eventsResponse.ok) {
+        if (eventsResponse.status === 401) {
+          router.push('/auth/login');
+          return;
+        } else if (eventsResponse.status === 403) {
+          router.push('/dashboard');
+          return;
+        }
+        throw new Error('Failed to fetch events');
+      }
 
-      if (!orgMember) return;
+      const eventsData = await eventsResponse.json();
+      setEvents(eventsData.events);
 
-      const { data, error } = await supabase
-        .from('events')
-        .select(`
-          id,
-          title,
-          category,
-          status,
-          start_date,
-          max_volunteers,
-          applications:event_applications(count)
-        `)
-        .eq('organization_id', orgMember.organization_id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setEvents(data || []);
     } catch (error) {
       console.error('Error fetching events:', error);
     } finally {

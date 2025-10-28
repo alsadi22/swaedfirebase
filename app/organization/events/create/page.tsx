@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/database';
+import { auth } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -31,28 +32,43 @@ export default function CreateEventPage() {
     setLoading(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      // Using useUser hook instead of auth.getUser();
+      const user = userResponse.data?.user;
       if (!user) throw new Error('Not authenticated');
 
       // Get organization
-      const { data: orgMember } = await supabase
-        .from('organization_members')
-        .select('organization_id')
-        .eq('user_id', user.id)
-        .single();
+      const orgMemberResult = await db.query(
+        'SELECT organization_id FROM organization_members WHERE user_id = $1',
+        [user.id]
+      );
 
+      const orgMember = orgMemberResult.rows?.[0];
       if (!orgMember) throw new Error('Organization not found');
 
-      const { error } = await supabase
-        .from('events')
-        .insert({
-          ...formData,
-          organization_id: orgMember.organization_id,
-          status: 'draft',
-          required_skills: formData.required_skills.split(',').map(s => s.trim()),
-        });
-
-      if (error) throw error;
+      await db.query(`
+        INSERT INTO events (
+          title, description, category, emirate, location_address, location_lat, location_lng, 
+          location_radius, start_date, end_date, max_volunteers, min_age, required_skills, 
+          benefits, organization_id, status
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+      `, [
+        formData.title,
+        formData.description,
+        formData.category,
+        formData.emirate,
+        formData.location_address,
+        formData.location_lat,
+        formData.location_lng,
+        formData.location_radius,
+        formData.start_date,
+        formData.end_date,
+        formData.max_volunteers,
+        formData.min_age,
+        formData.required_skills.split(',').map(s => s.trim()),
+        formData.benefits,
+        orgMember.organization_id,
+        'draft'
+      ]);
 
       router.push('/organization/events');
     } catch (error) {

@@ -5,40 +5,26 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Menu, X, User, LogOut, Search, ChevronDown } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { useUser } from '@auth0/nextjs-auth0/client'
+import { NotificationDropdown } from '@/components/ui/notification-dropdown'
 
 export function Header() {
   const router = useRouter()
+  const { user, error, isLoading } = useUser()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isLoginDropdownOpen, setIsLoginDropdownOpen] = useState(false)
   const [isSignupDropdownOpen, setIsSignupDropdownOpen] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [user, setUser] = useState<any>(null)
   const [language, setLanguage] = useState('en')
 
   useEffect(() => {
-    async function getUser() {
-      const { data: { user } } = await supabase.auth.getUser()
-      setUser(user)
-    }
-    getUser()
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setUser(session?.user || null)
-      }
-    )
-
     const storedLang = localStorage.getItem('language') || 'en'
     setLanguage(storedLang)
-
-    return () => subscription.unsubscribe()
   }, [])
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut()
-    window.location.href = '/'
+  const handleSignOut = () => {
+    window.location.href = '/api/auth/logout'
   }
 
   const handleSearch = (e: React.FormEvent) => {
@@ -89,6 +75,7 @@ export function Header() {
           <div className="hidden md:flex items-center space-x-4">
             {user ? (
               <>
+                <NotificationDropdown userId={user.id} />
                 <Link href="/dashboard">
                   <Button variant="outline" size="sm">
                     <User className="w-4 h-4 mr-2" />
@@ -138,20 +125,20 @@ export function Header() {
                   </button>
                   {isLoginDropdownOpen && (
                     <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-[#E5E5E5] py-2 z-50">
-                      <Link
-                        href="/auth/volunteer/login"
+                      <a
+                        href="/api/auth/login?user_type=volunteer"
                         className="block px-4 py-2 text-[#5C3A1F] hover:bg-[#FDFBF7] transition-colors"
                         onClick={() => setIsLoginDropdownOpen(false)}
                       >
                         As a Volunteer
-                      </Link>
-                      <Link
-                        href="/auth/organization/login"
+                      </a>
+                      <a
+                        href="/api/auth/login?user_type=organization"
                         className="block px-4 py-2 text-[#5C3A1F] hover:bg-[#FDFBF7] transition-colors"
                         onClick={() => setIsLoginDropdownOpen(false)}
                       >
                         As an Organization
-                      </Link>
+                      </a>
                     </div>
                   )}
                 </div>
@@ -167,20 +154,20 @@ export function Header() {
                   </button>
                   {isSignupDropdownOpen && (
                     <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-[#E5E5E5] py-2 z-50">
-                      <Link
-                        href="/auth/volunteer/register"
+                      <a
+                        href="/api/auth/login?screen_hint=signup&user_type=volunteer"
                         className="block px-4 py-2 text-[#5C3A1F] hover:bg-[#FDFBF7] transition-colors"
                         onClick={() => setIsSignupDropdownOpen(false)}
                       >
                         As a Volunteer
-                      </Link>
-                      <Link
-                        href="/auth/organization/register"
+                      </a>
+                      <a
+                        href="/api/auth/login?screen_hint=signup&user_type=organization"
                         className="block px-4 py-2 text-[#5C3A1F] hover:bg-[#FDFBF7] transition-colors"
                         onClick={() => setIsSignupDropdownOpen(false)}
                       >
                         As an Organization
-                      </Link>
+                      </a>
                     </div>
                   )}
                 </div>

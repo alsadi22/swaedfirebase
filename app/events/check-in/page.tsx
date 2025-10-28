@@ -6,7 +6,8 @@ import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { supabase } from '@/lib/supabase'
+import { db } from '@/lib/database'
+import { useUser } from '@auth0/nextjs-auth0/client'
 import { QrCode, MapPin, Camera, CheckCircle, XCircle } from 'lucide-react'
 import { calculateDistance } from '@/lib/utils'
 
@@ -27,30 +28,33 @@ function CheckInComponent() {
 
   useEffect(() => {
     async function init() {
-      const { data: { user: currentUser } } = await supabase.auth.getUser()
-      if (!currentUser) {
+      // Check authentication
+      const authResponse = await fetch('/api/auth/check')
+      if (!authResponse.ok) {
         router.push('/auth/login')
         return
       }
-      setUser(currentUser)
 
       if (eventId) {
-        const { data: eventData } = await supabase
-          .from('events')
-          .select('*')
-          .eq('id', eventId)
-          .maybeSingle()
-        
-        setEvent(eventData)
+        try {
+          // Fetch event and session data
+          const checkInResponse = await fetch(`/api/events/check-in?eventId=${eventId}${sessionId ? `&sessionId=${sessionId}` : ''}`)
+          if (!checkInResponse.ok) {
+            if (checkInResponse.status === 401) {
+              router.push('/auth/login')
+              return
+            }
+            throw new Error('Failed to fetch event data')
+          }
 
-        if (sessionId) {
-          const { data: sessionData } = await supabase
-            .from('event_sessions')
-            .select('*')
-            .eq('id', sessionId)
-            .maybeSingle()
-          
-          setSession(sessionData)
+          const checkInData = await checkInResponse.json()
+          setEvent(checkInData.event)
+          setSession(checkInData.session)
+          setUser(checkInData.user)
+
+        } catch (error) {
+          console.error('Error fetching event data:', error)
+          setMessage('Failed to load event information')
         }
       }
 
@@ -83,60 +87,33 @@ function CheckInComponent() {
     setCheckInStatus('validating')
 
     try {
-      // Validate GPS location
-      const eventLocation = event.location_coordinates || session?.location_coordinates
-      if (eventLocation) {
-        const eventLat = eventLocation.lat || eventLocation.latitude
-        const eventLng = eventLocation.lng || eventLocation.longitude
-        const radius = event.geofence_radius || 500
+      const response = await fetch('/api/events/check-in', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          eventId,
+          sessionId,
+          location
+        }),
+      })
 
-        const distance = calculateDistance(location.lat, location.lng, eventLat, eventLng)
-        
-        if (distance > radius) {
+      const result = await response.json()
+
+      if (!response.ok) {
+        if (result.error === 'location_too_far') {
           setCheckInStatus('error')
-          setMessage(`You are ${Math.round(distance)}m away. Please be within ${radius}m of the event location.`)
-          return
+          setMessage(result.message)
+        } else {
+          throw new Error(result.error || 'Check-in failed')
         }
-      }
-
-      // Check if already checked in
-      const { data: existingAttendance } = await supabase
-        .from('attendance')
-        .select('*')
-        .eq('event_id', eventId)
-        .eq('volunteer_id', user.id)
-        .eq('status', 'checked_in')
-        .maybeSingle()
-
-      if (existingAttendance) {
-        setCheckInStatus('success')
-        setMessage('You are already checked in!')
         return
       }
 
-      // Create attendance record
-      const { data: attendance, error } = await supabase
-        .from('attendance')
-        .insert({
-          event_id: eventId,
-          event_session_id: sessionId,
-          volunteer_id: user.id,
-          check_in_time: new Date().toISOString(),
-          check_in_method: 'qr_code',
-          check_in_location: location,
-          location_verified: true,
-          status: 'checked_in'
-        })
-        .select()
-        .maybeSingle()
-
-      if (error) throw error
-
-      // Update event volunteer count
-      await supabase.rpc('increment_event_volunteers', { event_id: eventId })
-
       setCheckInStatus('success')
-      setMessage('Check-in successful! Enjoy the event.')
+      setMessage(result.message)
+
     } catch (error: any) {
       setCheckInStatus('error')
       setMessage(error.message || 'Check-in failed. Please try again.')

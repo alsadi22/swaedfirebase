@@ -1,0 +1,99 @@
+graph TD
+    %% User Roles and Permissions Flow
+    subgraph "User Management Layer"
+        U[USERS]
+        UR[USER_ROLES]
+        URA[USER_ROLE_ASSIGNMENTS]
+        
+        U -->|has| URA
+        UR -->|assigned_in| URA
+        URA -->|scope| O[ORGANIZATIONS]
+    end
+
+    %% Organization Management Flow
+    subgraph "Organization Layer"
+        O -->|creates| E[EVENTS]
+        O -->|has_members| OM[ORGANIZATION_MEMBERS]
+        O -->|validates| VH[VOLUNTEER_HOURS]
+        O -->|rated_by| OR[ORGANIZATION_RATINGS]
+    end
+
+    %% Event Lifecycle Flow
+    subgraph "Event Lifecycle"
+        E -->|has_requirements| ER[EVENT_REQUIREMENTS]
+        E -->|receives_registrations| EREG[EVENT_REGISTRATIONS]
+        E -->|triggers_issue| C[CERTIFICATES]
+        E -->|generates_hours| VH
+        E -->|receives_feedback| EF[EVENT_FEEDBACK]
+        
+        ER -->|volunteer_response| ERV[EVENT_REQUIREMENTS_VOLUNTEERS]
+        U -->|registers_for| EREG
+        U -->|provides_response| ERV
+    end
+
+    %% Volunteer Hours Approval Workflow
+    subgraph "Hours Approval Workflow"
+        U -->|logs_hours| VH
+        VH -->|approval_status| VHA[VOLUNTEER_HOURS_APPROVAL]
+        VHA -->|approved_by| ORG_SUP[ORG_SUPERVISOR]
+        VHA -->|credited_to| C
+    end
+
+    %% Skills and Matching System
+    subgraph "Skills & Matching System"
+        U -->|has_skill| US[USER_SKILLS]
+        US -->|skill_proficiency| S[SKILLS]
+        
+        U -->|expresses_interest| VI[VOLUNTEER_INTERESTS]
+        VI -->|category_interest| EC[EVENT_CATEGORIES]
+        
+        EC -->|defines_requirements| ER
+        S -->|matches| E
+    end
+
+    %% Notification System
+    subgraph "Communication Flow"
+        NT[NOTIFICATION_TYPES]
+        NT -->|generates| N[NOTIFICATIONS]
+        U -->|receives| N
+        U -->|sets_preference| NP[NOTIFICATION_PREFERENCES]
+        
+        %% Event-triggered notifications
+        EREG -->|triggers| N
+        VH -->|approval_notification| N
+        C -->|certificate_notification| N
+        EF -->|feedback_notification| N
+    end
+
+    %% Achievement System
+    subgraph "Achievement System"
+        U -->|earns| A[ACHIEVEMENTS]
+        VH -->|hours_milestone| A
+        EREG -->|participation_achievement| A
+        US -->|skill_mastery| A
+        
+        A -->|contributes_to| C
+        A -->|points| ARP[ACHIEVEMENT_POINTS]
+    end
+
+    %% Feedback and Quality Control
+    subgraph "Quality Assurance"
+        EF -->|admin_review| EF_ADMIN
+        EF_ADMIN -->|impact_analysis| E
+        OR -->|org_performance| O
+    end
+
+    %% Data Flow Styles
+    classDef userClass fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef orgClass fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef eventClass fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
+    classDef hoursClass fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    classDef certClass fill:#fce4ec,stroke:#880e4f,stroke-width:2px
+    classDef notifyClass fill:#e0f2f1,stroke:#00695c,stroke-width:2px
+
+    class U,UR,URA userClass
+    class O,OM,OR orgClass
+    class E,ER,ERV,EREG,EF eventClass
+    class VH,VHA hoursClass
+    class C,CT,A certClass
+    class N,NT,NP notifyClass

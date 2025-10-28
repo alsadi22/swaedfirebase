@@ -7,8 +7,18 @@ import { Footer } from '@/components/layout/footer'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/form'
-import { supabase, type Profile } from '@/lib/supabase'
 import { Search, Filter, UserCheck, UserX, Eye, Shield } from 'lucide-react'
+import { useUser } from '@auth0/nextjs-auth0/client'
+
+interface Profile {
+  id: string
+  first_name: string
+  last_name: string
+  email: string
+  role: string
+  is_active: boolean
+  created_at: string
+}
 
 export default function AdminUsersPage() {
   const router = useRouter()
@@ -20,38 +30,36 @@ export default function AdminUsersPage() {
   useEffect(() => {
     async function loadUsers() {
       try {
-        const { data: { user } } = await supabase.auth.getUser()
+        // Using useUser hook instead of auth.getUser()
         
+        if (!userResponse.data || userResponse.error) {
+          router.push('/auth/login')
+          return
+        }
+
+        const user = userResponse.data.user
         if (!user) {
           router.push('/auth/login')
           return
         }
 
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', user.id)
-          .maybeSingle()
+        // Fetch users from API endpoint
+        const response = await fetch(`/api/admin/users?role=${filterRole}`, {
+          credentials: 'include'
+        })
 
-        if (profile?.role !== 'admin' && profile?.role !== 'super_admin') {
+        if (response.ok) {
+          const data = await response.json()
+          setUsers(data.users || [])
+        } else if (response.status === 401) {
+          router.push('/auth/login')
+          return
+        } else if (response.status === 403) {
           router.push('/dashboard')
           return
+        } else {
+          console.error('Failed to fetch users:', response.statusText)
         }
-
-        let query = supabase
-          .from('profiles')
-          .select('*')
-          .order('created_at', { ascending: false })
-
-        if (filterRole !== 'all') {
-          query = query.eq('role', filterRole)
-        }
-
-        const { data, error } = await query
-
-        if (error) throw error
-
-        setUsers(data || [])
       } catch (error) {
         console.error('Error loading users:', error)
       } finally {
@@ -64,16 +72,26 @@ export default function AdminUsersPage() {
 
   const toggleUserStatus = async (userId: string, currentStatus: boolean) => {
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ is_active: !currentStatus })
-        .eq('id', userId)
+      const response = await fetch('/api/admin/users', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          userId,
+          is_active: !currentStatus
+        })
+      })
 
-      if (error) throw error
-
-      setUsers(users.map(u => 
-        u.id === userId ? { ...u, is_active: !currentStatus } : u
-      ))
+      if (response.ok) {
+        setUsers(users.map(u => 
+          u.id === userId ? { ...u, is_active: !currentStatus } : u
+        ))
+      } else {
+        const errorData = await response.json()
+        alert(errorData.error || 'Failed to update user status')
+      }
     } catch (error: any) {
       alert(error.message || 'Failed to update user status')
     }

@@ -1,0 +1,412 @@
+erDiagram
+    %% Core User Management
+    USERS {
+        uuid id PK
+        string email UK
+        string password_hash
+        string first_name
+        string last_name
+        string phone
+        string nationality
+        date birth_date
+        enum gender
+        string emirates_id
+        text address
+        string emergency_contact_name
+        string emergency_contact_phone
+        enum status
+        timestamp email_verified_at
+        timestamp last_login_at
+        text profile_image_url
+        json skills
+        text bio
+        enum availability_status
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    USER_ROLES {
+        uuid id PK
+        string name UK
+        string description
+        enum level
+        json permissions
+        boolean is_system_role
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    USER_ROLE_ASSIGNMENTS {
+        uuid id PK
+        uuid user_id FK
+        uuid role_id FK
+        uuid organization_id FK "nullable for system-wide roles"
+        date assigned_at
+        uuid assigned_by FK
+        date expires_at "nullable"
+        boolean is_active
+    }
+
+    %% Organization Management
+    ORGANIZATIONS {
+        uuid id PK
+        string name
+        string name_ar
+        string license_number UK
+        text description
+        text description_ar
+        string website
+        string email
+        string phone
+        text address
+        string city
+        string emirate
+        string logo_url
+        enum organization_type
+        enum status
+        json contact_persons
+        json working_hours
+        timestamp established_date
+        uuid created_by FK
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    ORGANIZATION_MEMBERS {
+        uuid id PK
+        uuid organization_id FK
+        uuid user_id FK
+        enum role_in_org
+        string department
+        text responsibilities
+        date joined_at
+        boolean is_active
+        uuid invited_by FK
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    %% Event Management
+    EVENT_CATEGORIES {
+        uuid id PK
+        string name UK
+        string name_ar
+        text description
+        text description_ar
+        string icon
+        uuid parent_category_id FK "nullable for subcategories"
+        boolean is_active
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    EVENTS {
+        uuid id PK
+        uuid organization_id FK
+        uuid category_id FK
+        string title
+        string title_ar
+        text description
+        text description_ar
+        enum event_type
+        enum status
+        date registration_deadline
+        timestamp start_datetime
+        timestamp end_datetime
+        text location
+        decimal latitude
+        decimal longitude
+        int max_participants
+        int min_age
+        int max_age
+        enum gender_requirement
+        text requirements
+        json skills_required
+        text benefits
+        json tags
+        string featured_image_url
+        boolean requires_approval
+        int volunteer_hours_estimate
+        uuid created_by FK
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    EVENT_REQUIREMENTS {
+        uuid id PK
+        uuid event_id FK
+        string requirement_type
+        text description
+        boolean is_mandatory
+        int order_index
+    }
+
+    EVENT_REQUIREMENTS_VOLUNTEERS {
+        uuid id PK
+        uuid event_requirement_id FK
+        uuid user_id FK
+        text response
+        enum status
+        timestamp submitted_at
+        uuid reviewed_by FK
+        timestamp reviewed_at
+        text review_notes
+    }
+
+    %% Registration and Attendance
+    EVENT_REGISTRATIONS {
+        uuid id PK
+        uuid event_id FK
+        uuid user_id FK
+        enum registration_status
+        enum attendance_status
+        text motivation_message
+        json responses "JSON responses to event requirements"
+        timestamp registered_at
+        uuid approved_by FK
+        timestamp approved_at
+        text approval_notes
+        timestamp checked_in_at
+        timestamp checked_out_at
+        int hours_logged
+        enum check_in_method
+        text check_in_notes
+    }
+
+    VOLUNTEER_HOURS {
+        uuid id PK
+        uuid user_id FK
+        uuid event_id FK
+        uuid organization_id FK
+        date service_date
+        time start_time
+        time end_time
+        decimal hours_worked
+        text activity_description
+        enum status
+        uuid logged_by FK
+        timestamp logged_at
+        uuid approved_by FK
+        timestamp approved_at
+        text approval_notes
+        enum approval_status
+        text supervisor_notes
+    }
+
+    %% Certificates and Achievements
+    CERTIFICATE_TEMPLATES {
+        uuid id PK
+        string name
+        string name_ar
+        text description
+        text description_ar
+        string template_url
+        int required_hours
+        int required_events
+        json criteria
+        boolean is_active
+        uuid created_by FK
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    CERTIFICATES {
+        uuid id PK
+        uuid user_id FK
+        uuid template_id FK
+        uuid event_id FK "nullable for general certificates"
+        string certificate_number UK
+        text title
+        text title_ar
+        text description
+        text description_ar
+        date issued_date
+        date valid_until
+        enum status
+        string certificate_url
+        uuid issued_by FK
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    ACHIEVEMENTS {
+        uuid id PK
+        uuid user_id FK
+        string achievement_type
+        string title
+        string title_ar
+        text description
+        text description_ar
+        string badge_url
+        int points_awarded
+        json metadata
+        timestamp achieved_at
+        uuid awarded_by FK
+    }
+
+    %% Skills and Interests
+    SKILLS {
+        uuid id PK
+        string name UK
+        string name_ar
+        text description
+        text description_ar
+        enum skill_category
+        boolean is_active
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    USER_SKILLS {
+        uuid id PK
+        uuid user_id FK
+        uuid skill_id FK
+        enum proficiency_level
+        boolean is_verified
+        uuid verified_by FK
+        timestamp verified_at
+        timestamp created_at
+    }
+
+    VOLUNTEER_INTERESTS {
+        uuid id PK
+        uuid user_id FK
+        uuid event_category_id FK
+        enum interest_level
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    %% Notifications and Communication
+    NOTIFICATION_TYPES {
+        uuid id PK
+        string name UK
+        string description
+        json default_config
+        boolean is_active
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    NOTIFICATIONS {
+        uuid id PK
+        uuid user_id FK
+        uuid notification_type_id FK
+        string title
+        string title_ar
+        text message
+        text message_ar
+        enum priority
+        enum status
+        json data "JSON payload for specific notification data"
+        timestamp sent_at
+        timestamp read_at
+        timestamp clicked_at
+    }
+
+    NOTIFICATION_PREFERENCES {
+        uuid id PK
+        uuid user_id FK
+        uuid notification_type_id FK
+        boolean email_enabled
+        boolean sms_enabled
+        boolean push_enabled
+        boolean in_app_enabled
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    %% Communication and Feedback
+    EVENT_FEEDBACK {
+        uuid id PK
+        uuid event_id FK
+        uuid user_id FK
+        int rating
+        text feedback_text
+        json responses
+        enum feedback_type
+        timestamp submitted_at
+        uuid reviewed_by FK
+        timestamp reviewed_at
+        text admin_response
+    }
+
+    ORGANIZATION_RATINGS {
+        uuid id PK
+        uuid organization_id FK
+        uuid user_id FK
+        int overall_rating
+        int communication_rating
+        int organization_rating
+        text review_text
+        boolean is_public
+        timestamp submitted_at
+        timestamp updated_at
+    }
+
+    %% System and Audit
+    SYSTEM_SETTINGS {
+        uuid id PK
+        string key UK
+        text value
+        text description
+        enum data_type
+        boolean is_public
+        timestamp updated_at
+        uuid updated_by FK
+    }
+
+    AUDIT_LOGS {
+        uuid id PK
+        uuid user_id FK "nullable for system actions"
+        string action
+        string entity_type
+        uuid entity_id
+        json old_values
+        json new_values
+        string ip_address
+        string user_agent
+        timestamp created_at
+    }
+
+    %% Relationships
+    USERS ||--o{ USER_ROLE_ASSIGNMENTS : "has"
+    USER_ROLES ||--o{ USER_ROLE_ASSIGNMENTS : "assigned_in"
+    ORGANIZATIONS ||--o{ USER_ROLE_ASSIGNMENTS : "scope_for"
+    USERS ||--o{ ORGANIZATION_MEMBERS : "member_of"
+    ORGANIZATIONS ||--o{ ORGANIZATION_MEMBERS : "has_members"
+    
+    ORGANIZATIONS ||--o{ EVENTS : "creates"
+    EVENT_CATEGORIES ||--o{ EVENTS : "categorized_as"
+    EVENT_CATEGORIES ||--o{ EVENT_CATEGORIES : "parent_category"
+    EVENTS ||--o{ EVENT_REQUIREMENTS : "has_requirements"
+    EVENT_REQUIREMENTS ||--o{ EVENT_REQUIREMENTS_VOLUNTEERS : "volunteer_response"
+    USERS ||--o{ EVENT_REQUIREMENTS_VOLUNTEERS : "provides_response"
+    
+    USERS ||--o{ EVENT_REGISTRATIONS : "registers_for"
+    EVENTS ||--o{ EVENT_REGISTRATIONS : "receives_registrations"
+    USERS ||--o{ VOLUNTEER_HOURS : "logs_hours"
+    EVENTS ||--o{ VOLUNTEER_HOURS : "generates_hours"
+    ORGANIZATIONS ||--o{ VOLUNTEER_HOURS : "validates_hours"
+    
+    CERTIFICATE_TEMPLATES ||--o{ CERTIFICATES : "template_for"
+    USERS ||--o{ CERTIFICATES : "receives"
+    EVENTS ||--o{ CERTIFICATES : "triggers_issue"
+    USERS ||--o{ ACHIEVEMENTS : "earns"
+    
+    SKILLS ||--o{ USER_SKILLS : "assessed_as"
+    USERS ||--o{ USER_SKILLS : "has_skill"
+    EVENT_CATEGORIES ||--o{ VOLUNTEER_INTERESTS : "interested_in"
+    USERS ||--o{ VOLUNTEER_INTERESTS : "expresses_interest"
+    
+    NOTIFICATION_TYPES ||--o{ NOTIFICATIONS : "generates"
+    USERS ||--o{ NOTIFICATIONS : "receives"
+    NOTIFICATION_TYPES ||--o{ NOTIFICATION_PREFERENCES : "configurable_for"
+    USERS ||--o{ NOTIFICATION_PREFERENCES : "sets_preference"
+    
+    EVENTS ||--o{ EVENT_FEEDBACK : "receives_feedback"
+    USERS ||--o{ EVENT_FEEDBACK : "provides_feedback"
+    ORGANIZATIONS ||--o{ ORGANIZATION_RATINGS : "rated_by"
+    USERS ||--o{ ORGANIZATION_RATINGS : "rates"
+    
+    USERS ||--o{ AUDIT_LOGS : "performs_action"

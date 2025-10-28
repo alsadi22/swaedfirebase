@@ -1,0 +1,11 @@
+tunnel: 08f99d9c-ee63-4bf2-8d52-c73d92140522
+credentials-file: /etc/cloudflared/08f99d9c-ee63-4bf2-8d52-c73d92140522.json
+
+ingress:
+  - hostname: swaeduae.ae
+    service: http://localhost:3001
+  - hostname: www.swaeduae.ae
+    service: http://localhost:3001
+  - hostname: admin.swaeduae.ae
+    service: http://localhost:3001
+  - service: http_status:404

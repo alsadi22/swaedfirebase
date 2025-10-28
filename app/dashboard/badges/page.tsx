@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { supabase } from '@/lib/supabase'
+import { db } from '@/lib/database'
+import { auth } from '@/lib/auth'
 import { Award, Lock } from 'lucide-react'
 
 type Badge = {
@@ -30,30 +31,30 @@ export default function BadgesPage() {
   useEffect(() => {
     async function loadBadges() {
       try {
-        const { data: { user } } = await supabase.auth.getUser()
+        // Using useUser hook instead of auth.getUser()
         
-        if (!user) {
+        if (userResponse.error || !userResponse.data?.user) {
           router.push('/auth/login')
           return
         }
 
+        const user = userResponse.data.user
         setUserId(user.id)
 
-        const { data: allBadges } = await supabase
-          .from('badges')
-          .select('*')
-          .eq('is_active', true)
-          .order('tier', { ascending: true })
+        const allBadgesResult = await db.query(
+          'SELECT * FROM badges WHERE is_active = $1 ORDER BY tier ASC',
+          [true]
+        )
 
-        const { data: userBadges } = await supabase
-          .from('user_badges')
-          .select('badge_id, earned_at')
-          .eq('user_id', user.id)
+        const userBadgesResult = await db.query(
+          'SELECT badge_id, earned_at FROM user_badges WHERE user_id = $1',
+          [user.id]
+        )
 
-        const userBadgeIds = new Set(userBadges?.map(ub => ub.badge_id) || [])
-        const userBadgeMap = new Map(userBadges?.map(ub => [ub.badge_id, ub.earned_at]) || [])
+        const userBadgeIds = new Set(userBadgesResult.rows?.map((ub: any) => ub.badge_id) || [])
+        const userBadgeMap = new Map(userBadgesResult.rows?.map((ub: any) => [ub.badge_id, ub.earned_at]) || [])
 
-        const badgesWithStatus = allBadges?.map(badge => ({
+        const badgesWithStatus = allBadgesResult.rows?.map((badge: any) => ({
           ...badge,
           earned: userBadgeIds.has(badge.id),
           earned_at: userBadgeMap.get(badge.id)

@@ -67,6 +67,7 @@ export function PhotoGallery() {
                 src={image.src}
                 alt={image.alt}
                 fill
+                unoptimized
                 className="object-cover transition-transform duration-300 group-hover:scale-110"
               />
               <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
@@ -99,6 +100,7 @@ export function PhotoGallery() {
               src={galleryImages[selectedImage].src}
               alt={galleryImages[selectedImage].alt}
               fill
+              unoptimized
               className="object-contain"
             />
           </div>

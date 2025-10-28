@@ -6,58 +6,72 @@ import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { supabase, type Event } from '@/lib/supabase'
-import { Calendar, MapPin, Users, Clock, Building2, ArrowLeft } from 'lucide-react'
+import { useUser } from '@auth0/nextjs-auth0/client'
+import { Calendar, MapPin, Users, Clock, Building2, ArrowLeft, CheckCircle, AlertCircle, Info } from 'lucide-react'
 import Link from 'next/link'
 import { formatDate, formatTime } from '@/lib/utils'
+
+// Application feedback types
+type ApplicationStatus = 'idle' | 'applying' | 'success' | 'error'
+
+interface ApplicationFeedback {
+  status: ApplicationStatus
+  message: string
+  details?: string
+}
 
 export default function EventDetailPage() {
   const params = useParams()
   const router = useRouter()
+  const { user: authUser, error: authError, isLoading: authLoading } = useUser()
   const eventId = params.id as string
-  const [event, setEvent] = useState<Event | null>(null)
-  const [organization, setOrganization] = useState<any>(null)
+  const [event, setEvent] = useState<any | null>(null)
   const [loading, setLoading] = useState(true)
-  const [applying, setApplying] = useState(false)
   const [hasApplied, setHasApplied] = useState(false)
   const [user, setUser] = useState<any>(null)
+  const [applicationFeedback, setApplicationFeedback] = useState<ApplicationFeedback>({
+    status: 'idle',
+    message: ''
+  })
 
   useEffect(() => {
     async function loadEvent() {
       try {
-        const { data: { user: currentUser } } = await supabase.auth.getUser()
+        if (authLoading) return
+        
+        const currentUser = authUser ? {
+          id: authUser.sub,
+          email: authUser.email,
+          first_name: authUser.given_name || authUser.user_metadata?.first_name || '',
+          last_name: authUser.family_name || authUser.user_metadata?.last_name || '',
+          user_type: authUser.user_metadata?.user_type || 'volunteer'
+        } : null
+        
         setUser(currentUser)
 
-        const { data: eventData } = await supabase
-          .from('events')
-          .select('*')
-          .eq('id', eventId)
-          .maybeSingle()
-
-        if (!eventData) {
+        // Fetch event details from API endpoint
+        const response = await fetch(`/api/events/${eventId}`)
+        
+        if (response.ok) {
+          const data = await response.json()
+          setEvent(data.event)
+        } else if (response.status === 404) {
           router.push('/events')
           return
+        } else {
+          console.error('Failed to fetch event:', response.statusText)
         }
 
-        setEvent(eventData)
-
-        const { data: orgData } = await supabase
-          .from('organizations')
-          .select('*')
-          .eq('id', eventData.organization_id)
-          .maybeSingle()
-
-        setOrganization(orgData)
-
+        // Check if user has already applied
         if (currentUser) {
-          const { data: applicationData } = await supabase
-            .from('event_applications')
-            .select('*')
-            .eq('event_id', eventId)
-            .eq('volunteer_id', currentUser.id)
-            .maybeSingle()
-
-          setHasApplied(!!applicationData)
+          const applicationResponse = await fetch(`/api/applications/check?event_id=${eventId}`, {
+            credentials: 'include'
+          })
+          
+          if (applicationResponse.ok) {
+            const applicationData = await applicationResponse.json()
+            setHasApplied(applicationData.hasApplied)
+          }
         }
       } catch (error) {
         console.error('Error loading event:', error)
@@ -67,7 +81,7 @@ export default function EventDetailPage() {
     }
 
     loadEvent()
-  }, [eventId, router])
+  }, [eventId, router, authUser, authLoading])
 
   const handleApply = async () => {
     if (!user) {
@@ -75,26 +89,118 @@ export default function EventDetailPage() {
       return
     }
 
-    setApplying(true)
+    // Set applying state with feedback
+    setApplicationFeedback({
+      status: 'applying',
+      message: 'Submitting your application...',
+      details: 'Please wait while we process your volunteer application.'
+    })
 
     try {
-      const { error } = await supabase
-        .from('event_applications')
-        .insert({
+      const response = await fetch('/api/applications', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
           event_id: eventId,
-          volunteer_id: user.id,
           status: 'pending'
         })
+      })
 
-      if (error) throw error
+      const data = await response.json()
 
-      setHasApplied(true)
-      alert('Application submitted successfully!')
+      if (response.ok) {
+        setHasApplied(true)
+        setApplicationFeedback({
+          status: 'success',
+          message: 'Application submitted successfully!',
+          details: 'Your volunteer application has been received. The organization will review your application and contact you soon. You can track your application status in your dashboard.'
+        })
+
+        // Auto-hide success message after 5 seconds
+        setTimeout(() => {
+          setApplicationFeedback({ status: 'idle', message: '' })
+        }, 5000)
+      } else {
+        setApplicationFeedback({
+          status: 'error',
+          message: data.error || 'Failed to submit application',
+          details: response.status === 400 && data.error?.includes('already applied') 
+            ? 'You have already applied to this event. Check your dashboard to view your application status.'
+            : 'There was an issue processing your application. Please try again or contact support if the problem persists.'
+        })
+      }
     } catch (error: any) {
-      alert(error.message || 'Failed to apply')
-    } finally {
-      setApplying(false)
+      setApplicationFeedback({
+        status: 'error',
+        message: 'Network error occurred',
+        details: 'Unable to connect to the server. Please check your internet connection and try again.'
+      })
     }
+  }
+
+  // Render application feedback component
+  const renderApplicationFeedback = () => {
+    if (applicationFeedback.status === 'idle') return null
+
+    const getIcon = () => {
+      switch (applicationFeedback.status) {
+        case 'applying':
+          return <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+        case 'success':
+          return <CheckCircle className="h-5 w-5 text-green-600" />
+        case 'error':
+          return <AlertCircle className="h-5 w-5 text-red-600" />
+        default:
+          return <Info className="h-5 w-5 text-blue-600" />
+      }
+    }
+
+    const getBackgroundColor = () => {
+      switch (applicationFeedback.status) {
+        case 'applying':
+          return 'bg-blue-50 border-blue-200'
+        case 'success':
+          return 'bg-green-50 border-green-200'
+        case 'error':
+          return 'bg-red-50 border-red-200'
+        default:
+          return 'bg-gray-50 border-gray-200'
+      }
+    }
+
+    const getTextColor = () => {
+      switch (applicationFeedback.status) {
+        case 'applying':
+          return 'text-blue-800'
+        case 'success':
+          return 'text-green-800'
+        case 'error':
+          return 'text-red-800'
+        default:
+          return 'text-gray-800'
+      }
+    }
+
+    return (
+      <div className={`mb-4 p-4 rounded-lg border ${getBackgroundColor()}`}>
+        <div className="flex items-start space-x-3">
+          {getIcon()}
+          <div className="flex-1">
+            <p className={`font-medium ${getTextColor()}`}>
+              {applicationFeedback.message}
+            </p>
+            {applicationFeedback.details && (
+              <p className={`mt-1 text-sm ${getTextColor()} opacity-80`}>
+                {applicationFeedback.details}
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+    )
   }
 
   if (loading) {
@@ -155,7 +261,7 @@ export default function EventDetailPage() {
                 </CardContent>
               </Card>
 
-              {organization && (
+              {event.organization && (
                 <Card>
                   <CardContent className="pt-6">
                     <div className="flex items-center space-x-4">
@@ -163,8 +269,8 @@ export default function EventDetailPage() {
                         <Building2 className="text-white" size={32} />
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold text-[#5C3A1F]">{organization.name}</h3>
-                        <p className="text-sm text-[#A0A0A0]">{organization.type}</p>
+                        <h3 className="text-lg font-semibold text-[#5C3A1F]">{event.organization.name}</h3>
+                        <p className="text-sm text-[#A0A0A0]">{event.organization.type}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -222,18 +328,43 @@ export default function EventDetailPage() {
                   )}
 
                   <div className="pt-4 border-t border-[#E5E5E5]">
+                    {renderApplicationFeedback()}
+                    
                     {hasApplied ? (
-                      <Button variant="success" className="w-full" disabled>
-                        Application Submitted
-                      </Button>
+                      <div className="space-y-3">
+                        <Button variant="success" className="w-full" disabled>
+                          <CheckCircle className="mr-2 h-4 w-4" />
+                          Application Submitted
+                        </Button>
+                        <div className="text-center">
+                          <Link 
+                            href="/dashboard/applications" 
+                            className="text-sm text-[#D2A04A] hover:text-[#5C3A1F] underline"
+                          >
+                            View Application Status
+                          </Link>
+                        </div>
+                      </div>
                     ) : (
                       <Button
                         variant="primary"
                         className="w-full"
                         onClick={handleApply}
-                        disabled={applying || event.current_volunteers >= (event.volunteer_capacity || 0)}
+                        disabled={
+                          applicationFeedback.status === 'applying' || 
+                          event.current_volunteers >= (event.volunteer_capacity || 0)
+                        }
                       >
-                        {applying ? 'Applying...' : event.current_volunteers >= (event.volunteer_capacity || 0) ? 'Event Full' : 'Apply to Volunteer'}
+                        {applicationFeedback.status === 'applying' ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                            Submitting Application...
+                          </>
+                        ) : event.current_volunteers >= (event.volunteer_capacity || 0) ? (
+                          'Event Full'
+                        ) : (
+                          'Apply to Volunteer'
+                        )}
                       </Button>
                     )}
                   </div>

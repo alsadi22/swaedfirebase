@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/database';
+import { auth } from '@/lib/auth';
 import Link from 'next/link';
 
 interface Achievement {
@@ -27,36 +28,36 @@ export default function AchievementsPage() {
 
   async function fetchAchievements() {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      // Using useUser hook instead of auth.getUser();
+      if (userResponse.error || !userResponse.data?.user) return;
+
+      const user = userResponse.data.user;
 
       // Get all achievements
-      const { data: allAchievements } = await supabase
-        .from('achievements')
-        .select('*')
-        .order('requirement_value', { ascending: true });
+      const allAchievementsResult = await db.query(
+        'SELECT * FROM achievements ORDER BY requirement_value ASC'
+      );
 
       // Get user's earned achievements
-      const { data: userAchievements } = await supabase
-        .from('user_achievements')
-        .select('achievement_id, earned_date')
-        .eq('user_id', user.id);
+      const userAchievementsResult = await db.query(
+        'SELECT achievement_id, earned_date FROM user_achievements WHERE user_id = $1',
+        [user.id]
+      );
 
       // Get user stats for progress calculation
-      const { data: hours } = await supabase
-        .from('volunteer_hours')
-        .select('hours_logged')
-        .eq('user_id', user.id)
-        .eq('status', 'approved');
+      const hoursResult = await db.query(
+        'SELECT hours_logged FROM volunteer_hours WHERE user_id = $1 AND status = $2',
+        [user.id, 'approved']
+      );
 
-      const totalHours = hours?.reduce((sum, h) => sum + (h.hours_logged || 0), 0) || 0;
+      const totalHours = hoursResult.rows?.reduce((sum: number, h: any) => sum + (h.hours_logged || 0), 0) || 0;
 
-      const earnedIds = userAchievements?.map(ua => ua.achievement_id) || [];
+      const earnedIds = userAchievementsResult.rows?.map((ua: any) => ua.achievement_id) || [];
 
-      const achievementsWithProgress = allAchievements?.map(achievement => ({
+      const achievementsWithProgress = allAchievementsResult.rows?.map((achievement: any) => ({
         ...achievement,
         earned: earnedIds.includes(achievement.id),
-        earned_date: userAchievements?.find(ua => ua.achievement_id === achievement.id)?.earned_date,
+        earned_date: userAchievementsResult.rows?.find((ua: any) => ua.achievement_id === achievement.id)?.earned_date,
         progress: achievement.requirement_type === 'hours_logged' 
           ? Math.min(100, (totalHours / achievement.requirement_value) * 100)
           : 0,

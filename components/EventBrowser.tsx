@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Calendar, MapPin, Clock } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { db } from '@/lib/database'
 
 interface Event {
   id: number
@@ -81,19 +81,17 @@ export function EventBrowser() {
   useEffect(() => {
     async function fetchEvents() {
       try {
-        const { data, error } = await supabase
-          .from('events')
-          .select('id, title, description, start_date, start_time, end_time, location, category')
-          .eq('status', 'published')
-          .gte('start_date', new Date().toISOString())
-          .order('start_date', { ascending: true })
-          .limit(6)
+        const result = await db.query(
+          `SELECT id, title, description, start_date, start_time, end_time, location, category 
+           FROM events 
+           WHERE status = $1 AND start_date >= $2 
+           ORDER BY start_date ASC 
+           LIMIT 6`,
+          ['published', new Date().toISOString()]
+        )
 
-        if (error) {
-          console.error('Error fetching events:', error)
-          setUpcomingEvents(fallbackEvents)
-        } else if (data && data.length > 0) {
-          const formattedEvents = data.map((event: any) => ({
+        if (result.rows && result.rows.length > 0) {
+          const formattedEvents = result.rows.map((event: any) => ({
             id: event.id,
             title: event.title,
             date: new Date(event.start_date).toLocaleDateString('en-US', { 

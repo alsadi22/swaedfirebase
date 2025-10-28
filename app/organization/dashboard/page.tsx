@@ -6,7 +6,8 @@ import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { supabase } from '@/lib/supabase'
+import { db } from '@/lib/database'
+import { useUser } from '@auth0/nextjs-auth0/client'
 import { Calendar, Users, TrendingUp, Plus, Settings } from 'lucide-react'
 import Link from 'next/link'
 
@@ -22,66 +23,43 @@ export default function OrganizationDashboard() {
   })
 
   useEffect(() => {
-    async function loadDashboard() {
+    const checkAuth = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser()
+        const response = await fetch('/api/auth/check');
+        if (!response.ok) {
+          router.push('/auth/login');
+          return;
+        }
         
-        if (!user) {
-          router.push('/auth/login')
-          return
+        // Fetch organization dashboard data
+        const dashboardResponse = await fetch('/api/organization/dashboard');
+        if (!dashboardResponse.ok) {
+          if (dashboardResponse.status === 401) {
+            router.push('/auth/login');
+            return;
+          } else if (dashboardResponse.status === 403) {
+            router.push('/dashboard');
+            return;
+          } else if (dashboardResponse.status === 404) {
+            router.push('/auth/organization/register');
+            return;
+          }
+          throw new Error('Failed to fetch dashboard data');
         }
-
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .maybeSingle()
-
-        if (profile?.role !== 'organization') {
-          router.push('/dashboard')
-          return
-        }
-
-        const { data: orgMember } = await supabase
-          .from('organization_members')
-          .select('organization_id')
-          .eq('user_id', user.id)
-          .maybeSingle()
-
-        if (!orgMember) {
-          router.push('/dashboard')
-          return
-        }
-
-        const { data: orgData } = await supabase
-          .from('organizations')
-          .select('*')
-          .eq('id', orgMember.organization_id)
-          .maybeSingle()
-
-        setOrganization(orgData)
-
-        const { data: events } = await supabase
-          .from('events')
-          .select('*')
-          .eq('organization_id', orgMember.organization_id)
-
-        const activeEvents = events?.filter(e => e.status === 'published' || e.status === 'ongoing') || []
-
-        setStats({
-          totalEvents: events?.length || 0,
-          activeEvents: activeEvents.length,
-          totalVolunteers: events?.reduce((sum, e) => sum + e.current_volunteers, 0) || 0,
-          pendingApplications: 0,
-        })
+        
+        const dashboardData = await dashboardResponse.json();
+        setOrganization(dashboardData.organization);
+        setStats(dashboardData.stats);
+        
       } catch (error) {
-        console.error('Error loading organization dashboard:', error)
+        console.error('Auth check failed:', error);
+        router.push('/auth/login');
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    loadDashboard()
+    checkAuth();
   }, [router])
 
   if (loading) {

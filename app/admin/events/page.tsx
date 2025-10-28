@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/database';
 import Link from 'next/link';
 
 interface Event {
@@ -29,29 +29,37 @@ export default function AdminEventsPage() {
 
   async function fetchEvents() {
     try {
-      const { data, error } = await supabase
-        .from('events')
-        .select(`
-          id,
-          title,
-          category,
-          emirate,
-          status,
-          start_date,
-          end_date,
-          max_volunteers,
-          organization:organizations(name),
-          applications:event_applications(count)
-        `)
-        .order('created_at', { ascending: false });
+      const result = await db.query(`
+        SELECT 
+          e.id,
+          e.title,
+          e.category,
+          e.emirate,
+          e.status,
+          e.start_date,
+          e.end_date,
+          e.max_volunteers,
+          o.name as organization_name,
+          COUNT(ea.id) as application_count
+        FROM events e
+        LEFT JOIN organizations o ON e.organization_id = o.id
+        LEFT JOIN event_applications ea ON e.id = ea.event_id
+        GROUP BY e.id, o.name
+        ORDER BY e.created_at DESC
+      `);
 
-      if (error) throw error;
-      
-      // Map the data to match the expected interface
-      const mappedData = data?.map(event => ({
-        ...event,
-        organization: Array.isArray(event.organization) ? event.organization[0] : event.organization
-      })) || [];
+      const mappedData = result.rows.map((event: any) => ({
+        id: event.id,
+        title: event.title,
+        category: event.category,
+        emirate: event.emirate,
+        status: event.status,
+        start_date: event.start_date,
+        end_date: event.end_date,
+        max_volunteers: event.max_volunteers,
+        organization: { name: event.organization_name },
+        applications: [{ count: parseInt(event.application_count) || 0 }]
+      }));
       
       setEvents(mappedData);
     } catch (error) {
@@ -63,12 +71,10 @@ export default function AdminEventsPage() {
 
   async function updateEventStatus(eventId: string, newStatus: string) {
     try {
-      const { error } = await supabase
-        .from('events')
-        .update({ status: newStatus })
-        .eq('id', eventId);
-
-      if (error) throw error;
+      await db.query(
+        'UPDATE events SET status = $1 WHERE id = $2',
+        [newStatus, eventId]
+      );
       fetchEvents();
     } catch (error) {
       console.error('Error updating event status:', error);

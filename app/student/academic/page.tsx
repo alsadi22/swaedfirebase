@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/database';
+import { auth } from '@/lib/auth';
 import Link from 'next/link';
 
 interface StudentProfile {
@@ -26,20 +27,17 @@ export default function StudentAcademicPage() {
 
   async function fetchAcademicProfile() {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      // Using useUser hook instead of auth.getUser()
+      if (!data?.user) return;
 
-      const { data, error } = await supabase
-        .from('student_profiles')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
+      const result = await db.query(
+        'SELECT * FROM student_profiles WHERE user_id = $1',
+        [data.user.id]
+      );
 
-      if (error && error.code !== 'PGRST116') throw error;
-      
-      if (data) {
-        setProfile(data);
-        setFormData(data);
+      if (result.rows.length > 0) {
+        setProfile(result.rows[0]);
+        setFormData(result.rows[0]);
       }
     } catch (error) {
       console.error('Error fetching academic profile:', error);
@@ -50,17 +48,27 @@ export default function StudentAcademicPage() {
 
   async function saveAcademicProfile() {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      // Using useUser hook instead of auth.getUser()
+      if (!data?.user) return;
 
-      const { error } = await supabase
-        .from('student_profiles')
-        .upsert({
-          user_id: user.id,
-          ...formData,
-        });
+      const columns = Object.keys(formData);
+      const values = Object.values(formData);
+      const placeholders = values.map((_, index) => `$${index + 2}`).join(', ');
+      const setClause = columns.map((col, index) => `${col} = $${index + 2}`).join(', ');
 
-      if (error) throw error;
+      // Try to update first
+      const updateResult = await db.query(
+        `UPDATE student_profiles SET ${setClause} WHERE user_id = $1 RETURNING *`,
+        [data.user.id, ...values]
+      );
+
+      // If no rows were updated, insert new record
+      if (updateResult.rows.length === 0) {
+        await db.query(
+          `INSERT INTO student_profiles (user_id, ${columns.join(', ')}) VALUES ($1, ${placeholders})`,
+          [data.user.id, ...values]
+        );
+      }
       
       setIsEditing(false);
       fetchAcademicProfile();

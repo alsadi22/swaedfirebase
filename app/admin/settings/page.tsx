@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/database';
 
 interface Settings {
   site_name: string;
@@ -25,13 +25,10 @@ export default function AdminSettingsPage() {
 
   async function fetchSettings() {
     try {
-      const { data, error } = await supabase
-        .from('system_settings')
-        .select('*')
-        .single();
-
-      if (error && error.code !== 'PGRST116') throw error;
-      if (data) setSettings(data);
+      const result = await db.query('SELECT * FROM system_settings LIMIT 1');
+      if (result.rows.length > 0) {
+        setSettings(result.rows[0]);
+      }
     } catch (error) {
       console.error('Error fetching settings:', error);
     } finally {
@@ -42,11 +39,19 @@ export default function AdminSettingsPage() {
   async function saveSettings() {
     setSaving(true);
     try {
-      const { error } = await supabase
-        .from('system_settings')
-        .upsert(settings);
-
-      if (error) throw error;
+      // Use upsert logic with custom database client
+      const columns = Object.keys(settings);
+      const values = Object.values(settings);
+      const placeholders = values.map((_, i) => `$${i + 1}`).join(', ');
+      const updateClause = columns.map((col, i) => `${col} = $${i + 1}`).join(', ');
+      
+      const query = `
+        INSERT INTO system_settings (${columns.join(', ')}) 
+        VALUES (${placeholders})
+        ON CONFLICT (id) DO UPDATE SET ${updateClause}
+      `;
+      
+      await db.query(query, [...values, ...values]);
       alert('Settings saved successfully');
     } catch (error) {
       console.error('Error saving settings:', error);

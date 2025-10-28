@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 interface Notification {
@@ -18,43 +18,37 @@ export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
+  const router = useRouter();
 
   useEffect(() => {
     fetchNotifications();
     
-    // Set up real-time subscription
-    const channel = supabase
-      .channel('notifications')
-      .on('postgres_changes', 
-        { 
-          event: 'INSERT', 
-          schema: 'public', 
-          table: 'notifications'
-        }, 
-        (payload) => {
-          setNotifications(prev => [payload.new as Notification, ...prev]);
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    // Note: Real-time subscriptions would need to be implemented separately
+    // For now, we'll use polling or manual refresh
   }, []);
 
   async function fetchNotifications() {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      // Check authentication
+      const authResponse = await fetch('/api/auth/check');
+      if (!authResponse.ok) {
+        router.push('/auth/login');
+        return;
+      }
 
-      const { data, error } = await supabase
-        .from('notifications')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+      // Fetch notifications
+      const notificationsResponse = await fetch('/api/notifications');
+      if (!notificationsResponse.ok) {
+        if (notificationsResponse.status === 401) {
+          router.push('/auth/login');
+          return;
+        }
+        throw new Error('Failed to fetch notifications');
+      }
 
-      if (error) throw error;
-      setNotifications(data || []);
+      const notificationsData = await notificationsResponse.json();
+      setNotifications(notificationsData.notifications);
+
     } catch (error) {
       console.error('Error fetching notifications:', error);
     } finally {
@@ -64,12 +58,20 @@ export default function NotificationsPage() {
 
   async function markAsRead(notificationId: string) {
     try {
-      const { error } = await supabase
-        .from('notifications')
-        .update({ is_read: true })
-        .eq('id', notificationId);
+      const response = await fetch('/api/notifications', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'markAsRead',
+          notificationId
+        }),
+      });
 
-      if (error) throw error;
+      if (!response.ok) {
+        throw new Error('Failed to mark notification as read');
+      }
       
       setNotifications(prev =>
         prev.map(n => n.id === notificationId ? { ...n, is_read: true } : n)
@@ -81,16 +83,20 @@ export default function NotificationsPage() {
 
   async function markAllAsRead() {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      const response = await fetch('/api/notifications', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'markAllAsRead'
+        }),
+      });
 
-      const { error } = await supabase
-        .from('notifications')
-        .update({ is_read: true })
-        .eq('user_id', user.id)
-        .eq('is_read', false);
+      if (!response.ok) {
+        throw new Error('Failed to mark all notifications as read');
+      }
 
-      if (error) throw error;
       fetchNotifications();
     } catch (error) {
       console.error('Error marking all as read:', error);
@@ -99,12 +105,13 @@ export default function NotificationsPage() {
 
   async function deleteNotification(notificationId: string) {
     try {
-      const { error } = await supabase
-        .from('notifications')
-        .delete()
-        .eq('id', notificationId);
+      const response = await fetch(`/api/notifications?id=${notificationId}`, {
+        method: 'DELETE',
+      });
 
-      if (error) throw error;
+      if (!response.ok) {
+        throw new Error('Failed to delete notification');
+      }
       
       setNotifications(prev => prev.filter(n => n.id !== notificationId));
     } catch (error) {

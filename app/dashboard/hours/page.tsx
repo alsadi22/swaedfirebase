@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/database';
+import { auth } from '@/lib/auth';
 import Link from 'next/link';
 
 interface VolunteerHour {
@@ -25,35 +26,40 @@ export default function VolunteerHoursPage() {
 
   async function fetchHours() {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      // Using useUser hook instead of auth.getUser()
+      if (!data?.user) return;
 
-      const { data, error } = await supabase
-        .from('volunteer_hours')
-        .select(`
-          id,
-          hours_logged,
-          date_logged,
-          status,
-          event:events(title),
-          verified_by_user:users(first_name, last_name)
-        `)
-        .eq('user_id', user.id)
-        .order('date_logged', { ascending: false });
+      const result = await db.query(`
+        SELECT 
+          vh.id,
+          vh.hours_logged,
+          vh.date_logged,
+          vh.status,
+          e.title as event_title,
+          u.first_name,
+          u.last_name
+        FROM volunteer_hours vh
+        JOIN events e ON vh.event_id = e.id
+        LEFT JOIN users u ON vh.verified_by = u.id
+        WHERE vh.user_id = $1
+        ORDER BY vh.date_logged DESC
+      `, [data.user.id]);
 
-      if (error) throw error;
-      
       // Map the data to match the expected interface
-      const mappedData = data?.map(hour => ({
-        ...hour,
-        event: Array.isArray(hour.event) ? hour.event[0] : hour.event,
-        verified_by_user: Array.isArray(hour.verified_by_user) ? hour.verified_by_user[0] : hour.verified_by_user
-      })) || [];
+      const mappedData = result.rows.map((hour: any) => ({
+        id: hour.id,
+        hours_logged: hour.hours_logged,
+        date_logged: hour.date_logged,
+        status: hour.status,
+        event: { title: hour.event_title },
+        verified_by_user: hour.first_name && hour.last_name ? 
+          { first_name: hour.first_name, last_name: hour.last_name } : null
+      }));
       
       setHours(mappedData);
 
-      const approved = mappedData?.filter(h => h.status === 'approved')
-        .reduce((sum, h) => sum + (h.hours_logged || 0), 0) || 0;
+      const approved = mappedData?.filter((h: any) => h.status === 'approved')
+        .reduce((sum: number, h: any) => sum + (h.hours_logged || 0), 0) || 0;
       setTotalHours(approved);
     } catch (error) {
       console.error('Error fetching hours:', error);

@@ -22,18 +22,18 @@ export function formatTime(time: string): string {
   })
 }
 
-export function generateQRCode(data: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    try {
-      const QRCode = require('qrcode')
-      QRCode.toDataURL(data, (err: Error, url: string) => {
+export async function generateQRCode(data: string): Promise<string> {
+  try {
+    const QRCode = await import('qrcode')
+    return new Promise((resolve, reject) => {
+      QRCode.toDataURL(data, (err: Error | null | undefined, url: string) => {
         if (err) reject(err)
         else resolve(url)
       })
-    } catch (error) {
-      reject(error)
-    }
-  })
+    })
+  } catch (error) {
+    throw error
+  }
 }
 
 export function calculateDistance(
