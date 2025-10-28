@@ -1,4 +1,3 @@
-import { auth0 } from '@/lib/auth0';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function middleware(request: NextRequest) {
@@ -12,43 +11,13 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Skip middleware for admin login page (uses custom authentication)
-  if (request.nextUrl.pathname === '/auth/admin/login') {
+  // Skip middleware for all auth pages (they handle their own authentication)
+  if (request.nextUrl.pathname.startsWith('/auth/')) {
     return NextResponse.next();
   }
 
-  // Protected routes that require authentication
-  const protectedRoutes = [
-    '/dashboard',
-    '/profile',
-    '/admin',
-    '/volunteer',
-    '/student',
-    '/organization'
-  ];
-
-  const isProtectedRoute = protectedRoutes.some(route => 
-    request.nextUrl.pathname.startsWith(route)
-  );
-
-  if (isProtectedRoute) {
-    try {
-      const session = await auth0.getSession(request);
-      
-      if (!session?.user) {
-        // Redirect to login if not authenticated
-        const loginUrl = new URL('/api/auth/login', request.url);
-        loginUrl.searchParams.set('returnTo', request.nextUrl.pathname);
-        return NextResponse.redirect(loginUrl);
-      }
-    } catch (error) {
-      console.error('Middleware auth error:', error);
-      // Redirect to login on error
-      const loginUrl = new URL('/api/auth/login', request.url);
-      return NextResponse.redirect(loginUrl);
-    }
-  }
-
+  // For now, let all other routes pass through
+  // Authentication will be handled at the page/API level
   return NextResponse.next();
 }
 
