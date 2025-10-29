@@ -5,21 +5,21 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Menu, X, User, LogOut, Search, ChevronDown } from 'lucide-react'
-import { useUser } from '@auth0/nextjs-auth0/client'
+import { useAuth } from '@/lib/auth-context'
 import { NotificationDropdown } from '@/components/ui/notification-dropdown'
 
 export function Header() {
   const router = useRouter()
-  const { user, error, isLoading } = useUser()
+  const { user, error, isLoading } = useAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isLoginDropdownOpen, setIsLoginDropdownOpen] = useState(false)
   const [isSignupDropdownOpen, setIsSignupDropdownOpen] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [language, setLanguage] = useState('en')
+  const [language, setLanguage] = useState<'en' | 'ar'>('en')
 
   useEffect(() => {
-    const storedLang = localStorage.getItem('language') || 'en'
+    const storedLang = localStorage.getItem('language') as 'en' | 'ar' || 'en'
     setLanguage(storedLang)
   }, [])
 
@@ -45,7 +45,7 @@ export function Header() {
   }
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm border-b border-[#E5E5E5]">
+    <header className="modern-header fixed top-0 left-0 right-0 z-40">
       <div className="container-custom">
         <div className="flex items-center justify-between h-16 md:h-20">
           <Link href="/" className="flex items-center space-x-2">
@@ -59,16 +59,16 @@ export function Header() {
 
           <nav className="hidden md:flex items-center space-x-8">
             <Link href="/events" className="text-[#5C3A1F] hover:text-[#D2A04A] font-medium">
-              Events
+              {language === 'en' ? 'Events' : 'الفعاليات'}
             </Link>
             <Link href="/organizations" className="text-[#5C3A1F] hover:text-[#D2A04A] font-medium">
-              Organizations
+              {language === 'en' ? 'Organizations' : 'المؤسسات'}
             </Link>
             <Link href="/about" className="text-[#5C3A1F] hover:text-[#D2A04A] font-medium">
-              About
+              {language === 'en' ? 'About' : 'عن الموقع'}
             </Link>
             <Link href="/contact" className="text-[#5C3A1F] hover:text-[#D2A04A] font-medium">
-              Contact
+              {language === 'en' ? 'Contact' : 'اتصل بنا'}
             </Link>
           </nav>
 
@@ -79,12 +79,12 @@ export function Header() {
                 <Link href="/dashboard">
                   <Button variant="outline" size="sm">
                     <User className="w-4 h-4 mr-2" />
-                    Dashboard
+                    {language === 'en' ? 'Dashboard' : 'لوحة التحكم'}
                   </Button>
                 </Link>
                 <Button variant="ghost" size="sm" onClick={handleSignOut}>
                   <LogOut className="w-4 h-4 mr-2" />
-                  Sign Out
+                  {language === 'en' ? 'Sign Out' : 'تسجيل الخروج'}
                 </Button>
               </>
             ) : (
@@ -104,7 +104,7 @@ export function Header() {
                           type="text"
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
-                          placeholder="Search events, orgs..."
+                          placeholder={language === 'en' ? "Search events, orgs..." : "البحث عن فعاليات، مؤسسات..."}
                           className="w-full px-3 py-2 border border-[#E5E5E5] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D2A04A]"
                           autoFocus
                         />
@@ -120,24 +120,24 @@ export function Header() {
                     onClick={() => setIsLoginDropdownOpen(!isLoginDropdownOpen)}
                     className="flex items-center gap-1 px-4 py-2 bg-[#D2A04A] hover:bg-[#5C3A1F] text-white rounded-lg font-medium transition-colors"
                   >
-                    Login
+                    {language === 'en' ? 'Login' : 'تسجيل الدخول'}
                     <ChevronDown size={16} />
                   </button>
                   {isLoginDropdownOpen && (
                     <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-[#E5E5E5] py-2 z-50">
                       <a
                         href="/api/auth/login?user_type=volunteer"
-                        className="block px-4 py-2 text-[#5C3A1F] hover:bg-[#FDFBF7] transition-colors"
+                        className="block px-4 py-2 text-[#5C3A1F] hover:bg-[#F8F6F0] transition-colors"
                         onClick={() => setIsLoginDropdownOpen(false)}
                       >
-                        As a Volunteer
+                        {language === 'en' ? 'As a Volunteer' : 'كمتطوع'}
                       </a>
                       <a
                         href="/api/auth/login?user_type=organization"
-                        className="block px-4 py-2 text-[#5C3A1F] hover:bg-[#FDFBF7] transition-colors"
+                        className="block px-4 py-2 text-[#5C3A1F] hover:bg-[#F8F6F0] transition-colors"
                         onClick={() => setIsLoginDropdownOpen(false)}
                       >
-                        As an Organization
+                        {language === 'en' ? 'As an Organization' : 'كمؤسسة'}
                       </a>
                     </div>
                   )}
@@ -149,24 +149,24 @@ export function Header() {
                     onClick={() => setIsSignupDropdownOpen(!isSignupDropdownOpen)}
                     className="flex items-center gap-1 px-4 py-2 bg-[#5C3A1F] hover:bg-[#D2A04A] text-white rounded-lg font-medium transition-colors"
                   >
-                    Signup
+                    {language === 'en' ? 'Signup' : 'التسجيل'}
                     <ChevronDown size={16} />
                   </button>
                   {isSignupDropdownOpen && (
                     <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-[#E5E5E5] py-2 z-50">
                       <a
                         href="/api/auth/login?screen_hint=signup&user_type=volunteer"
-                        className="block px-4 py-2 text-[#5C3A1F] hover:bg-[#FDFBF7] transition-colors"
+                        className="block px-4 py-2 text-[#5C3A1F] hover:bg-[#F8F6F0] transition-colors"
                         onClick={() => setIsSignupDropdownOpen(false)}
                       >
-                        As a Volunteer
+                        {language === 'en' ? 'As a Volunteer' : 'كمتطوع'}
                       </a>
                       <a
                         href="/api/auth/login?screen_hint=signup&user_type=organization"
-                        className="block px-4 py-2 text-[#5C3A1F] hover:bg-[#FDFBF7] transition-colors"
+                        className="block px-4 py-2 text-[#5C3A1F] hover:bg-[#F8F6F0] transition-colors"
                         onClick={() => setIsSignupDropdownOpen(false)}
                       >
-                        As an Organization
+                        {language === 'en' ? 'As an Organization' : 'كمؤسسة'}
                       </a>
                     </div>
                   )}
@@ -175,8 +175,8 @@ export function Header() {
                 {/* Arabic Language Switcher */}
                 <button 
                   onClick={toggleLanguage}
-                  className="text-[#5C3A1F] hover:text-[#D2A04A] font-medium px-3 py-2 rounded-lg hover:bg-[#FDFBF7] transition-colors"
-                  title={language === 'en' ? 'Switch to Arabic' : 'Switch to English'}
+                  className="text-[#5C3A1F] hover:text-[#D2A04A] font-medium px-3 py-2 rounded-lg hover:bg-[#F8F6F0] transition-colors"
+                  title={language === 'en' ? 'Switch to Arabic' : 'التبديل إلى الإنجليزية'}
                 >
                   {language === 'en' ? 'عربي' : 'English'}
                 </button>
@@ -196,27 +196,27 @@ export function Header() {
           <div className="md:hidden py-4 border-t border-[#E5E5E5]">
             <nav className="flex flex-col space-y-4">
               <Link href="/events" className="text-[#5C3A1F] hover:text-[#D2A04A] font-medium">
-                Events
+                {language === 'en' ? 'Events' : 'الفعاليات'}
               </Link>
               <Link href="/organizations" className="text-[#5C3A1F] hover:text-[#D2A04A] font-medium">
-                Organizations
+                {language === 'en' ? 'Organizations' : 'المؤسسات'}
               </Link>
               <Link href="/about" className="text-[#5C3A1F] hover:text-[#D2A04A] font-medium">
-                About
+                {language === 'en' ? 'About' : 'عن الموقع'}
               </Link>
               <Link href="/contact" className="text-[#5C3A1F] hover:text-[#D2A04A] font-medium">
-                Contact
+                {language === 'en' ? 'Contact' : 'اتصل بنا'}
               </Link>
               <div className="flex flex-col space-y-2 pt-4 border-t border-[#E5E5E5]">
                 {user ? (
                   <>
                     <Link href="/dashboard">
                       <Button variant="outline" size="sm" className="w-full">
-                        Dashboard
+                        {language === 'en' ? 'Dashboard' : 'لوحة التحكم'}
                       </Button>
                     </Link>
                     <Button variant="ghost" size="sm" onClick={handleSignOut} className="w-full">
-                      Sign Out
+                      {language === 'en' ? 'Sign Out' : 'تسجيل الخروج'}
                     </Button>
                   </>
                 ) : (
@@ -226,33 +226,37 @@ export function Header() {
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search events, organizations..."
+                        placeholder={language === 'en' ? "Search events, organizations..." : "البحث عن فعاليات، مؤسسات..."}
                         className="w-full px-3 py-2 border border-[#E5E5E5] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D2A04A]"
                       />
                     </form>
                     <div className="space-y-2">
-                      <p className="text-xs text-[#A0A0A0] font-medium">Login as:</p>
+                      <p className="text-xs text-[#6B7280] font-medium">
+                        {language === 'en' ? 'Login as:' : 'تسجيل الدخول كـ:'}
+                      </p>
                       <Link href="/auth/volunteer/login">
                         <Button variant="outline" size="sm" className="w-full">
-                          Volunteer
+                          {language === 'en' ? 'Volunteer' : 'متطوع'}
                         </Button>
                       </Link>
                       <Link href="/auth/organization/login">
                         <Button variant="outline" size="sm" className="w-full">
-                          Organization
+                          {language === 'en' ? 'Organization' : 'مؤسسة'}
                         </Button>
                       </Link>
                     </div>
                     <div className="space-y-2 pt-2">
-                      <p className="text-xs text-[#A0A0A0] font-medium">Signup as:</p>
+                      <p className="text-xs text-[#6B7280] font-medium">
+                        {language === 'en' ? 'Signup as:' : 'التسجيل كـ:'}
+                      </p>
                       <Link href="/auth/volunteer/register">
                         <Button variant="primary" size="sm" className="w-full">
-                          Volunteer
+                          {language === 'en' ? 'Volunteer' : 'متطوع'}
                         </Button>
                       </Link>
                       <Link href="/auth/organization/register">
                         <Button variant="primary" size="sm" className="w-full">
-                          Organization
+                          {language === 'en' ? 'Organization' : 'مؤسسة'}
                         </Button>
                       </Link>
                     </div>

@@ -6,7 +6,7 @@ import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { db } from '@/lib/database'
-import { auth } from '@/lib/auth'
+import { useUser } from '@auth0/nextjs-auth0/client'
 import { Award, Lock } from 'lucide-react'
 
 type Badge = {
@@ -24,6 +24,7 @@ type Badge = {
 
 export default function BadgesPage() {
   const router = useRouter()
+  const { user, error: authError, isLoading: authLoading } = useUser()
   const [badges, setBadges] = useState<Badge[]>([])
   const [loading, setLoading] = useState(true)
   const [userId, setUserId] = useState<string | null>(null)
@@ -31,15 +32,22 @@ export default function BadgesPage() {
   useEffect(() => {
     async function loadBadges() {
       try {
-        // Using useUser hook instead of auth.getUser()
+        // Check if user is authenticated
+        if (authLoading) return
         
-        if (userResponse.error || !userResponse.data?.user) {
+        if (authError || !user) {
           router.push('/auth/login')
           return
         }
 
-        const user = userResponse.data.user
-        setUserId(user.id)
+        // Map Auth0 user to local user format
+        const currentUser = {
+          id: user.sub,
+          email: user.email,
+          name: user.name
+        }
+        
+        setUserId(currentUser.id)
 
         const allBadgesResult = await db.query(
           'SELECT * FROM badges WHERE is_active = $1 ORDER BY tier ASC',
@@ -47,8 +55,8 @@ export default function BadgesPage() {
         )
 
         const userBadgesResult = await db.query(
-          'SELECT badge_id, earned_at FROM user_badges WHERE user_id = $1',
-          [user.id]
+          'SELECT badge_id, earned_at, progress FROM user_badges WHERE user_id = $1',
+          [currentUser.id]
         )
 
         const userBadgeIds = new Set(userBadgesResult.rows?.map((ub: any) => ub.badge_id) || [])
@@ -69,7 +77,7 @@ export default function BadgesPage() {
     }
 
     loadBadges()
-  }, [router])
+  }, [user, authLoading, authError, router])
 
   const tierColors = {
     bronze: 'bg-amber-700',

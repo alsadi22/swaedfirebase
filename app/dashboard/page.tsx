@@ -2,8 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Header } from '@/components/layout/header'
-import { Footer } from '@/components/layout/footer'
+import { ModernDashboardLayout } from '@/components/layout/modern-dashboard-layout'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -34,8 +33,14 @@ export default function DashboardPage() {
   const [badges, setBadges] = useState<BadgeWithStatus[]>([])
   const [recentBadges, setRecentBadges] = useState<BadgeWithStatus[]>([])
   const [loading, setLoading] = useState(true)
+  const [language, setLanguage] = useState<'en' | 'ar'>('en')
 
   const { user, error, isLoading } = useUser()
+
+  useEffect(() => {
+    const storedLang = localStorage.getItem('language') as 'en' | 'ar' || 'en'
+    setLanguage(storedLang)
+  }, [])
 
   useEffect(() => {
     async function loadDashboard() {
@@ -120,16 +125,20 @@ export default function DashboardPage() {
     }
 
     loadDashboard()
-  }, [router])
+  }, [router, user, error, isLoading])
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FDFBF7] flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#5C3A1F] mx-auto"></div>
-          <p className="mt-4 text-[#A0A0A0]">Loading dashboard...</p>
+      <ModernDashboardLayout userType="volunteer">
+        <div className="min-h-screen bg-white flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#5C3A1F] mx-auto"></div>
+            <p className="mt-4 text-[#6B7280]">
+              {language === 'en' ? 'Loading dashboard...' : 'جاري تحميل لوحة التحكم...'}
+            </p>
+          </div>
         </div>
-      </div>
+      </ModernDashboardLayout>
     )
   }
 
@@ -138,216 +147,236 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7]">
-      <Header />
-      
-      <main className="pt-24 pb-20">
-        <div className="container-custom">
-          <div className="mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-[#5C3A1F] mb-2">
-              Welcome back, {profile.first_name}!
-            </h1>
-            <p className="text-lg text-[#A0A0A0]">
-              Here's your volunteer activity overview
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-[#A0A0A0] mb-1">Total Hours</p>
-                    <p className="text-3xl font-bold text-[#5C3A1F]">{stats.totalHours}</p>
-                  </div>
-                  <div className="w-12 h-12 bg-[#5C3A1F] rounded-full flex items-center justify-center">
-                    <Clock className="text-white" size={24} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-[#A0A0A0] mb-1">Events Joined</p>
-                    <p className="text-3xl font-bold text-[#5C3A1F]">{stats.totalEvents}</p>
-                  </div>
-                  <div className="w-12 h-12 bg-[#D2A04A] rounded-full flex items-center justify-center">
-                    <Calendar className="text-white" size={24} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-[#A0A0A0] mb-1">Badges Earned</p>
-                    <p className="text-3xl font-bold text-[#5C3A1F]">{stats.badges}</p>
-                  </div>
-                  <div className="w-12 h-12 bg-[#00732F] rounded-full flex items-center justify-center">
-                    <Award className="text-white" size={24} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-[#A0A0A0] mb-1">Points</p>
-                    <p className="text-3xl font-bold text-[#5C3A1F]">{stats.points}</p>
-                  </div>
-                  <div className="w-12 h-12 bg-[#CE1126] rounded-full flex items-center justify-center">
-                    <TrendingUp className="text-white" size={24} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <Card>
-              <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Link href="/events">
-                  <Button variant="primary" className="w-full justify-start">
-                    <Calendar className="mr-2" size={20} />
-                    Browse Events
-                  </Button>
-                </Link>
-                <Link href="/dashboard/profile">
-                  <Button variant="outline" className="w-full justify-start">
-                    <Users className="mr-2" size={20} />
-                    Edit Profile
-                  </Button>
-                </Link>
-                <Link href="/dashboard/badges">
-                  <Button variant="outline" className="w-full justify-start">
-                    <Award className="mr-2" size={20} />
-                    View Badges
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Star className="text-[#D2A04A]" size={20} />
-                  Recent Achievements
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {recentBadges.length > 0 ? (
-                  <div className="space-y-3">
-                    {recentBadges.map((badge) => (
-                      <div key={badge.id} className="flex items-center gap-3 p-3 bg-[#F8F6F0] rounded-lg">
-                        <div className="w-10 h-10 bg-gradient-to-br from-[#D2A04A] to-[#B8941F] rounded-full flex items-center justify-center">
-                          <Award className="text-white" size={16} />
-                        </div>
-                        <div className="flex-1">
-                          <p className="font-medium text-[#5C3A1F]">{badge.name}</p>
-                          <p className="text-sm text-[#A0A0A0]">
-                            Earned {new Date(badge.earned_at!).toLocaleDateString()}
-                          </p>
-                        </div>
-                        <Badge variant={badge.tier === 'gold' ? 'warning' : badge.tier === 'silver' ? 'secondary' : 'default'}>
-                          {badge.tier}
-                        </Badge>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-[#A0A0A0] text-center py-8">
-                    No badges earned yet. Complete activities to earn your first badge!
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Badge Progress Section */}
-          <div className="mt-8">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Target className="text-[#00732F]" size={20} />
-                  Badge Progress
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {badges
-                    .filter((badge: BadgeWithStatus) => !badge.earned)
-                    .slice(0, 6)
-                    .map((badge) => {
-                      const progress = badge.progress || {}
-                      const criteria = badge.criteria || {}
-                      
-                      // Calculate progress percentage based on badge criteria
-                      let progressPercentage = 0
-                      let progressText = 'Not started'
-                      
-                      if (criteria.totalHours && progress.totalHours !== undefined) {
-                        progressPercentage = Math.min((progress.totalHours / criteria.totalHours) * 100, 100)
-                        progressText = `${progress.totalHours}/${criteria.totalHours} hours`
-                      } else if (criteria.eventsCompleted && progress.eventsCompleted !== undefined) {
-                        progressPercentage = Math.min((progress.eventsCompleted / criteria.eventsCompleted) * 100, 100)
-                        progressText = `${progress.eventsCompleted}/${criteria.eventsCompleted} events`
-                      } else if (criteria.organizationsCount && progress.organizationsCount !== undefined) {
-                        progressPercentage = Math.min((progress.organizationsCount / criteria.organizationsCount) * 100, 100)
-                        progressText = `${progress.organizationsCount}/${criteria.organizationsCount} organizations`
-                      }
-
-                      return (
-                        <div key={badge.id} className="p-4 bg-[#F8F6F0] rounded-lg">
-                          <div className="flex items-center gap-3 mb-3">
-                            <div className="w-8 h-8 bg-gradient-to-br from-[#A0A0A0] to-[#808080] rounded-full flex items-center justify-center">
-                              <Award className="text-white" size={14} />
-                            </div>
-                            <div className="flex-1">
-                              <p className="font-medium text-[#5C3A1F] text-sm">{badge.name}</p>
-                              <Badge variant="outline" className="text-xs">
-                                {badge.tier}
-                              </Badge>
-                            </div>
-                          </div>
-                          <div className="space-y-2">
-                            <div className="flex justify-between text-xs">
-                              <span className="text-[#A0A0A0]">Progress</span>
-                              <span className="text-[#5C3A1F] font-medium">{Math.round(progressPercentage)}%</span>
-                            </div>
-                            <div className="w-full bg-[#E5E5E5] rounded-full h-2">
-                              <div 
-                                className="bg-gradient-to-r from-[#00732F] to-[#4CAF50] h-2 rounded-full transition-all duration-300"
-                                style={{ width: `${progressPercentage}%` }}
-                              />
-                            </div>
-                            <p className="text-xs text-[#A0A0A0]">{progressText}</p>
-                          </div>
-                        </div>
-                      )
-                    })}
-                </div>
-                {badges.filter((badge: BadgeWithStatus) => !badge.earned).length === 0 && (
-                  <p className="text-[#A0A0A0] text-center py-8">
-                    Congratulations! You've earned all available badges!
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+    <ModernDashboardLayout userType="volunteer">
+      <div className="py-6">
+        <div className="mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-[#5C3A1F] mb-2">
+            {language === 'en' ? 'Welcome back' : 'مرحبا بك مرة أخرى'}, {profile.first_name}!
+          </h1>
+          <p className="text-lg text-[#6B7280]">
+            {language === 'en' 
+              ? "Here's your volunteer activity overview" 
+              : "إليك نظرة عامة على نشاطك التطوعي"}
+          </p>
         </div>
-      </main>
 
-      <Footer />
-    </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <Card className="modern-card">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-[#6B7280] mb-1">
+                    {language === 'en' ? 'Total Hours' : 'إجمالي الساعات'}
+                  </p>
+                  <p className="text-3xl font-bold text-[#5C3A1F]">{stats.totalHours}</p>
+                </div>
+                <div className="w-12 h-12 bg-[#5C3A1F] rounded-full flex items-center justify-center">
+                  <Clock className="text-white" size={24} />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="modern-card">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-[#6B7280] mb-1">
+                    {language === 'en' ? 'Events Joined' : 'الفعاليات المنضمة'}
+                  </p>
+                  <p className="text-3xl font-bold text-[#5C3A1F]">{stats.totalEvents}</p>
+                </div>
+                <div className="w-12 h-12 bg-[#D2A04A] rounded-full flex items-center justify-center">
+                  <Calendar className="text-white" size={24} />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="modern-card">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-[#6B7280] mb-1">
+                    {language === 'en' ? 'Badges Earned' : 'الشارات المكتسبة'}
+                  </p>
+                  <p className="text-3xl font-bold text-[#5C3A1F]">{stats.badges}</p>
+                </div>
+                <div className="w-12 h-12 bg-[#00732F] rounded-full flex items-center justify-center">
+                  <Award className="text-white" size={24} />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="modern-card">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-[#6B7280] mb-1">
+                    {language === 'en' ? 'Points' : 'النقاط'}
+                  </p>
+                  <p className="text-3xl font-bold text-[#5C3A1F]">{stats.points}</p>
+                </div>
+                <div className="w-12 h-12 bg-[#CE1126] rounded-full flex items-center justify-center">
+                  <TrendingUp className="text-white" size={24} />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <Card className="modern-card">
+            <CardHeader>
+              <CardTitle>
+                {language === 'en' ? 'Quick Actions' : 'إجراءات سريعة'}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Link href="/events">
+                <Button variant="primary" className="w-full justify-start">
+                  <Calendar className="mr-2" size={20} />
+                  {language === 'en' ? 'Browse Events' : 'تصفح الفعاليات'}
+                </Button>
+              </Link>
+              <Link href="/dashboard/profile">
+                <Button variant="outline" className="w-full justify-start">
+                  <Users className="mr-2" size={20} />
+                  {language === 'en' ? 'Edit Profile' : 'تعديل الملف الشخصي'}
+                </Button>
+              </Link>
+              <Link href="/dashboard/badges">
+                <Button variant="outline" className="w-full justify-start">
+                  <Award className="mr-2" size={20} />
+                  {language === 'en' ? 'View Badges' : 'عرض الشارات'}
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+
+          <Card className="modern-card">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Star className="text-[#D2A04A]" size={20} />
+                {language === 'en' ? 'Recent Achievements' : 'الإنجازات الأخيرة'}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {recentBadges.length > 0 ? (
+                <div className="space-y-3">
+                  {recentBadges.map((badge) => (
+                    <div key={badge.id} className="flex items-center gap-3 p-3 bg-[#F8F6F0] rounded-lg">
+                      <div className="w-10 h-10 bg-gradient-to-br from-[#D2A04A] to-[#B8941F] rounded-full flex items-center justify-center">
+                        <Award className="text-white" size={16} />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium text-[#5C3A1F]">{badge.name}</p>
+                        <p className="text-sm text-[#6B7280]">
+                          {language === 'en' 
+                            ? `Earned ${new Date(badge.earned_at!).toLocaleDateString()}` 
+                            : `مكتسبة ${new Date(badge.earned_at!).toLocaleDateString()}`}
+                        </p>
+                      </div>
+                      <Badge variant={badge.tier === 'gold' ? 'warning' : badge.tier === 'silver' ? 'secondary' : 'default'}>
+                        {badge.tier}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-[#6B7280] text-center py-8">
+                  {language === 'en' 
+                    ? 'No badges earned yet. Complete activities to earn your first badge!' 
+                    : 'لم تكسب أي شارات بعد. أكمل الأنشطة لكسب شارتك الأولى!'}
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Badge Progress Section */}
+        <div className="mt-8">
+          <Card className="modern-card">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Target className="text-[#00732F]" size={20} />
+                {language === 'en' ? 'Badge Progress' : 'تقدم الشارات'}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {badges
+                  .filter((badge: BadgeWithStatus) => !badge.earned)
+                  .slice(0, 6)
+                  .map((badge) => {
+                    const progress = badge.progress || {}
+                    const criteria = badge.criteria || {}
+                    
+                    // Calculate progress percentage based on badge criteria
+                    let progressPercentage = 0
+                    let progressText = language === 'en' ? 'Not started' : 'لم يبدأ'
+                    
+                    if (criteria.totalHours && progress.totalHours !== undefined) {
+                      progressPercentage = Math.min((progress.totalHours / criteria.totalHours) * 100, 100)
+                      progressText = language === 'en' 
+                        ? `${progress.totalHours}/${criteria.totalHours} hours` 
+                        : `${progress.totalHours}/${criteria.totalHours} ساعات`
+                    } else if (criteria.eventsCompleted && progress.eventsCompleted !== undefined) {
+                      progressPercentage = Math.min((progress.eventsCompleted / criteria.eventsCompleted) * 100, 100)
+                      progressText = language === 'en' 
+                        ? `${progress.eventsCompleted}/${criteria.eventsCompleted} events` 
+                        : `${progress.eventsCompleted}/${criteria.eventsCompleted} فعاليات`
+                    } else if (criteria.organizationsCount && progress.organizationsCount !== undefined) {
+                      progressPercentage = Math.min((progress.organizationsCount / criteria.organizationsCount) * 100, 100)
+                      progressText = language === 'en' 
+                        ? `${progress.organizationsCount}/${criteria.organizationsCount} organizations` 
+                        : `${progress.organizationsCount}/${criteria.organizationsCount} مؤسسات`
+                    }
+
+                    return (
+                      <div key={badge.id} className="p-4 bg-[#F8F6F0] rounded-lg">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="w-8 h-8 bg-gradient-to-br from-[#A0A0A0] to-[#808080] rounded-full flex items-center justify-center">
+                            <Award className="text-white" size={14} />
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-medium text-[#5C3A1F] text-sm">{badge.name}</p>
+                            <Badge variant="outline" className="text-xs">
+                              {badge.tier}
+                            </Badge>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-xs">
+                            <span className="text-[#6B7280]">
+                              {language === 'en' ? 'Progress' : 'التقدم'}
+                            </span>
+                            <span className="text-[#5C3A1F] font-medium">{Math.round(progressPercentage)}%</span>
+                          </div>
+                          <div className="w-full bg-[#E5E5E5] rounded-full h-2">
+                            <div 
+                              className="bg-gradient-to-r from-[#00732F] to-[#4CAF50] h-2 rounded-full transition-all duration-300"
+                              style={{ width: `${progressPercentage}%` }}
+                            />
+                          </div>
+                          <p className="text-xs text-[#6B7280]">{progressText}</p>
+                        </div>
+                      </div>
+                    )
+                  })}
+              </div>
+              {badges.filter((badge: BadgeWithStatus) => !badge.earned).length === 0 && (
+                <p className="text-[#6B7280] text-center py-8">
+                  {language === 'en' 
+                    ? 'Congratulations! You\'ve earned all available badges!' 
+                    : 'تهانينا! لقد كسبت جميع الشارات المتاحة!'}
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </ModernDashboardLayout>
   )
 }

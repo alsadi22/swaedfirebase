@@ -1,14 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/database'
-import { requireAdmin } from '@/lib/auth0-server'
+import jwt from 'jsonwebtoken'
 
 export async function GET(request: NextRequest) {
   try {
-    // Check authentication and admin authorization
-    const authResult = await requireAdmin()
-    
-    if ('error' in authResult) {
-      return NextResponse.json({ error: authResult.error }, { status: authResult.status })
+    // Check JWT authentication for admin users
+    const token = request.cookies.get('admin_token')?.value
+
+    if (!token) {
+      return NextResponse.json(
+        { error: 'No authentication token found' },
+        { status: 401 }
+      )
+    }
+
+    let decoded: any
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret')
+      console.log('JWT decoded:', decoded) // Debug log
+    } catch (error) {
+      console.log('JWT verification error:', error) // Debug log
+      return NextResponse.json(
+        { error: 'Invalid authentication token' },
+        { status: 401 }
+      )
+    }
+
+    // Verify the user is actually an admin
+    if (decoded.role !== 'admin') {
+      console.log('Permission check failed. Role:', decoded.role) // Debug log
+      return NextResponse.json(
+        { error: 'Insufficient permissions' },
+        { status: 403 }
+      )
     }
 
     // Load statistics

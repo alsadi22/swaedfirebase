@@ -1,12 +1,12 @@
 'use client'
 
-import { useUser } from '@auth0/nextjs-auth0/client'
+import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import Link from 'next/link'
 
 export default function LoginPage() {
-  const { user, isLoading } = useUser()
+  const { user, isLoading } = useAuth()
   const router = useRouter()
 
   useEffect(() => {

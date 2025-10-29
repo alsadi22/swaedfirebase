@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/database';
-import { auth } from '@/lib/auth';
+import { useUser } from '@auth0/nextjs-auth0/client';
 import Link from 'next/link';
 
 interface Achievement {
@@ -21,17 +21,21 @@ export default function AchievementsPage() {
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
+  const { user, error, isLoading } = useUser();
 
   useEffect(() => {
     fetchAchievements();
-  }, []);
+  }, [user]);
 
   async function fetchAchievements() {
     try {
-      // Using useUser hook instead of auth.getUser();
-      if (userResponse.error || !userResponse.data?.user) return;
-
-      const user = userResponse.data.user;
+      // Check if user is authenticated
+      if (isLoading) return;
+      
+      if (error || !user) {
+        console.error('User not authenticated:', error);
+        return;
+      }
 
       // Get all achievements
       const allAchievementsResult = await db.query(
@@ -41,13 +45,13 @@ export default function AchievementsPage() {
       // Get user's earned achievements
       const userAchievementsResult = await db.query(
         'SELECT achievement_id, earned_date FROM user_achievements WHERE user_id = $1',
-        [user.id]
+        [user.sub]
       );
 
       // Get user stats for progress calculation
       const hoursResult = await db.query(
         'SELECT hours_logged FROM volunteer_hours WHERE user_id = $1 AND status = $2',
-        [user.id, 'approved']
+        [user.sub, 'approved']
       );
 
       const totalHours = hoursResult.rows?.reduce((sum: number, h: any) => sum + (h.hours_logged || 0), 0) || 0;

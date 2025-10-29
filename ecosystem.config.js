@@ -8,9 +8,17 @@ module.exports = {
     exec_mode: 'cluster',
     env: {
       NODE_ENV: 'production',
-      PORT: 3001
+      PORT: 3001,
+      HTTP_TIMEOUT: 30000,
+      HTTPS_TIMEOUT: 30000,
+      AUTH0_HTTP_TIMEOUT: 30000,
+      POSTGRES_HOST: 'localhost',
+      POSTGRES_PORT: '5432',
+      POSTGRES_USER: 'swaeduae_user',
+      POSTGRES_PASSWORD: 'swaeduae_password',
+      POSTGRES_DB: 'swaeduae',
+      DATABASE_URL: 'postgresql://swaeduae_user:swaeduae_password@localhost:5432/swaeduae'
     },
-    env_file: '.env.production',
     error_file: './logs/err.log',
     out_file: './logs/out.log',
     log_file: './logs/combined.log',

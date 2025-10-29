@@ -164,21 +164,21 @@ CREATE TRIGGER update_event_registrations_updated_at BEFORE UPDATE ON event_regi
 
 // Sample data
 const sampleData = `
--- Insert sample organizations
+-- Insert sample organizations first (no dependencies)
 INSERT INTO organizations (id, name, type, emirate, city, contact_email, description, verification_status, is_active) VALUES
   ('550e8400-e29b-41d4-a716-446655440001', 'UAE Red Crescent', 'charity', 'Abu Dhabi', 'Abu Dhabi', 'info@redcrescent.ae', 'Humanitarian organization providing aid and support', 'approved', true),
   ('550e8400-e29b-41d4-a716-446655440002', 'Dubai Cares', 'charity', 'Dubai', 'Dubai', 'contact@dubaicares.ae', 'Education-focused charity organization', 'approved', true),
   ('550e8400-e29b-41d4-a716-446655440003', 'Sharjah Volunteer Centre', 'government', 'Sharjah', 'Sharjah', 'volunteers@sharjah.ae', 'Government volunteer coordination center', 'approved', true)
 ON CONFLICT (id) DO NOTHING;
 
--- Insert sample profiles
-INSERT INTO profiles (id, email, full_name, role, is_active, email_verified) VALUES
-  ('550e8400-e29b-41d4-a716-446655440011', 'admin@swaeduae.com', 'System Administrator', 'admin', true, true),
-  ('550e8400-e29b-41d4-a716-446655440012', 'volunteer1@example.com', 'Ahmed Al Mansouri', 'volunteer', true, true),
-  ('550e8400-e29b-41d4-a716-446655440013', 'student1@example.com', 'Fatima Al Zahra', 'student', true, true)
+-- Insert sample profiles second (no dependencies)
+INSERT INTO profiles (id, email, password_hash, first_name, last_name, full_name, role, is_active, email_verified) VALUES
+  ('550e8400-e29b-41d4-a716-446655440011', 'admin@swaeduae.ae', '$2b$10$8iHmgc27Ghxi1c/JnHxMSuS.QEIBqbW04N5vUrPgtcUZXofgave02', 'System', 'Administrator', 'System Administrator', 'admin', true, true),
+  ('550e8400-e29b-41d4-a716-446655440012', 'volunteer1@example.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Ahmed', 'Al Mansouri', 'Ahmed Al Mansouri', 'volunteer', true, true),
+  ('550e8400-e29b-41d4-a716-446655440013', 'student1@example.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Fatima', 'Al Zahra', 'Fatima Al Zahra', 'student', true, true)
 ON CONFLICT (id) DO NOTHING;
 
--- Insert sample events
+-- Insert sample events third (depends on organizations)
 INSERT INTO events (id, organization_id, title, description, category, start_date, end_date, start_time, end_time, location, status, is_published, volunteer_capacity) VALUES
   ('550e8400-e29b-41d4-a716-446655440021', '550e8400-e29b-41d4-a716-446655440001', 'Beach Cleanup Drive', 'Join us for a community beach cleanup to protect our marine environment', 'Environment', '2024-02-15', '2024-02-15', '08:00', '12:00', 'Jumeirah Beach, Dubai', 'published', true, 50),
   ('550e8400-e29b-41d4-a716-446655440022', '550e8400-e29b-41d4-a716-446655440002', 'Education Workshop for Children', 'Interactive learning workshop for underprivileged children', 'Education', '2024-02-20', '2024-02-20', '14:00', '17:00', 'Dubai Community Center', 'published', true, 25),
@@ -186,7 +186,7 @@ INSERT INTO events (id, organization_id, title, description, category, start_dat
   ('550e8400-e29b-41d4-a716-446655440024', '550e8400-e29b-41d4-a716-446655440001', 'Blood Donation Campaign', 'Annual blood donation drive to support local hospitals', 'Health', '2024-03-10', '2024-03-10', '09:00', '15:00', 'Abu Dhabi Medical Center', 'published', true, 40)
 ON CONFLICT (id) DO NOTHING;
 
--- Insert sample registrations
+-- Insert sample registrations last (depends on both events and profiles)
 INSERT INTO event_registrations (event_id, profile_id, status) VALUES
   ('550e8400-e29b-41d4-a716-446655440021', '550e8400-e29b-41d4-a716-446655440012', 'registered'),
   ('550e8400-e29b-41d4-a716-446655440022', '550e8400-e29b-41d4-a716-446655440013', 'registered'),

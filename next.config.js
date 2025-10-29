@@ -1,3 +1,7 @@
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+})
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   typescript: {
@@ -33,6 +37,14 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react', 'recharts'],
   },
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      // Ensure pg module is handled correctly on server-side
+      config.externals = config.externals || [];
+      config.externals.push('pg');
+    }
+    return config;
+  },
   compress: true,
   async headers() {
     return [
@@ -47,8 +59,8 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: https: blob:",
-              "connect-src 'self' https://api.auth0.com https://sentry.io https://o4510252954943488.ingest.de.sentry.io https://ingest.de.sentry.io https://cloudflareinsights.com",
-              "frame-src 'self' https://auth0.com",
+              "connect-src 'self' https://api.auth0.com https://dev-tcl0vurscaxie0ut.us.auth0.com https://sentry.io https://o4510252954943488.ingest.de.sentry.io https://ingest.de.sentry.io https://cloudflareinsights.com",
+              "frame-src 'self' https://auth0.com https://dev-tcl0vurscaxie0ut.us.auth0.com",
               "worker-src 'self' blob:",
               "object-src 'none'",
               "base-uri 'self'"
@@ -76,4 +88,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+module.exports = withBundleAnalyzer(nextConfig);

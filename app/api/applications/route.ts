@@ -2,8 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/database'
 import { requireAuth } from '@/lib/auth0-server'
 import { BadgeService } from '@/lib/badge-service'
+import { cacheMiddlewares } from '@/lib/cache-middleware'
+import { performanceMonitor } from '@/lib/performance-monitor'
 
-export async function GET(request: NextRequest) {
+async function applicationsGetHandler(request: NextRequest): Promise<NextResponse> {
+  const startTime = Date.now()
+  
   try {
     const authResult = await requireAuth()
     
@@ -14,6 +18,7 @@ export async function GET(request: NextRequest) {
     const user = authResult.user
 
     // Get user's applications/registrations
+    const dbStartTime = Date.now()
     const result = await db.query(`
       SELECT 
         er.id,
@@ -33,18 +38,52 @@ export async function GET(request: NextRequest) {
       WHERE er.profile_id = $1
       ORDER BY er.registration_date DESC
     `, [user.id])
+    const dbEndTime = Date.now()
+    
+    // Record database performance
+    await performanceMonitor.recordDatabaseMetrics({
+      query: 'user_applications',
+      duration: dbEndTime - dbStartTime,
+      timestamp: Date.now(),
+      success: true
+    })
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       applications: result.rows || []
     })
+    
+    // Record API performance
+    await performanceMonitor.recordAPIMetrics({
+      endpoint: '/api/applications',
+      method: 'GET',
+      statusCode: 200,
+      responseTime: Date.now() - startTime,
+      timestamp: Date.now(),
+      userId: user.id
+    })
+
+    return response
   } catch (error) {
     console.error('Applications API error:', error)
+    
+    // Record API performance for error case
+    await performanceMonitor.recordAPIMetrics({
+      endpoint: '/api/applications',
+      method: 'GET',
+      statusCode: 500,
+      responseTime: Date.now() - startTime,
+      timestamp: Date.now()
+    })
+    
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
     )
   }
 }
+
+// Apply user-specific caching to GET requests
+export const GET = cacheMiddlewares.userSpecific(applicationsGetHandler)
 
 export async function POST(request: NextRequest) {
   try {
